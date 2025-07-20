@@ -315,7 +315,7 @@ GFAPI bool	gf_swapBuffers(t_window win) {
 		return (false);
 	}
 
-	eglSwapBuffers(win->egl.ctx, win->egl.surf);
+	eglSwapBuffers(win->egl.dsp, win->egl.surf);
 	return (true);
 }
 
