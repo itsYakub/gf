@@ -266,7 +266,6 @@ GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
 	 * */
 	while ((int) win->events.cnt > 0) {
 		*event = win->events.lst[win->events.cnt - 1];
-		gf_logi("EVENT: Type: %d\n", event->type);
 		gf_popEvent(win, event);
 		return (true);
 	}
