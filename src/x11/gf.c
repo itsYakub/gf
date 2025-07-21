@@ -105,10 +105,18 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 GFAPIS	bool	__gf_connectDisplay(Display **dptr) {
 	*dptr = XOpenDisplay(0);
 	if (!*dptr) {
+
+#if defined (VERBOSE)
 		gf_loge("DISPLAY: Failed to create\n");
+#endif
+
 		return (false);
 	}
+
+#if defined (VERBOSE)
 	gf_logi("DISPLAY: Created successfully\n");
+#endif
+
 	return (true);
 }
 
@@ -136,12 +144,20 @@ GFAPIS	bool	__gf_createWindow(Display *dsp, Window *wptr, const size_t w, const 
 		CWEventMask,
 		&_attr
 	);
+
+#if defined (VERBOSE)
 	gf_logi("WINDOW: Created successfully\n");
+#endif
+
 	/* If title isn't null, then store it in the window's name
 	 * */
 	if (t) {
 		XStoreName(dsp, *wptr, t);
+
+#if defined (VERBOSE)
 		gf_logi("WINDOW: Title set: %s\n", t);
+#endif
+
 	}
 	
 	XSelectInput(dsp, *wptr, 0);
@@ -154,7 +170,11 @@ GFAPIS	bool	__gf_createWindow(Display *dsp, Window *wptr, const size_t w, const 
 	/* Map the window onto the root window
 	 * */
 	XMapWindow(dsp, *wptr);
+
+#if defined (VERBOSE)
 	gf_logi("WINDOW: Mapped successfully\n");
+#endif
+
 	return (true);
 }
 
@@ -165,11 +185,19 @@ GFAPIS	bool	__gf_createEGLContext(t_window win) {
 	 * */
 	win->egl.dsp = eglGetDisplay((EGLNativeDisplayType) win->x11.dsp);
 	if (!win->egl.dsp) {
+
+#if defined (VERBOSE)
 		gf_loge("EGL: Display failed\n");
+#endif
+
 		return (false);
 	}
 	if (!eglInitialize(win->egl.dsp, 0, 0)) {
+
+#if defined (VERBOSE)
 		gf_loge("EGL: Initialization failed\n");
+#endif
+
 		return (false);
 	}
 
@@ -177,7 +205,11 @@ GFAPIS	bool	__gf_createEGLContext(t_window win) {
 	 * */
 	_attr_cont_cnt = 0;
 	if (!eglChooseConfig(win->egl.dsp, g_egl_attr_conf, &win->egl.conf, 1, &_attr_cont_cnt)) {
+
+#if defined (VERBOSE)
 		gf_loge("EGL: Config failed\n");
+#endif
+
 		return (false);
 	}
 
@@ -185,7 +217,11 @@ GFAPIS	bool	__gf_createEGLContext(t_window win) {
 	 * */
 	win->egl.surf = eglCreateWindowSurface(win->egl.dsp, win->egl.conf, (EGLNativeWindowType) win->x11.id, 0);
 	if (!win->egl.surf) {
+
+#if defined (VERBOSE)
 		gf_loge("EGL: Surface failed\n");
+#endif
+
 		return (false);
 	}
 
@@ -193,26 +229,40 @@ GFAPIS	bool	__gf_createEGLContext(t_window win) {
 	 * */
 	win->egl.ctx = eglCreateContext(win->egl.dsp, win->egl.conf, EGL_NO_CONTEXT, g_egl_attr_ctx);
 	if (!win->egl.ctx) {
+
+#if defined (VERBOSE)
 		gf_loge("EGL: Context failed\n");
+#endif
+
 		return (false);
 	}
 
 	/* Make the EGL context current
 	 * */
 	if (!eglMakeCurrent(win->egl.dsp, win->egl.surf, win->egl.surf, win->egl.ctx)) {
+
+#if defined (VERBOSE)
 		gf_loge("EGL: Context current failed\n");
+#endif
+
 		return (false);
 	}
 
 	if (!eglBindAPI(EGL_OPENGL_API)) {
+
+#if defined (VERBOSE)
 		gf_loge("EGL: Failed to bind OpenGL api\n");
+#endif
+
 		return (false);
 	}
 
+#if defined (VERBOSE)
 	gf_logi("EGL: Created successfully\n");
 	gf_logi("EGL: Client: %s\n", eglQueryString(win->egl.dsp, EGL_CLIENT_APIS));
 	gf_logi("EGL: Version: %s\n", eglQueryString(win->egl.dsp, EGL_VERSION));
 	gf_logi("EGL: Vendor: %s\n", eglQueryString(win->egl.dsp, EGL_VENDOR));
+#endif
 
 	return (true);
 }
@@ -239,7 +289,11 @@ GFAPIS bool	__gf_processFlags(t_window win, const int32_t f) {
 		 *  X11 enables window resizing by default. Our job here is to disable it if there's no 'GF_WINDOW_RESIZABLE' flag.
 		 *  We can keep this flag for a simple logging tho...
 		 * */
+
+#if defined (VERBOSE)
 		gf_logi("WINDOW: Flag: RESIZABLE\n");
+#endif
+
 	}
 	else {
 		XSizeHints	_hints;
@@ -266,9 +320,17 @@ GFAPIS bool	__gf_processFlags(t_window win, const int32_t f) {
 	 * */
 	if ((win->flags.id & GF_WINDOW_VSYNC_HINT)) {
 		if (!eglSwapInterval(win->egl.dsp, 1)) {
+
+#if defined (VERBOSE)
 			gf_loge("EGL: Failed to set a swap interval\n");
+#endif
+
 		}
+
+#if defined (VERBOSE)
 		gf_logi("WINDOW: Flag: VSYNC_HINT\n");
+#endif
+
 	}
 	return (true);
 }
@@ -286,9 +348,16 @@ GFAPI bool	gf_destroyWindow(t_window win) {
 
 GFAPIS	bool	__gf_destroyWindow(t_window win) {
 	XDestroyWindow(win->x11.dsp, win->x11.id);
+
+#if defined (VERBOSE)
 	gf_logi("WINDOW: Destroyed successfully\n");
+#endif
+
 	XCloseDisplay(win->x11.dsp);
+
+#if defined (VERBOSE)
 	gf_logi("DISPLAY: Destroyed successfully\n");
+#endif
 	
 	return (true);
 }
@@ -298,7 +367,9 @@ GFAPIS	bool	__gf_destroyContext(t_window win) {
 	eglDestroyContext(win->egl.dsp, win->egl.ctx);
 	eglDestroySurface(win->egl.dsp, win->egl.surf);
 	eglTerminate(win->egl.dsp);
+#if defined (VERBOSE)
 	gf_logi("EGL: Terminated successfully\n");
+#endif
 	return (true);
 }
 
@@ -312,27 +383,31 @@ GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
 
 	/* Poll gf events from event queue
 	 * */
-	while ((int) win->events.cnt > 0) {
-		*event = win->events.lst[win->events.cnt - 1];
-		gf_popEvent(win, event);
-		return (true);
+	{
+		while ((int) win->events.cnt > 0) {
+			*event = win->events.lst[win->events.cnt - 1];
+			gf_popEvent(win, event);
+			return (true);
+		}
 	}
 
 	/* Event queue emtpy, now we need to poll the events from implementation
 	 * */
-	while (XPending(win->x11.dsp)) {
-		memset(&_gf_event, 0, sizeof(t_event));
-		XNextEvent(win->x11.dsp, &_x11_event);
-		switch (_x11_event.type) {
-			case (ClientMessage): {
-				if ((Atom) _x11_event.xclient.data.l[0] == win->atoms.wm_delete_window) {
-					_gf_event.type = GF_EVENT_QUIT;
-					gf_pushEvent(win, &_gf_event);
-				}
-			} break;
-			
-		}
+	{
+		while (XPending(win->x11.dsp)) {
+			memset(&_gf_event, 0, sizeof(t_event));
+			XNextEvent(win->x11.dsp, &_x11_event);
+			switch (_x11_event.type) {
+				case (ClientMessage): {
+					if ((Atom) _x11_event.xclient.data.l[0] == win->atoms.wm_delete_window) {
+						_gf_event.type = GF_EVENT_QUIT;
+						gf_pushEvent(win, &_gf_event);
+					}
+				} break;
+				
+			}
 
+		}
 	}
 	/* As there was no event to be retrieved, we return the 'none' event
 	 * */

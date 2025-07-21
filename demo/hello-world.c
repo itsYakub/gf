@@ -17,10 +17,14 @@ int	main(void) {
 
 				case (GF_EVENT_QUIT): {
 					gf_logi("EVENT: QUIT\n");
+
 					gf_destroyWindow(window);
 					return (0);
 				} break;
 				
+				case (GF_EVENT_RESIZE): {
+					gf_logi("EVENT: RESIZE\n");
+				} break;
 			}
 		}
 

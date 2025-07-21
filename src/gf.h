@@ -36,28 +36,20 @@
  *  I intend logging to be only a part of the debug builds.
  *  Release builds shoul leave logging to the user and if error happens,
  *  it should be stored in some errno - like global variable / window member variable.
+ * (edit):
+ *  This was a stupid idea: built-in logging should only occur if there's VERBOSE flag defined in the Makefile
+ *  (or in other words: in the final build of the library).
+ *  Yes, I'm stupid. How could you tell?
  * */
 
-# if defined (DEBUG)
-#  if !defined gf_logi
-#   define gf_logi(...) fprintf(stdout, "\e[1;32m[ INFO ] \e[0m" __VA_ARGS__)
-#  endif
-#  if !defined gf_logw
-#   define gf_logw(...) fprintf(stdout, "\e[1;33m[ WARN ] \e[0m" __VA_ARGS__)
-#  endif
-#  if !defined gf_loge
-#   define gf_loge(...) fprintf(stdout, "\e[1;31m[ ERROR ] \e[0m" __VA_ARGS__)
-#  endif
-# else
-#  if !defined gf_logi
-#   define gf_logi(...)
-#  endif
-#  if !defined gf_logw
-#   define gf_logw(...)
-#  endif
-#  if !defined gf_loge
-#   define gf_loge(...)
-#  endif
+# if !defined gf_logi
+#  define gf_logi(...) fprintf(stdout, "\e[1;32m[ INFO ] \e[0m" __VA_ARGS__)
+# endif
+# if !defined gf_logw
+#  define gf_logw(...) fprintf(stdout, "\e[1;33m[ WARN ] \e[0m" __VA_ARGS__)
+# endif
+# if !defined gf_loge
+#  define gf_loge(...) fprintf(stdout, "\e[1;31m[ ERROR ] \e[0m" __VA_ARGS__)
 # endif
 
 enum {
@@ -70,6 +62,7 @@ enum {
 enum {
 	GF_EVENT_NONE = 0,
 	GF_EVENT_QUIT = 1,
+	GF_EVENT_RESIZE,
 	GF_EVENT_COUNT
 	/* ...More events put here...
 	 * */
