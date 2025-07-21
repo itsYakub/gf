@@ -32,9 +32,13 @@ struct s_window {
 	} atoms;
 
 	struct {
-		t_event	lst[128];
+		t_event	lst[64];
 		size_t	cnt;
 	} events;
+
+	struct {
+		int32_t	id;
+	} flags;
 
 };
 
@@ -220,8 +224,52 @@ GFAPIS bool	__gf_processAtoms(t_window win) {
 }
 
 GFAPIS bool	__gf_processFlags(t_window win, const int32_t f) {
-	(void) win;
-	(void) f;
+	/* First, let's set the initial window flags.
+	 * Then we can process them!
+	 * */
+	win->flags.id = f;
+
+	/* Window flag: GF_WINDOW_RESIZABLE
+	 * NOTE(yakub):
+	 *  This flag can be ignored by the WM. I can tell that on Mutter it works fine.
+	 *  For the testing purposes I should test in on other WMs, like i3.
+	 * */
+	if ((win->flags.id & GF_WINDOW_RESIZABLE)) {
+		/* NOTE(yakub):
+		 *  X11 enables window resizing by default. Our job here is to disable it if there's no 'GF_WINDOW_RESIZABLE' flag.
+		 *  We can keep this flag for a simple logging tho...
+		 * */
+		gf_logi("WINDOW: Flag: RESIZABLE\n");
+	}
+	else {
+		XSizeHints	_hints;
+		int64_t		_toto;
+		int32_t		_width;
+		int32_t		_height;
+
+		gf_getWindowSize(win, &_width, &_height);
+		
+		XGetWMNormalHints(win->x11.dsp, win->x11.id, &_hints, &_toto);
+		
+		_hints.width = _width;
+		_hints.min_width = _width;
+		_hints.max_width = _width;
+		_hints.height = _height;
+		_hints.min_height = _height;
+		_hints.max_height = _height;
+		_hints.flags = PPosition | PSize | PMinSize | PMaxSize;
+
+		XSetWMNormalHints(win->x11.dsp, win->x11.id, &_hints);
+	}
+
+	/* Window flag: GF_WINDOW_VSYNC_HINT
+	 * */
+	if ((win->flags.id & GF_WINDOW_VSYNC_HINT)) {
+		if (!eglSwapInterval(win->egl.dsp, 1)) {
+			gf_loge("EGL: Failed to set a swap interval\n");
+		}
+		gf_logi("WINDOW: Flag: VSYNC_HINT\n");
+	}
 	return (true);
 }
 
@@ -282,6 +330,7 @@ GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
 					gf_pushEvent(win, &_gf_event);
 				}
 			} break;
+			
 		}
 
 	}
@@ -331,4 +380,3 @@ GFAPI bool	gf_getWindowSize(t_window win, int32_t *wptr, int32_t *hptr) {
 	*hptr = _attr.height;
 	return (true);
 }
-

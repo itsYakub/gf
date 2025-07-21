@@ -32,39 +32,48 @@
 # endif
 
 /* Simple terminal logging
+ * NOTE(yakub):
+ *  I intend logging to be only a part of the debug builds.
+ *  Release builds shoul leave logging to the user and if error happens,
+ *  it should be stored in some errno - like global variable / window member variable.
  * */
 
-# if !defined gf_logi
-#  define gf_logi(...) fprintf(stdout, "\e[1;32m[ INFO ] \e[0m" __VA_ARGS__)
+# if defined (DEBUG)
+#  if !defined gf_logi
+#   define gf_logi(...) fprintf(stdout, "\e[1;32m[ INFO ] \e[0m" __VA_ARGS__)
+#  endif
+#  if !defined gf_logw
+#   define gf_logw(...) fprintf(stdout, "\e[1;33m[ WARN ] \e[0m" __VA_ARGS__)
+#  endif
+#  if !defined gf_loge
+#   define gf_loge(...) fprintf(stdout, "\e[1;31m[ ERROR ] \e[0m" __VA_ARGS__)
+#  endif
+# else
+#  if !defined gf_logi
+#   define gf_logi(...)
+#  endif
+#  if !defined gf_logw
+#   define gf_logw(...)
+#  endif
+#  if !defined gf_loge
+#   define gf_loge(...)
+#  endif
 # endif
-# if !defined gf_logw
-#  define gf_logw(...) fprintf(stdout, "\e[1;33m[ WARN ] \e[0m" __VA_ARGS__)
-# endif
-# if !defined gf_loge
-#  define gf_loge(...) fprintf(stdout, "\e[1;31m[ ERROR ] \e[0m" __VA_ARGS__)
-# endif
-
-/* Window Flags
- * */
 
 enum {
 	GF_WINDOW_FLAGS_NONE = 0,
 	GF_WINDOW_RESIZABLE = 1,
-	GF_WINDOW_MINIMIZED,
-	GF_WINDOW_MAXIMIZED,
 	GF_WINDOW_VSYNC_HINT,
 	GF_WINDOW_FLAGS_COUNT
-};
-
-/* Window Events
- * */
+} /* Window states */;
 
 enum {
 	GF_EVENT_NONE = 0,
 	GF_EVENT_QUIT = 1,
+	GF_EVENT_COUNT
 	/* ...More events put here...
 	 * */
-};
+} /* Window events */;
 
 struct s_event {
 	int32_t	type;
