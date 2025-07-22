@@ -301,6 +301,7 @@ GFAPIS bool	__gf_processFlags(t_window win, const int32_t f) {
 		int32_t		_width;
 		int32_t		_height;
 
+		_width = _height = 0;
 		gf_getWindowSize(win, &_width, &_height);
 		
 		XGetWMNormalHints(win->x11.dsp, win->x11.id, &_hints, &_toto);
