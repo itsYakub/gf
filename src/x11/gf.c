@@ -103,6 +103,7 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 	assert(__gf_createWindow((*win)->x11.dsp, &(*win)->x11.id, w, h, t));
 	assert(__gf_createEGLContext(*win));
 	assert(gf_getWindowSize(*win, 0, 0));
+	assert(gf_getWindowPosition(*win, 0, 0));
 	
 	assert(__gf_processAtoms(*win));
 	assert(__gf_processFlags(*win, f));
@@ -420,13 +421,53 @@ GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
 						win->misc.width != _x11_event.xconfigure.width ||
 						win->misc.height != _x11_event.xconfigure.height
 					) {
-						win->misc.width = _x11_event.xconfigure.width;
-						win->misc.height = _x11_event.xconfigure.height;
 						_gf_event.type = GF_EVENT_RESIZE;
-						_gf_event.s_data.i[0] = win->misc.width;
-						_gf_event.s_data.i[1] = win->misc.height;
-						gf_pushEvent(win, &_gf_event);
+						_gf_event.s_data.i[0] = win->misc.width = _x11_event.xconfigure.width;
+						_gf_event.s_data.i[1] = win->misc.height = _x11_event.xconfigure.height;
 					}
+					else if (
+						win->misc.x != _x11_event.xconfigure.x ||
+						win->misc.y != _x11_event.xconfigure.y
+					) {
+						_gf_event.type = GF_EVENT_MOVE;
+						_gf_event.s_data.i[0] = win->misc.x = _x11_event.xconfigure.x;
+						_gf_event.s_data.i[1] = win->misc.y = _x11_event.xconfigure.y;
+					}
+					else { break; }
+					gf_pushEvent(win, &_gf_event);
+				} break;	
+
+				case (MotionNotify): {
+					_gf_event.type = GF_EVENT_MOUSEMOTION;
+					_gf_event.s_data.i[0] = _x11_event.xmotion.x;
+					_gf_event.s_data.i[1] = _x11_event.xmotion.y;
+					_gf_event.s_data.i[2] = _x11_event.xmotion.x_root;
+					_gf_event.s_data.i[3] = _x11_event.xmotion.y_root;
+					gf_pushEvent(win, &_gf_event);
+				} break;
+				/* NOTE(yakub):
+				 *  Under the hood, x11 maps the mouse buttons to:
+				 *  - [1] -> LEFT;
+				 *  - [2] -> MIDDLE;
+				 *  - [3] -> RIGHT;
+				 * */
+				case (ButtonPress): {
+					_gf_event.type = GF_EVENT_MOUSE_PRESS;
+					if (_x11_event.xbutton.button == 1) { _gf_event.s_data.c[0] = GF_BUTTON_LEFT; }
+					else if (_x11_event.xbutton.button == 2) { _gf_event.s_data.c[0] = GF_BUTTON_MIDDLE; }
+					else if (_x11_event.xbutton.button == 3) { _gf_event.s_data.c[0] = GF_BUTTON_RIGHT; }
+					else { break; }
+					_gf_event.s_data.c[1] = true;
+					gf_pushEvent(win, &_gf_event);
+				} break;
+				case (ButtonRelease): {
+					_gf_event.type = GF_EVENT_MOUSE_RELEASE;
+					if (_x11_event.xbutton.button == 1) { _gf_event.s_data.c[0] = GF_BUTTON_LEFT; }
+					else if (_x11_event.xbutton.button == 2) { _gf_event.s_data.c[0] = GF_BUTTON_MIDDLE; }
+					else if (_x11_event.xbutton.button == 3) { _gf_event.s_data.c[0] = GF_BUTTON_RIGHT; }
+					else { break; }
+					_gf_event.s_data.c[1] = false;
+					gf_pushEvent(win, &_gf_event);
 				} break;
 			}
 
@@ -487,6 +528,39 @@ GFAPI bool	gf_getWindowSize(t_window win, int32_t *wptr, int32_t *hptr) {
 	}
 	if (hptr) {
 		*hptr = _attr.height;
+	}
+	return (true);
+}
+
+GFAPI bool	gf_getWindowPosition(t_window win, int32_t *xptr, int32_t *yptr) {
+	XWindowAttributes	_attr;
+	Window				_child;
+	int32_t				_x, _y;
+
+	memset(&_attr, 0, sizeof(XWindowAttributes));
+	if (!XGetWindowAttributes(win->x11.dsp, win->x11.id, &_attr)) {
+		return (false);
+	}
+
+	_x = _y = 0;
+	XTranslateCoordinates(
+		win->x11.dsp, win->x11.id, DefaultRootWindow(win->x11.dsp),
+		0, 0, &_x, &_y,
+		&_child
+	);
+	
+	/* Updating internal variables
+	 * */
+	win->misc.x = _x - _attr.x;
+	win->misc.y = _y - _attr.y;
+
+	/* Setting the value of the 'wptr' and 'hptr' (memory safe)
+	 * */
+	if (xptr) {
+		*xptr = _attr.x;
+	}
+	if (yptr) {
+		*yptr = _attr.y;
 	}
 	return (true);
 }

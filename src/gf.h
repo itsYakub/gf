@@ -53,6 +53,12 @@
 # endif
 
 enum {
+	GF_BUTTON_LEFT = 1,
+	GF_BUTTON_RIGHT,
+	GF_BUTTON_MIDDLE
+} /* Mouse Buttons */;
+
+enum {
 	GF_WINDOW_FLAGS_NONE = 0,
 	GF_WINDOW_RESIZABLE = 1,
 	GF_WINDOW_VSYNC_HINT,
@@ -61,17 +67,21 @@ enum {
 
 enum {
 	GF_EVENT_NONE = 0,
-	GF_EVENT_QUIT = 1,
-	GF_EVENT_RESIZE,
-	GF_EVENT_COUNT
+	GF_EVENT_QUIT = 1,		/* DATA: none */
+	GF_EVENT_RESIZE,		/* DATA: i: [0] -> width, [1] -> height */
+	GF_EVENT_MOVE,			/* DATA: i: [0] -> x, [1] -> y */
+	GF_EVENT_MOUSEMOTION,	/* DATA: i: [0] -> x, [1] -> y, [2] -> x (relative), [3] -> y (relative) */
+	GF_EVENT_MOUSE_PRESS,	/* DATA: c: [0] -> button pressed, [1] -> state */
+	GF_EVENT_MOUSE_RELEASE,	/* DATA: c: [0] -> button released, [1] -> state */
 	/* ...More events put here...
 	 * */
+	GF_EVENT_COUNT
 } /* Window events */;
 
 struct s_event {
 	int32_t	type;
 	struct {
-		int32_t	c[8];
+		int8_t	c[8];
 		int32_t	i[8];
 		int64_t	l[8];
 	} s_data;
@@ -98,5 +108,6 @@ GFAPI bool	gf_popEvent(t_window, t_event *);
 GFAPI bool	gf_pushEvent(t_window, t_event *);
 
 GFAPI bool	gf_getWindowSize(t_window, int32_t *, int32_t *);
+GFAPI bool	gf_getWindowPosition(t_window, int32_t *, int32_t *);
 
 #endif
