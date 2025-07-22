@@ -23,7 +23,7 @@ int	main(void) {
 				} break;
 				
 				case (GF_EVENT_RESIZE): {
-					gf_logi("EVENT: RESIZE\n");
+					gf_logi("EVENT: RESIZE (w.:%d, h.:%d)\n", event.s_data.i[0], event.s_data.i[1]);
 				} break;
 			}
 		}

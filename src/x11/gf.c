@@ -40,6 +40,12 @@ struct s_window {
 		int32_t	id;
 	} flags;
 
+	struct {
+		int32_t	width;
+		int32_t	height;
+		int32_t	x;
+		int32_t	y;
+	} misc;
 };
 
 typedef struct s_window	*t_window;
@@ -96,6 +102,7 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 	assert(__gf_connectDisplay(&(*win)->x11.dsp));
 	assert(__gf_createWindow((*win)->x11.dsp, &(*win)->x11.id, w, h, t));
 	assert(__gf_createEGLContext(*win));
+	assert(gf_getWindowSize(*win, 0, 0));
 	
 	assert(__gf_processAtoms(*win));
 	assert(__gf_processFlags(*win, f));
@@ -124,16 +131,22 @@ GFAPIS	bool	__gf_connectDisplay(Display **dptr) {
 GFAPIS	bool	__gf_createWindow(Display *dsp, Window *wptr, const size_t w, const size_t h, const char * t) {
 	XSetWindowAttributes	_attr;
 	XWMHints				_hints;
+	int32_t					_event_mask;
 
-	memset(&_attr, 0, sizeof(XSetWindowAttributes));
-	_attr.event_mask =
+	/* Set the value of an event mask
+	 * */
+	_event_mask = 0;
+	_event_mask |=
 		KeyPressMask | KeyReleaseMask |
 		ButtonPressMask | ButtonReleaseMask |
 		Button1Mask | Button2Mask | Button3Mask |
 		PointerMotionMask |
-		ExposureMask | StructureNotifyMask | ResizeRedirectMask |
+		ExposureMask | StructureNotifyMask | 
 		ClientMessage |
 		CWColormap | CWBorderPixel | CWBackPixel | CWEventMask;
+
+	memset(&_attr, 0, sizeof(XSetWindowAttributes));
+	_attr.event_mask = _event_mask;
 
 	*wptr = XCreateWindow(
 		dsp, DefaultRootWindow(dsp),
@@ -160,15 +173,11 @@ GFAPIS	bool	__gf_createWindow(Display *dsp, Window *wptr, const size_t w, const 
 
 	}
 	
-	XSelectInput(dsp, *wptr, 0);
-
 	memset(&_hints, 0, sizeof(XWMHints));
 	_hints.input = true;
 	_hints.flags = InputHint;
 	XSetWMHints(dsp, *wptr, &_hints);
-
-	/* Map the window onto the root window
-	 * */
+	XSelectInput(dsp, *wptr, _event_mask);
 	XMapWindow(dsp, *wptr);
 
 #if defined (VERBOSE)
@@ -406,6 +415,19 @@ GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
 					}
 				} break;
 				
+				case (ConfigureNotify): {
+					if (
+						win->misc.width != _x11_event.xconfigure.width ||
+						win->misc.height != _x11_event.xconfigure.height
+					) {
+						win->misc.width = _x11_event.xconfigure.width;
+						win->misc.height = _x11_event.xconfigure.height;
+						_gf_event.type = GF_EVENT_RESIZE;
+						_gf_event.s_data.i[0] = win->misc.width;
+						_gf_event.s_data.i[1] = win->misc.height;
+						gf_pushEvent(win, &_gf_event);
+					}
+				} break;
 			}
 
 		}
@@ -452,7 +474,19 @@ GFAPI bool	gf_getWindowSize(t_window win, int32_t *wptr, int32_t *hptr) {
 	if (!XGetWindowAttributes(win->x11.dsp, win->x11.id, &_attr)) {
 		return (false);
 	}
-	*wptr = _attr.width;
-	*hptr = _attr.height;
+	
+	/* Updating internal variables
+	 * */
+	win->misc.width = _attr.width;
+	win->misc.height = _attr.height;
+
+	/* Setting the value of the 'wptr' and 'hptr' (memory safe)
+	 * */
+	if (wptr) {
+		*wptr = _attr.width;
+	}
+	if (hptr) {
+		*hptr = _attr.height;
+	}
 	return (true);
 }
