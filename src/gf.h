@@ -110,4 +110,6 @@ GFAPI bool	gf_pushEvent(t_window, t_event *);
 GFAPI bool	gf_getWindowSize(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getWindowPosition(t_window, int32_t *, int32_t *);
 
+GFAPI void	*gf_getProcAddress(const char *);
+
 #endif

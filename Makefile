@@ -13,11 +13,11 @@ OBJS	= $(SRCS:.c=.o)
 # SECTION:
 #  OPTIONS
 
-# ON / OFF
+# ON / OFF (DEFAULT)
 SHARED	= OFF
 
-# ON / OFF
-VERBOSE	= OFF
+# ON / OFF (DEFAULT)
+VERBOSE	= ON
 
 # SECTION:
 #  OPTIONS Configuration
