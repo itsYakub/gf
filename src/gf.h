@@ -2,7 +2,7 @@
 # pragma once
 #endif
 #if !defined (_gf_h_)
-# define _gh_h_
+# define _gf_h_
 
 /* GFAPI:
  *  keyword for public interface declarations/definitions

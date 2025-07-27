@@ -165,7 +165,6 @@ int	main(void) {
 		glUseProgram(0);
 
 		gf_swapBuffers(window);
-	
 	}
 		
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

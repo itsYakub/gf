@@ -3,28 +3,31 @@ CFLAGS	= -Wall -Wextra -Werror -std=c99
 AR		= ar
 ARFLAGS	= rcs
 
-# NOTE(yakub):
-#  Temporary solution for the backend compilation
-#  When there'll be more backends, the SRCS assignment will be improved
+SRCS_X11= ./src/x11/gf-window-create.c ./src/x11/gf-window-destroy.c ./src/x11/gf-context.c ./src/x11/gf-events.c ./src/x11/gf-utils.c
 
-SRCS	= ./src/x11/gf.c
+SRCS	= $(SRCS_X11)
 OBJS	= $(SRCS:.c=.o)
+
+
 
 # SECTION:
 #  OPTIONS
-
+# ----------------
+# General section:
+# ----------------
 # ON / OFF (DEFAULT)
 SHARED	= OFF
-
 # ON / OFF (DEFAULT)
-VERBOSE	= ON
-
+VERBOSE	= OFF
+# ---------------------
 # X11 specific section:
 # ---------------------
 # ON (DEFAULT) / OFF
 X11_USE_GLX = ON
 # ON / OFF (DEFAULT)
 X11_USE_EGL = OFF
+
+
 
 # SECTION:
 #  OPTIONS Configuration
@@ -50,6 +53,8 @@ else ifeq ($(X11_USE_EGL),ON)
 else
 $(error X11_USE_GLX or X11_USE_EGL flags not set to the correct values))
 endif
+
+
 
 # SECTION:
 #  TARGET Build
@@ -81,6 +86,12 @@ release : $(TARGET)
 clean :
 	rm -f $(TARGET)
 	rm -f $(OBJS)
+
+.PHONY : install
+
+install :
+	cp $(TARGET) /usr/local/lib
+	cp ./src/gf.h /usr/local/include
 
 $(TARGET) : $(OBJS)
 
