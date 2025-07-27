@@ -19,6 +19,13 @@ SHARED	= OFF
 # ON / OFF (DEFAULT)
 VERBOSE	= ON
 
+# X11 specific section:
+# ---------------------
+# ON (DEFAULT) / OFF
+X11_USE_GLX = ON
+# ON / OFF (DEFAULT)
+X11_USE_EGL = OFF
+
 # SECTION:
 #  OPTIONS Configuration
 
@@ -36,6 +43,14 @@ else ifneq ($(VERBOSE),OFF)
 $(error VERBOSE flag not set to the correct value (EXPECTED: ON/OFF) (GOT: $(VERBOSE)))
 endif
 
+ifeq ($(X11_USE_GLX),ON)
+	CFLAGS += -DUSE_GLX
+else ifeq ($(X11_USE_EGL),ON)
+	CFLAGS += -DUSE_EGL
+else
+$(error X11_USE_GLX or X11_USE_EGL flags not set to the correct values))
+endif
+
 # SECTION:
 #  TARGET Build
 
@@ -45,20 +60,20 @@ all : release
 
 .PHONY : debug
 
-debug : CFLAGS += -ggdb3 -O0
 debug : CFLAGS += -DDEBUG
+debug : CFLAGS += -ggdb3 -O0
 debug : $(TARGET)
 
 .PHONY : relWithDebInfo
 
-relWithDebInfo : CFLAGS += -s -O3 -ggdb3
 relWithDebInfo : CFLAGS += -DRELEASE
+relWithDebInfo : CFLAGS += -O3 -ggdb3
 relWithDebInfo : $(TARGET)
 
 .PHONY : release
 
-release : CFLAGS += -s -O3
 release : CFLAGS += -DRELEASE
+release : CFLAGS += -s -O3
 release : $(TARGET)
 
 .PHONY : clean

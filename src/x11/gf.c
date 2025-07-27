@@ -77,7 +77,7 @@ GFAPIS bool	__gf_createContextGLX(t_window);
 GFAPIS bool	__gf_loadGLXExtensions(void);
 
 GFAPIS bool	__gf_processAtoms(t_window);
-GFAPIS bool	__gf_processFlags(t_window, const int32_t);
+GFAPIS bool	__gf_processFlags(t_window);
 
 
 
@@ -140,18 +140,18 @@ static PFNGLXSWAPINTERVALEXTPROC			glXSwapIntervalEXT;
  *  X11 API implementation
  * */
 
-GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const char *t, const int32_t f) {
+GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const char *t) {
 	*win = (t_window) calloc(1, sizeof(struct s_window));
 
 	assert(__gf_connectDisplay(*win));
 	assert(__gf_createVisualInfo(*win));
 	assert(__gf_createWindow(*win, w, h, t));
-	assert(__gf_createContext(*win));
+	
 	assert(gf_getWindowSize(*win, 0, 0));
 	assert(gf_getWindowPosition(*win, 0, 0));
 	
 	assert(__gf_processAtoms(*win));
-	assert(__gf_processFlags(*win, f));
+	assert(__gf_processFlags(*win));
 	return (true);
 }
 
@@ -309,182 +309,13 @@ GFAPIS	bool	__gf_createWindow(t_window win, const size_t w, const size_t h, cons
 	return (true);
 }
 
-GFAPIS bool	__gf_createContext(t_window win) {
-	if (0) {
-		return (__gf_createContextEGL(win));
-	}
-	else {
-		return (__gf_createContextGLX(win));
-	}
-	return (false);
-}
-
-GFAPIS bool	__gf_createContextEGL(t_window win) {
-	int32_t	_attr_cont_cnt;
-
-	/* Create EGL display object based on X11 object
-	 * */
-	win->egl.dsp = eglGetDisplay((EGLNativeDisplayType) win->x11.dsp);
-	if (!win->egl.dsp) {
-
-#if defined (VERBOSE)
-		gf_loge("EGL: Display failed\n");
-#endif
-
-		return (false);
-	}
-	if (!eglInitialize(win->egl.dsp, 0, 0)) {
-
-#if defined (VERBOSE)
-		gf_loge("EGL: Initialization failed\n");
-#endif
-
-		return (false);
-	}
-
-	/* Create config object
-	 * */
-	_attr_cont_cnt = 0;
-	if (!eglChooseConfig(win->egl.dsp, g_egl_attr_conf, &win->egl.conf, 1, &_attr_cont_cnt)) {
-
-#if defined (VERBOSE)
-		gf_loge("EGL: Config failed\n");
-#endif
-
-		return (false);
-	}
-
-	/* Create EGL surface based on X11 window
-	 * */
-	win->egl.surf = eglCreateWindowSurface(win->egl.dsp, win->egl.conf, (EGLNativeWindowType) win->x11.id, 0);
-	if (!win->egl.surf) {
-
-#if defined (VERBOSE)
-		gf_loge("EGL: Surface failed\n");
-#endif
-
-		return (false);
-	}
-
-	/* Create EGL Context
-	 * */
-	win->egl.ctx = eglCreateContext(win->egl.dsp, win->egl.conf, EGL_NO_CONTEXT, g_egl_attr_ctx);
-	if (!win->egl.ctx) {
-
-#if defined (VERBOSE)
-		gf_loge("EGL: Context failed\n");
-#endif
-
-		return (false);
-	}
-
-	/* Make the EGL context current
-	 * */
-	if (!eglMakeCurrent(win->egl.dsp, win->egl.surf, win->egl.surf, win->egl.ctx)) {
-
-#if defined (VERBOSE)
-		gf_loge("EGL: Context current failed\n");
-#endif
-
-		return (false);
-	}
-
-	if (!eglBindAPI(EGL_OPENGL_API)) {
-
-#if defined (VERBOSE)
-		gf_loge("EGL: Failed to bind OpenGL api\n");
-#endif
-
-		return (false);
-	}
-
-#if defined (VERBOSE)
-	gf_logi("EGL: Created successfully\n");
-	gf_logi("EGL: Client: %s\n", eglQueryString(win->egl.dsp, EGL_CLIENT_APIS));
-	gf_logi("EGL: Version: %s\n", eglQueryString(win->egl.dsp, EGL_VERSION));
-	gf_logi("EGL: Vendor: %s\n", eglQueryString(win->egl.dsp, EGL_VENDOR));
-
-	gf_logi("GL: Version: %s\n", glGetString(GL_VERSION));
-	gf_logi("GL: Vendor: %s\n", glGetString(GL_VENDOR));
-	gf_logi("GL: Renderer: %s\n", glGetString(GL_RENDERER));
-	
-	gf_logi("GLSL: Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-#endif
-
-	return (true);
-}
-
-GFAPIS bool	__gf_createContextGLX(t_window win) {
-	if (!__gf_loadGLXExtensions()) {
-
-#if defined (VERBOSE)
-		gf_loge("GLX: Failed to load extensions\n");
-#endif
-
-		return (false);
-	}
-
-	if (glXCreateContextAttribsARB) {
-		win->glx.ctx = glXCreateContextAttribsARB(win->x11.dsp, win->glx.conf, 0, 1, g_glx_attr_ctx);
-		if (!win->glx.ctx) {
-			return (false);
-		}
-	}
-	else {
-		win->glx.ctx = glXCreateContext(win->x11.dsp, win->x11.info, 0, 1);
-		if (!win->glx.ctx) {
-			return (false);
-		}
-	}
-	
-	if (!glXMakeCurrent(win->x11.dsp, win->x11.id, win->glx.ctx)) {
-
-#if defined (VERBOSE)
-		gf_loge("GLX: Context current failed\n");
-#endif
-
-		return (false);
-	}
-
-#if defined (VERBOSE)
-	gf_logi("GLX: Created successfully\n");
-	gf_logi("GLX: Version: %s\n", glXGetClientString(win->x11.dsp, GLX_VERSION));
-	gf_logi("GLX: Vendor: %s\n", glXGetClientString(win->x11.dsp, GLX_VENDOR));
-
-	gf_logi("GL: Version: %s\n", glGetString(GL_VERSION));
-	gf_logi("GL: Vendor: %s\n", glGetString(GL_VENDOR));
-	gf_logi("GL: Renderer: %s\n", glGetString(GL_RENDERER));
-	
-	gf_logi("GLSL: Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-#endif
-
-	return (true);
-}
-
-GFAPIS bool	__gf_loadGLXExtensions(void) {
-	glXCreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC) glXGetProcAddress((GLubyte *) "glXCreateContextAttribsARB");
-	if (!glXCreateContextAttribsARB) {
-		return (false);
-	}
-	glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress((GLubyte *) "glXSwapIntervalEXT");
-	if (!glXSwapIntervalEXT) {
-		return (false);
-	}
-	return (true);
-}
-
 GFAPIS bool	__gf_processAtoms(t_window win) {
 	win->atoms.wm_delete_window = XInternAtom(win->x11.dsp, "WM_DELETE_WINDOW", 0);
 	XSetWMProtocols(win->x11.dsp, win->x11.id, &win->atoms.wm_delete_window, 1);
 	return (true);
 }
 
-GFAPIS bool	__gf_processFlags(t_window win, const int32_t f) {
-	/* First, let's set the initial window flags.
-	 * Then we can process them!
-	 * */
-	win->flags.id = f;
-
+GFAPIS bool	__gf_processFlags(t_window win) {
 	/* Window flag: GF_WINDOW_RESIZABLE
 	 * NOTE(yakub):
 	 *  This flag can be ignored by the WM. I can tell that on Mutter it works fine.
@@ -547,7 +378,175 @@ GFAPIS bool	__gf_processFlags(t_window win, const int32_t f) {
 	return (true);
 }
 
+GFAPI bool	gf_makeCurrent(t_window win) {
+	if (!win->glx.ctx && !win->egl.ctx) {
+		__gf_createContext(win);
+	}
 
+#if defined (USE_GLX)
+	if (!glXMakeCurrent(win->x11.dsp, win->x11.id, win->glx.ctx)) {
+
+# if defined (VERBOSE)
+		gf_loge("GLX: Context current failed\n");
+# endif
+
+		return (false);
+	}
+#elif defined (USE_EGL)
+	if (!eglMakeCurrent(win->egl.dsp, win->egl.surf, win->egl.surf, win->egl.ctx)) {
+
+# if defined (VERBOSE)
+		gf_loge("EGL: Context current failed\n");
+# endif
+
+		return (false);
+	}
+#endif
+
+#if defined (VERBOSE)
+		gf_logi("GL: Version: %s\n", glGetString(GL_VERSION));
+		gf_logi("GL: Vendor: %s\n", glGetString(GL_VENDOR));
+		gf_logi("GL: Renderer: %s\n", glGetString(GL_RENDERER));
+		
+		gf_logi("GLSL: Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+#endif
+
+		return (true);
+}
+
+GFAPIS bool	__gf_createContext(t_window win) {
+
+#if defined (USE_GLX)
+	return (__gf_createContextGLX(win));
+#elif defined (USE_EGL)
+	return (__gf_createContextEGL(win));
+#else
+	return (false);
+#endif
+
+}
+
+GFAPIS bool	__gf_createContextEGL(t_window win) {
+	int32_t	_attr_cont_cnt;
+
+	/* Create EGL display object based on X11 object
+	 * */
+	win->egl.dsp = eglGetDisplay((EGLNativeDisplayType) win->x11.dsp);
+	if (!win->egl.dsp) {
+
+#if defined (VERBOSE)
+		gf_loge("EGL: Display failed\n");
+#endif
+
+		return (false);
+	}
+	if (!eglInitialize(win->egl.dsp, 0, 0)) {
+
+#if defined (VERBOSE)
+		gf_loge("EGL: Initialization failed\n");
+#endif
+
+		return (false);
+	}
+
+	/* Create config object
+	 * */
+	_attr_cont_cnt = 0;
+	if (!eglChooseConfig(win->egl.dsp, g_egl_attr_conf, &win->egl.conf, 1, &_attr_cont_cnt)) {
+
+#if defined (VERBOSE)
+		gf_loge("EGL: Config failed\n");
+#endif
+
+		return (false);
+	}
+
+	/* Create EGL surface based on X11 window
+	 * */
+	win->egl.surf = eglCreateWindowSurface(win->egl.dsp, win->egl.conf, (EGLNativeWindowType) win->x11.id, 0);
+	if (!win->egl.surf) {
+
+#if defined (VERBOSE)
+		gf_loge("EGL: Surface failed\n");
+#endif
+
+		return (false);
+	}
+
+	/* Create EGL Context
+	 * */
+	win->egl.ctx = eglCreateContext(win->egl.dsp, win->egl.conf, EGL_NO_CONTEXT, g_egl_attr_ctx);
+	if (!win->egl.ctx) {
+
+#if defined (VERBOSE)
+		gf_loge("EGL: Context failed\n");
+#endif
+
+		return (false);
+	}
+
+	if (!eglBindAPI(EGL_OPENGL_API)) {
+
+#if defined (VERBOSE)
+		gf_loge("EGL: Failed to bind OpenGL api\n");
+#endif
+
+		return (false);
+	}
+
+#if defined (VERBOSE)
+	gf_logi("EGL: Created successfully\n");
+	gf_logi("EGL: Client: %s\n", eglQueryString(win->egl.dsp, EGL_CLIENT_APIS));
+	gf_logi("EGL: Version: %s\n", eglQueryString(win->egl.dsp, EGL_VERSION));
+	gf_logi("EGL: Vendor: %s\n", eglQueryString(win->egl.dsp, EGL_VENDOR));
+#endif
+
+	return (true);
+}
+
+GFAPIS bool	__gf_createContextGLX(t_window win) {
+	if (!__gf_loadGLXExtensions()) {
+
+#if defined (VERBOSE)
+		gf_loge("GLX: Failed to load extensions\n");
+#endif
+
+		return (false);
+	}
+
+	if (glXCreateContextAttribsARB) {
+		win->glx.ctx = glXCreateContextAttribsARB(win->x11.dsp, win->glx.conf, 0, 1, g_glx_attr_ctx);
+		if (!win->glx.ctx) {
+			return (false);
+		}
+	}
+	else {
+		win->glx.ctx = glXCreateContext(win->x11.dsp, win->x11.info, 0, 1);
+		if (!win->glx.ctx) {
+			return (false);
+		}
+	}
+
+#if defined (VERBOSE)
+	gf_logi("GLX: Created successfully\n");
+	gf_logi("GLX: Version: %s\n", glXGetClientString(win->x11.dsp, GLX_VERSION));
+	gf_logi("GLX: Vendor: %s\n", glXGetClientString(win->x11.dsp, GLX_VENDOR));
+#endif
+
+	return (true);
+}
+
+GFAPIS bool	__gf_loadGLXExtensions(void) {
+	glXCreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC) glXGetProcAddress((GLubyte *) "glXCreateContextAttribsARB");
+	if (!glXCreateContextAttribsARB) {
+		return (false);
+	}
+	glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress((GLubyte *) "glXSwapIntervalEXT");
+	if (!glXSwapIntervalEXT) {
+		return (false);
+	}
+	return (true);
+}
 
 
 

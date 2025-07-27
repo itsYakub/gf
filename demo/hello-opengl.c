@@ -57,7 +57,10 @@ int	main(void) {
 	GLuint		vertex_array;
 	GLuint		vertex_buffer, index_buffer;
 
-	if (!gf_createWindow(&window, 960, 540, "gf 1.0 - Hello, World!", GF_WINDOW_RESIZABLE | GF_WINDOW_VSYNC_HINT)) {
+	if (
+		!gf_createWindow(&window, 960, 540, "gf 1.0 - Hello, OpenGL!") ||
+		!gf_makeCurrent(window)
+	) {
 		return (1);
 	}
 

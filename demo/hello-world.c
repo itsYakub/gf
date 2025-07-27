@@ -5,7 +5,10 @@
 int	main(void) {
 	t_window	window;
 
-	if (!gf_createWindow(&window, 960, 540, "gf 1.0 - Hello, World!", GF_WINDOW_RESIZABLE | GF_WINDOW_VSYNC_HINT)) {
+	if (
+		!gf_createWindow(&window, 960, 540, "gf 1.0 - Hello, World!") ||
+		!gf_makeCurrent(window)
+	) {
 		return (1);
 	}
 
