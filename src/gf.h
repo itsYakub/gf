@@ -145,13 +145,13 @@ enum {
 enum {
 	GF_EVENT_NONE = 0,
 	GF_EVENT_QUIT = 1,		/* DATA: none */
-	GF_EVENT_RESIZE,		/* DATA: i: [0] -> width, [1] -> height */
-	GF_EVENT_MOVE,			/* DATA: i: [0] -> x, [1] -> y */
-	GF_EVENT_MOUSEMOTION,	/* DATA: i: [0] -> x, [1] -> y, [2] -> x (relative), [3] -> y (relative) */
-	GF_EVENT_MOUSE_PRESS,	/* DATA: c: [0] -> button pressed, [1] -> state */
-	GF_EVENT_MOUSE_RELEASE,	/* DATA: c: [0] -> button released, [1] -> state */
-	GF_EVENT_KEY_PRESS,		/* DATA: c: [0] -> key pressed, [1] -> state */
-	GF_EVENT_KEY_RELEASE,	/* DATA: c: [0] -> key released, [1] -> state */
+	GF_EVENT_RESIZE,		/* DATA: [0] -> width, [1] -> height */
+	GF_EVENT_MOVE,			/* DATA: [0] -> x, [1] -> y */
+	GF_EVENT_MOUSEMOTION,	/* DATA: [0] -> x, [1] -> y, [2] -> x (relative), [3] -> y (relative) */
+	GF_EVENT_MOUSE_PRESS,	/* DATA: [0] -> button pressed, [1] -> state */
+	GF_EVENT_MOUSE_RELEASE,	/* DATA: [0] -> button released, [1] -> state */
+	GF_EVENT_KEY_PRESS,		/* DATA: [0] -> key pressed, [1] -> state */
+	GF_EVENT_KEY_RELEASE,	/* DATA: [0] -> key released, [1] -> state */
 	/* ...More events put here...
 	 * */
 	GF_EVENT_COUNT
@@ -185,7 +185,11 @@ GFAPI bool	gf_popEvent(t_window, t_event *);
 GFAPI bool	gf_pushEvent(t_window, t_event *);
 
 GFAPI bool	gf_getWindowSize(t_window, int32_t *, int32_t *);
+GFAPI bool	gf_getMonitorSize(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getWindowPosition(t_window, int32_t *, int32_t *);
+
+GFAPI bool	gf_setWindowResizable(t_window, bool);
+GFAPI bool	gf_setWindowVSync(t_window, bool);
 
 GFAPI void	*gf_getProcAddress(const char *);
 

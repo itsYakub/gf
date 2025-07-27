@@ -34,7 +34,6 @@ GFAPIS bool	__gf_connectDisplay(t_window);
 GFAPIS bool	__gf_createVisualInfo(t_window);
 GFAPIS bool	__gf_createWindow(t_window, const size_t, const size_t, const char *);
 GFAPIS bool	__gf_processAtoms(t_window);
-GFAPIS bool	__gf_processFlags(t_window);
 
 /* SECTION:
  *  Public API implementation
@@ -51,7 +50,11 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 	assert(gf_getWindowPosition(*win, 0, 0));
 	
 	assert(__gf_processAtoms(*win));
-	assert(__gf_processFlags(*win));
+
+	/* Setting up default window settings
+	 * */	
+	gf_setWindowResizable(*win, false);
+	
 	return (true);
 }
 
@@ -216,54 +219,5 @@ GFAPIS	bool	__gf_createWindow(t_window win, const size_t w, const size_t h, cons
 GFAPIS bool	__gf_processAtoms(t_window win) {
 	win->atoms.wm_delete_window = XInternAtom(win->x11.dsp, "WM_DELETE_WINDOW", 0);
 	XSetWMProtocols(win->x11.dsp, win->x11.id, &win->atoms.wm_delete_window, 1);
-	return (true);
-}
-
-GFAPIS bool	__gf_processFlags(t_window win) {
-	/* Window flag: GF_WINDOW_RESIZABLE
-	 * NOTE(yakub):
-	 *  This flag can be ignored by the WM. I can tell that on Mutter it works fine.
-	 *  For the testing purposes I should test in on other WMs, like i3.
-	 * */
-	if ((win->flags.id & GF_WINDOW_RESIZABLE)) {
-		/* NOTE(yakub):
-		 *  X11 enables window resizing by default. Our job here is to disable it if there's no 'GF_WINDOW_RESIZABLE' flag.
-		 *  We can keep this flag for a simple logging tho...
-		 * */
-
-#if defined (VERBOSE)
-		gf_logi("WINDOW: Flag: RESIZABLE\n");
-#endif
-
-	}
-	else {
-		XSizeHints	_hints;
-		int64_t		_toto;
-		int32_t		_width;
-		int32_t		_height;
-
-		_width = _height = 0;
-		gf_getWindowSize(win, &_width, &_height);
-		
-		XGetWMNormalHints(win->x11.dsp, win->x11.id, &_hints, &_toto);
-		
-		_hints.width = _width;
-		_hints.min_width = _width;
-		_hints.max_width = _width;
-		_hints.height = _height;
-		_hints.min_height = _height;
-		_hints.max_height = _height;
-		_hints.flags = PPosition | PSize | PMinSize | PMaxSize;
-
-		XSetWMNormalHints(win->x11.dsp, win->x11.id, &_hints);
-	}
-
-	/* Window flag: GF_WINDOW_VSYNC_HINT
-	 * */
-	if ((win->flags.id & GF_WINDOW_VSYNC_HINT)) {
-		/* TODO(yakub):
-		 *  Implement better solution for vsync
-		 * */
-	}
 	return (true);
 }

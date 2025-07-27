@@ -81,14 +81,18 @@ GFAPI bool	gf_makeCurrent(t_window win) {
 #endif
 
 #if defined (VERBOSE)
-		gf_logi("GL: Version: %s\n", glGetString(GL_VERSION));
-		gf_logi("GL: Vendor: %s\n", glGetString(GL_VENDOR));
-		gf_logi("GL: Renderer: %s\n", glGetString(GL_RENDERER));
+	gf_logi("GL: Version: %s\n", glGetString(GL_VERSION));
+	gf_logi("GL: Vendor: %s\n", glGetString(GL_VENDOR));
+	gf_logi("GL: Renderer: %s\n", glGetString(GL_RENDERER));
 		
-		gf_logi("GLSL: Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	gf_logi("GLSL: Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 #endif
 
-		return (true);
+	/* Setting up some default context settings
+	 * */
+	gf_setWindowVSync(win, 0);
+
+	return (true);
 }
 
 GFAPI bool	gf_swapBuffers(t_window win) {
@@ -98,6 +102,22 @@ GFAPI bool	gf_swapBuffers(t_window win) {
 	return (true);
 #elif defined (USE_EGL)
 	eglSwapBuffers(win->egl.dsp, win->egl.surf);
+	return (true);
+#endif
+
+	return (false);
+}
+
+GFAPI bool	gf_setWindowVSync(t_window win, bool state) {
+	int32_t	_interval;
+
+	_interval = state ? 1 : 0;
+
+#if defined (USE_GLX)
+	glXSwapIntervalEXT(win->x11.dsp, win->x11.id, _interval);
+	return (true);
+#elif defined (USE_EGL)
+	eglSwapInterval(win->egl.dsp, win->egl.surf, _interval);
 	return (true);
 #endif
 
