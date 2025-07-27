@@ -40,7 +40,6 @@ static int32_t	g_glx_attr_ctx[] = {
 };
 
 static PFNGLXCREATECONTEXTATTRIBSARBPROC	glXCreateContextAttribsARB;
-static PFNGLXSWAPINTERVALEXTPROC			glXSwapIntervalEXT;
 
 /* SECTION:
  *  Private interface declarations
@@ -49,7 +48,6 @@ static PFNGLXSWAPINTERVALEXTPROC			glXSwapIntervalEXT;
 GFAPIS bool	__gf_createContext(t_window);
 GFAPIS bool	__gf_createContextEGL(t_window);
 GFAPIS bool	__gf_createContextGLX(t_window);
-GFAPIS bool	__gf_loadGLXExtensions(void);
 
 /* SECTION:
  *  Public API implementation
@@ -102,22 +100,6 @@ GFAPI bool	gf_swapBuffers(t_window win) {
 	return (true);
 #elif defined (USE_EGL)
 	eglSwapBuffers(win->egl.dsp, win->egl.surf);
-	return (true);
-#endif
-
-	return (false);
-}
-
-GFAPI bool	gf_setWindowVSync(t_window win, bool state) {
-	int32_t	_interval;
-
-	_interval = state ? 1 : 0;
-
-#if defined (USE_GLX)
-	glXSwapIntervalEXT(win->x11.dsp, win->x11.id, _interval);
-	return (true);
-#elif defined (USE_EGL)
-	eglSwapInterval(win->egl.dsp, win->egl.surf, _interval);
 	return (true);
 #endif
 
@@ -236,15 +218,7 @@ GFAPIS bool	__gf_createContextEGL(t_window win) {
 }
 
 GFAPIS bool	__gf_createContextGLX(t_window win) {
-	if (!__gf_loadGLXExtensions()) {
-
-#if defined (VERBOSE)
-		gf_loge("GLX: Failed to load extensions\n");
-#endif
-
-		return (false);
-	}
-
+	glXCreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC) glXGetProcAddress((GLubyte *) "glXCreateContextAttribsARB");
 	if (glXCreateContextAttribsARB) {
 		win->glx.ctx = glXCreateContextAttribsARB(win->x11.dsp, win->glx.conf, 0, 1, g_glx_attr_ctx);
 		if (!win->glx.ctx) {
@@ -264,17 +238,5 @@ GFAPIS bool	__gf_createContextGLX(t_window win) {
 	gf_logi("GLX: Vendor: %s\n", glXGetClientString(win->x11.dsp, GLX_VENDOR));
 #endif
 
-	return (true);
-}
-
-GFAPIS bool	__gf_loadGLXExtensions(void) {
-	glXCreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC) glXGetProcAddress((GLubyte *) "glXCreateContextAttribsARB");
-	if (!glXCreateContextAttribsARB) {
-		return (false);
-	}
-	glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress((GLubyte *) "glXSwapIntervalEXT");
-	if (!glXSwapIntervalEXT) {
-		return (false);
-	}
 	return (true);
 }

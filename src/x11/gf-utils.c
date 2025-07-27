@@ -73,35 +73,3 @@ GFAPI bool	gf_getWindowPosition(t_window win, int32_t *xptr, int32_t *yptr) {
 	}
 	return (true);
 }
-
-GFAPI bool	gf_setWindowResizable(t_window win, bool state) {
-	XSizeHints	_hints;
-	int64_t		_toto;
-	int32_t		_width;
-	int32_t		_height;
-	
-	XGetWMNormalHints(win->x11.dsp, win->x11.id, &_hints, &_toto);
-	_hints.flags = PPosition | PSize | PMinSize | PMaxSize;
-	
-	_width = _height = 0;
-	gf_getWindowSize(win, &_width, &_height);
-	_hints.width = _width;
-	_hints.height = _height;
-	
-	if (state) {
-		gf_getMonitorSize(win, &_width, &_height);
-		_hints.min_width = 1;
-		_hints.max_width = _width;
-		_hints.min_height = 1;
-		_hints.max_height = _height;
-	}
-	else {	
-		_hints.min_width = _width;
-		_hints.max_width = _width;
-		_hints.min_height = _height;
-		_hints.max_height = _height;
-	}
-
-	XSetWMNormalHints(win->x11.dsp, win->x11.id, &_hints);
-	return (true);
-}
