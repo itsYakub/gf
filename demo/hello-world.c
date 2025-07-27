@@ -26,21 +26,28 @@ int	main(void) {
 				} break;
 				
 				case (GF_EVENT_RESIZE): {
-					gf_logi("EVENT: RESIZE (w.:%d, h.:%d)\n", event.s_data.i[0], event.s_data.i[1]);
+					gf_logi("EVENT: RESIZE (w.:%d, h.:%d)\n", event.data[0], event.data[1]);
 				} break;
 				case (GF_EVENT_MOVE): {
-					gf_logi("EVENT: MOVE (x.:%d, y.:%d)\n", event.s_data.i[0], event.s_data.i[1]);
+					gf_logi("EVENT: MOVE (x.:%d, y.:%d)\n", event.data[0], event.data[1]);
 				} break;
 
 				case (GF_EVENT_MOUSEMOTION): {
-					gf_logi("EVENT: MOUSEMOTION (w.:%d, h.:%d)\n", event.s_data.i[0], event.s_data.i[1]);
+					gf_logi("EVENT: MOUSEMOTION (w.:%d, h.:%d)\n", event.data[0], event.data[1]);
 				} break;
 
 				case (GF_EVENT_MOUSE_PRESS): {
-					gf_logi("EVENT: MOUSE PRESS (btn.:%d, state:%d)\n", event.s_data.c[0], event.s_data.c[1]);
+					gf_logi("EVENT: MOUSE PRESS (btn.:%d, state:%d)\n", event.data[0], event.data[1]);
 				} break;
 				case (GF_EVENT_MOUSE_RELEASE): {
-					gf_logi("EVENT: MOUSE RELEASE (btn.:%d, state:%d)\n", event.s_data.c[0], event.s_data.c[1]);
+					gf_logi("EVENT: MOUSE RELEASE (btn.:%d, state:%d)\n", event.data[0], event.data[1]);
+				} break;
+
+				case (GF_EVENT_KEY_PRESS): {
+					gf_logi("EVENT: KEY PRESS (key.:%d, state:%d)\n", event.data[0], event.data[1]);
+				} break;
+				case (GF_EVENT_KEY_RELEASE): {
+					gf_logi("EVENT: KEY RELEASE (key.:%d, state:%d)\n", event.data[0], event.data[1]);
 				} break;
 			}
 		}

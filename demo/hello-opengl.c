@@ -147,7 +147,7 @@ int	main(void) {
 				} break;
 
 				case (GF_EVENT_RESIZE): {
-					glViewport(0, 0, event.s_data.i[0], event.s_data.i[1]);
+					glViewport(0, 0, event.data[0], event.data[1]);
 				} break;
 
 			}
