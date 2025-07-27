@@ -22,10 +22,8 @@ VERBOSE	= OFF
 # ---------------------
 # X11 specific section:
 # ---------------------
-# ON (DEFAULT) / OFF
-X11_USE_GLX = ON
-# ON / OFF (DEFAULT)
-X11_USE_EGL = OFF
+# EGL (DEFAULT) / GLX
+X11_USE_API = EGL
 
 
 
@@ -46,12 +44,12 @@ else ifneq ($(VERBOSE),OFF)
 $(error VERBOSE flag not set to the correct value (EXPECTED: ON/OFF) (GOT: $(VERBOSE)))
 endif
 
-ifeq ($(X11_USE_GLX),ON)
-	CFLAGS += -DUSE_GLX
-else ifeq ($(X11_USE_EGL),ON)
+ifeq ($(X11_USE_API),EGL)
 	CFLAGS += -DUSE_EGL
+else ifeq ($(X11_USE_API),GLX)
+	CFLAGS += -DUSE_GLX
 else
-$(error X11_USE_GLX or X11_USE_EGL flags not set to the correct values))
+$(error X11_USE_API flag not set to the correct value (EXPECTED: EGL/GLX) (GOT: $(VERBOSE)))
 endif
 
 

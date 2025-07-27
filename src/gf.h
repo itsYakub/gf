@@ -8,7 +8,7 @@
  *  keyword for public interface declarations/definitions
  * */
 
-# if !defined GFAPI
+# if !defined (GFAPI)
 #  define GFAPI extern 
 # endif
 
@@ -16,8 +16,25 @@
  *  keyword for static/private interface declarations/definitions
  * */
 
-# if !defined GFAPIS
+# if !defined (GFAPIS)
 #  define GFAPIS static inline
+# endif
+
+/* GF_VERSION:
+ *  the current up-to-date version of gf
+ * GF_VERSION_MAJOR:
+ *  the current major version of gf
+ * GF_VERSION_MINOR:
+ *  the current minor version of gf
+ * */
+# if !defined (GF_VERSION)
+#  define GF_VERSION "1.0"
+# endif
+# if !defined (GF_VERSION_MAJOR)
+#  define GF_VERSION_MAJOR 1
+# endif
+# if !defined (GF_VERSION)
+#  define GF_VERSION_MINOR 0
 # endif
 
 /* Standard-library includes
@@ -52,12 +69,18 @@
 #  define gf_loge(...) fprintf(stdout, "\e[1;31m[ ERROR ] \e[0m" __VA_ARGS__)
 # endif
 
+
+
+
+
 enum {
 	GF_BUTTON_NONE = 0,
 	GF_BUTTON_LEFT = 1,
 	GF_BUTTON_RIGHT,
 	GF_BUTTON_MIDDLE
 } /* Mouse Buttons */;
+
+
 
 enum {
 	GF_KEY_NONE = 0,
@@ -132,15 +155,12 @@ enum {
 	GF_KEY_F7, GF_KEY_F8, GF_KEY_F9,
 	GF_KEY_F10, GF_KEY_F11, GF_KEY_F12,
 
+	/* ...More keycodes put here...
+	 * */
 	GF_KEYCODE_COUNT
 } /* Keycodes */;
 
-enum {
-	GF_WINDOW_FLAGS_NONE = 0,
-	GF_WINDOW_RESIZABLE = 1,
-	GF_WINDOW_VSYNC_HINT,
-	GF_WINDOW_FLAGS_COUNT
-} /* Window states */;
+
 
 enum {
 	GF_EVENT_NONE = 0,
@@ -157,6 +177,8 @@ enum {
 	GF_EVENT_COUNT
 } /* Window events */;
 
+
+
 struct s_event {
 	int32_t	type;
 	int32_t	data[8];
@@ -164,10 +186,16 @@ struct s_event {
 
 typedef struct s_event	t_event;
 
+
+
 /* Opaque pointer left for the implementation to fill
  * */
 
 typedef struct s_window	*t_window;
+
+
+
+
 
 /* SECTION:
  *  Interface declarations
@@ -189,6 +217,11 @@ GFAPI bool	gf_getMonitorSize(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getWindowPosition(t_window, int32_t *, int32_t *);
 
 GFAPI bool	gf_setWindowResizable(t_window, bool);
+GFAPI bool	gf_setWindowBorderless(t_window, bool);
+GFAPI bool	gf_setWindowTopMost(t_window, bool);
+GFAPI bool	gf_setWindowMinimized(t_window, bool);
+GFAPI bool	gf_setWindowMaximized(t_window, bool);
+GFAPI bool	gf_setWindowFullscreen(t_window, bool);
 GFAPI bool	gf_setWindowVSync(t_window, bool);
 
 GFAPI void	*gf_getProcAddress(const char *);

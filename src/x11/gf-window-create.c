@@ -43,7 +43,11 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 	*win = (t_window) calloc(1, sizeof(struct s_window));
 
 	assert(__gf_connectDisplay(*win));
+
+#if defined (USE_GLX)
 	assert(__gf_createVisualInfo(*win));
+#endif
+
 	assert(__gf_createWindow(*win, w, h, t));
 	
 	assert(gf_getWindowSize(*win, 0, 0));

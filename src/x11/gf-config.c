@@ -17,7 +17,7 @@
  *  Static globals
  * */
 
-static PFNGLXSWAPINTERVALEXTPROC			glXSwapIntervalEXT;
+static PFNGLXSWAPINTERVALEXTPROC	glXSwapIntervalEXT;
 
 /* SECTION:
  *  Public API implementation
@@ -55,6 +55,61 @@ GFAPI bool	gf_setWindowResizable(t_window win, bool state) {
 	return (true);
 }
 
+GFAPI bool	gf_setWindowBorderless(t_window win, bool state) {
+	(void) win;
+	if (state) {
+
+	}
+	else {
+
+	}
+	return (true);
+}
+
+GFAPI bool	gf_setWindowTopMost(t_window win, bool state) {
+	(void) win;
+	if (state) {
+
+	}
+	else {
+
+	}
+	return (true);
+}
+
+GFAPI bool	gf_setWindowMinimized(t_window win, bool state) {
+	(void) win;
+	if (state) {
+
+	}
+	else {
+
+	}
+	return (true);
+}
+
+GFAPI bool	gf_setWindowMaximized(t_window win, bool state) {
+	(void) win;
+	if (state) {
+
+	}
+	else {
+
+	}
+	return (true);
+}
+
+GFAPI bool	gf_setWindowFullscreen(t_window win, bool state) {
+	(void) win;
+	if (state) {
+
+	}
+	else {
+
+	}
+	return (true);
+}
+
 GFAPI bool	gf_setWindowVSync(t_window win, bool state) {
 	int32_t	_interval;
 
@@ -67,7 +122,8 @@ GFAPI bool	gf_setWindowVSync(t_window win, bool state) {
 	}
 	glXSwapIntervalEXT(win->x11.dsp, win->x11.id, _interval);
 #elif defined (USE_EGL)
-	eglSwapInterval(win->egl.dsp, win->egl.surf, _interval);
+	(void) glXSwapIntervalEXT;
+	eglSwapInterval(win->egl.dsp, _interval);
 #else
 	return (false);
 #endif

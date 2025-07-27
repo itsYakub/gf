@@ -1,7 +1,6 @@
 #include "./../gf.h"
 #include "./gf-int.h"
 
-#include <errno.h>
 #include <dlfcn.h>
 
 #include <EGL/egl.h>
@@ -161,6 +160,15 @@ GFAPIS bool	__gf_createContextEGL(t_window win) {
 
 		return (false);
 	}
+	
+	if (!eglBindAPI(EGL_OPENGL_API)) {
+
+#if defined (VERBOSE)
+		gf_loge("EGL: Failed to bind OpenGL api\n");
+#endif
+
+		return (false);
+	}
 
 	/* Create config object
 	 * */
@@ -193,15 +201,6 @@ GFAPIS bool	__gf_createContextEGL(t_window win) {
 
 #if defined (VERBOSE)
 		gf_loge("EGL: Context failed\n");
-#endif
-
-		return (false);
-	}
-
-	if (!eglBindAPI(EGL_OPENGL_API)) {
-
-#if defined (VERBOSE)
-		gf_loge("EGL: Failed to bind OpenGL api\n");
 #endif
 
 		return (false);
