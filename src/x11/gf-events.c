@@ -29,6 +29,7 @@ static const struct {
 	int32_t	x11;
 	int32_t	gf;
 } g_keysym_map[] = {
+
 	/* SECTION:
 	 *  ASCII keys
 	 * */
@@ -176,106 +177,49 @@ static const struct {
 	/* SECTION:
 	 *  Termination
 	 * */
+
 	{ INT_MAX, GF_KEY_NONE },
 };
+
+
+
+
 
 /* SECTION:
  *  Private interface declarations
  * */
 
+/* * X11 to gf inputting translation
+ * * */
 GFAPIS int32_t	__gf_getButtonFromX11Buttons(const int32_t);
 GFAPIS int32_t	__gf_getKeycodeFromX11Keysym(const int32_t);
+
+/* * gf internal event processing
+ * * */
+GFAPIS bool		__gf_pollGfEvents(t_window, t_event *);
+
+/* * X11 internal event processing
+ * * */
+GFAPIS bool		__gf_pollInternalEvents(t_window);
+GFAPIS bool		__gf_pollInternal_Quit(t_window, XEvent *);
+GFAPIS bool		__gf_pollInternal_ResizeMove(t_window, XEvent *);
+GFAPIS bool		__gf_pollInternal_Motion(t_window, XEvent *);
+GFAPIS bool		__gf_pollInternal_Button(t_window, XEvent *);
+GFAPIS bool		__gf_pollInternal_Key(t_window, XEvent *);
+
+
+
+
 
 /* SECTION:
  *  Public API implementation
  * */
 
 GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
-	XEvent	_x11_event;
-	t_event	_gf_event;
-
-	/* Poll gf events from event queue
-	 * */
-	{
-		while ((int) win->events.cnt > 0) {
-			*event = win->events.lst[win->events.cnt - 1];
-			gf_popEvent(win, event);
-			return (true);
-		}
+	if (__gf_pollGfEvents(win, event)) {
+		return (true);
 	}
-
-	/* Event queue emtpy, now we need to poll the events from implementation
-	 * */
-	{
-		while (XPending(win->x11.dsp)) {
-			memset(&_gf_event, 0, sizeof(t_event));
-			XNextEvent(win->x11.dsp, &_x11_event);
-			switch (_x11_event.type) {
-				case (ClientMessage): {
-					if ((Atom) _x11_event.xclient.data.l[0] == win->atoms.wm_delete_window) {
-						_gf_event.type = GF_EVENT_QUIT;
-						gf_pushEvent(win, &_gf_event);
-					}
-				} break;
-				
-				case (ConfigureNotify): {
-					if (
-						win->misc.width != _x11_event.xconfigure.width ||
-						win->misc.height != _x11_event.xconfigure.height
-					) {
-						_gf_event.type = GF_EVENT_RESIZE;
-						_gf_event.data[0] = win->misc.width = _x11_event.xconfigure.width;
-						_gf_event.data[1] = win->misc.height = _x11_event.xconfigure.height;
-					}
-					else if (
-						win->misc.x != _x11_event.xconfigure.x ||
-						win->misc.y != _x11_event.xconfigure.y
-					) {
-						_gf_event.type = GF_EVENT_MOVE;
-						_gf_event.data[0] = win->misc.x = _x11_event.xconfigure.x;
-						_gf_event.data[1] = win->misc.y = _x11_event.xconfigure.y;
-					}
-					else { break; }
-					gf_pushEvent(win, &_gf_event);
-				} break;	
-
-				case (MotionNotify): {
-					_gf_event.type = GF_EVENT_MOUSEMOTION;
-					_gf_event.data[0] = _x11_event.xmotion.x;
-					_gf_event.data[1] = _x11_event.xmotion.y;
-					_gf_event.data[2] = _x11_event.xmotion.x_root;
-					_gf_event.data[3] = _x11_event.xmotion.y_root;
-					gf_pushEvent(win, &_gf_event);
-				} break;
-				
-				case (ButtonPress):
-				case (ButtonRelease): {
-					_gf_event.data[0] = __gf_getButtonFromX11Buttons(_x11_event.xbutton.button);
-					if (_gf_event.data[0] == GF_KEY_NONE) {
-						break;
-					}
-					_gf_event.type = _x11_event.type == ButtonPress ? GF_EVENT_MOUSE_PRESS : GF_EVENT_MOUSE_RELEASE;
-					_gf_event.data[1] = _x11_event.type == ButtonPress ? true : false;
-					gf_pushEvent(win, &_gf_event);
-				} break;
-
-				case (KeyPress):
-				case (KeyRelease): {
-					int32_t	_key;
-
-					_key = XkbKeycodeToKeysym(win->x11.dsp, _x11_event.xkey.keycode, 0, _x11_event.xkey.state & ShiftMask ? 1 : 0);
-					_gf_event.data[0] = __gf_getKeycodeFromX11Keysym(_key);
-					if (_gf_event.data[0] == GF_KEY_NONE) {
-						break;
-					}
-					_gf_event.type = _x11_event.type == KeyPress ? GF_EVENT_KEY_PRESS : GF_EVENT_KEY_RELEASE;
-					_gf_event.data[1] = _x11_event.type == KeyPress ? true : false; 
-					gf_pushEvent(win, &_gf_event);
-				} break;
-			}
-
-		}
-	}
+	__gf_pollInternalEvents(win);
 	/* As there was no event to be retrieved, we return the 'none' event
 	 * */
 	memset(event, 0, sizeof(t_event));
@@ -296,9 +240,16 @@ GFAPI bool	gf_pushEvent(t_window win, t_event *e) {
 	return (true);
 }
 
+
+
+
+
 /* SECTION:
  *  Private interface definitions
  * */
+
+/* * X11 to gf inputting translation
+ * * */
 
 GFAPIS int32_t	__gf_getButtonFromX11Buttons(const int32_t btn) {
 	for (size_t i = 0; g_button_map[i].gf != GF_BUTTON_NONE; i++) {
@@ -316,4 +267,133 @@ GFAPIS int32_t	__gf_getKeycodeFromX11Keysym(const int32_t key) {
 		}
 	}
 	return (GF_KEY_NONE);
+}
+
+
+
+
+
+/* * gf internal event processing
+ * * */
+
+GFAPIS bool	__gf_pollGfEvents(t_window win, t_event *event) {
+	/* Poll gf events from event queue
+	 * */
+	while ((int) win->events.cnt > 0) {
+		*event = win->events.lst[win->events.cnt - 1];
+		gf_popEvent(win, event);
+		return (true);
+	}
+	return (false);
+}
+
+
+
+
+
+/* * X11 internal event processing
+ * * */
+
+GFAPIS bool	__gf_pollInternalEvents(t_window win) {
+	XEvent	_event;
+
+	/* Event queue emtpy, now we need to poll the events from implementation
+	 * */
+	while (XPending(win->x11.dsp)) {
+		XNextEvent(win->x11.dsp, &_event);
+		switch (_event.type) {
+			case (ClientMessage): {
+				__gf_pollInternal_Quit(win, &_event);
+			} break;
+			
+			case (ConfigureNotify): {
+				__gf_pollInternal_ResizeMove(win, &_event);
+			} break;	
+
+			case (MotionNotify): {
+				__gf_pollInternal_Motion(win, &_event);
+			} break;
+			
+			case (ButtonPress):
+			case (ButtonRelease): {
+				__gf_pollInternal_Button(win, &_event);
+			} break;
+
+			case (KeyPress):
+			case (KeyRelease): {
+				__gf_pollInternal_Key(win, &_event);
+			} break;
+		}
+	}
+	return (true);
+}
+
+GFAPIS bool	__gf_pollInternal_Quit(t_window win, XEvent *e) {
+	t_event	_event;
+
+	if ((Atom) e->xclient.data.l[0] == win->atoms.wm_delete_window) {
+		_event.type = GF_EVENT_QUIT;
+		return (gf_pushEvent(win, &_event));
+	}
+	return (false);
+}
+
+GFAPIS bool	__gf_pollInternal_ResizeMove(t_window win, XEvent *e) {
+	t_event	_event;
+
+	if (
+		win->misc.width != e->xconfigure.width ||
+		win->misc.height != e->xconfigure.height
+	) {
+		_event.type = GF_EVENT_RESIZE;
+		_event.data[0] = win->misc.width = e->xconfigure.width;
+		_event.data[1] = win->misc.height = e->xconfigure.height;
+	}
+	else if (
+		win->misc.x != e->xconfigure.x ||
+		win->misc.y != e->xconfigure.y
+	) {
+		_event.type = GF_EVENT_MOVE;
+		_event.data[0] = win->misc.x = e->xconfigure.x;
+		_event.data[1] = win->misc.y = e->xconfigure.y;
+	}
+	else { return (false); }
+	return (gf_pushEvent(win, &_event));
+}
+
+GFAPIS bool	__gf_pollInternal_Motion(t_window win, XEvent *e) {
+	t_event	_event;
+
+	_event.type = GF_EVENT_MOUSEMOTION;
+	_event.data[0] = e->xmotion.x;
+	_event.data[1] = e->xmotion.y;
+	_event.data[2] = e->xmotion.x_root;
+	_event.data[3] = e->xmotion.y_root;
+	return (gf_pushEvent(win, &_event));
+}
+
+GFAPIS bool	__gf_pollInternal_Button(t_window win, XEvent *e) {
+	t_event	_event;
+
+	_event.type = e->type == ButtonPress ? GF_EVENT_MOUSE_PRESS : GF_EVENT_MOUSE_RELEASE;
+	_event.data[1] = e->type == ButtonPress ? true : false;
+	_event.data[0] = __gf_getButtonFromX11Buttons(e->xbutton.button);
+	if (_event.data[0] == GF_KEY_NONE) {
+		return (false);
+	}
+	return (gf_pushEvent(win, &_event));
+}
+
+GFAPIS bool	__gf_pollInternal_Key(t_window win, XEvent *e) {
+	t_event	_event;
+	int32_t	_key;
+
+	_key = XkbKeycodeToKeysym(win->x11.dsp, e->xkey.keycode, 0, e->xkey.state & ShiftMask ? 1 : 0);
+	_event.type = e->type == KeyPress ? GF_EVENT_KEY_PRESS : GF_EVENT_KEY_RELEASE;
+	_event.data[1] = e->type == KeyPress ? true : false; 
+	_event.data[0] = __gf_getKeycodeFromX11Keysym(_key);
+	if (_event.data[0] == GF_KEY_NONE) {
+		return (false);
+	}
+	return (gf_pushEvent(win, &_event));
 }

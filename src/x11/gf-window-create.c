@@ -55,10 +55,12 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 	
 	assert(__gf_processAtoms(*win));
 
-	/* Setting up default window settings
+	/* Setting up default window configs
 	 * */	
 	gf_setWindowResizable(*win, false);
-	
+	gf_setWindowBorderless(*win, false);
+	gf_setWindowTopMost(*win, false);
+
 	return (true);
 }
 
@@ -222,6 +224,11 @@ GFAPIS	bool	__gf_createWindow(t_window win, const size_t w, const size_t h, cons
 
 GFAPIS bool	__gf_processAtoms(t_window win) {
 	win->atoms.wm_delete_window = XInternAtom(win->x11.dsp, "WM_DELETE_WINDOW", 0);
+	win->atoms.wm_net_state = XInternAtom(win->x11.dsp, "_NET_WM_STATE", 0);
+	win->atoms.wm_net_state_above = XInternAtom(win->x11.dsp, "_NET_WM_STATE_ABOVE", 0);
+	win->atoms.wm_net_window_type = XInternAtom(win->x11.dsp, "_NET_WM_WINDOW_TYPE", 0);
+	win->atoms.wm_net_window_normal = XInternAtom(win->x11.dsp, "_NET_WM_WINDOW_NORMAL", 0);
+	win->atoms.wm_net_window_dock = XInternAtom(win->x11.dsp, "_NET_WM_WINDOW_DOCK", 0);
 	XSetWMProtocols(win->x11.dsp, win->x11.id, &win->atoms.wm_delete_window, 1);
 	return (true);
 }

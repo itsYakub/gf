@@ -64,8 +64,6 @@ int	main(void) {
 		return (1);
 	}
 
-	gf_setWindowResizable(window, true);
-
 	/* SECTION:
 	 *  Manual OpenGL loading
 	 * */

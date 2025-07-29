@@ -38,16 +38,17 @@ struct s_window {
 		
 	struct {
 		Atom	wm_delete_window;
+		Atom	wm_net_state;
+		Atom	wm_net_state_above;
+		Atom	wm_net_window_type;
+		Atom	wm_net_window_normal;
+		Atom	wm_net_window_dock;
 	} atoms;
 
 	struct {
 		t_event	lst[64];
 		size_t	cnt;
 	} events;
-
-	struct {
-		int32_t	id;
-	} flags;
 
 	struct {
 		int32_t	width;

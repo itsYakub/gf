@@ -219,9 +219,6 @@ GFAPI bool	gf_getWindowPosition(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_setWindowResizable(t_window, bool);
 GFAPI bool	gf_setWindowBorderless(t_window, bool);
 GFAPI bool	gf_setWindowTopMost(t_window, bool);
-GFAPI bool	gf_setWindowMinimized(t_window, bool);
-GFAPI bool	gf_setWindowMaximized(t_window, bool);
-GFAPI bool	gf_setWindowFullscreen(t_window, bool);
 GFAPI bool	gf_setWindowVSync(t_window, bool);
 
 GFAPI void	*gf_getProcAddress(const char *);
