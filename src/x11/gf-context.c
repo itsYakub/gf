@@ -44,7 +44,6 @@ static PFNGLXCREATECONTEXTATTRIBSARBPROC	glXCreateContextAttribsARB;
  *  Private interface declarations
  * */
 
-GFAPIS bool	__gf_createContext(t_window);
 GFAPIS bool	__gf_createContextEGL(t_window);
 GFAPIS bool	__gf_createContextGLX(t_window);
 
@@ -52,9 +51,33 @@ GFAPIS bool	__gf_createContextGLX(t_window);
  *  Public API implementation
  * */
 
+GFAPI bool	gf_createContext(t_window win) {
+
+#if defined (USE_GLX)
+	__gf_createContextGLX(win);
+#elif defined (USE_EGL)
+	__gf_createContextEGL(win);
+#else
+	return (false);
+#endif
+
+#if defined (VERBOSE)
+	gf_logi("GL: Version: %s\n", glGetString(GL_VERSION));
+	gf_logi("GL: Vendor: %s\n", glGetString(GL_VENDOR));
+	gf_logi("GL: Renderer: %s\n", glGetString(GL_RENDERER));
+		
+	gf_logi("GLSL: Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+#endif
+
+	/* Setting up some default context settings
+	 * */
+	gf_setWindowVSync(win, 0);
+	return (true);
+}
+
 GFAPI bool	gf_makeCurrent(t_window win) {
 	if (!win->glx.ctx && !win->egl.ctx) {
-		__gf_createContext(win);
+		return (gf_createContext(win));
 	}
 
 #if defined (USE_GLX)
@@ -76,18 +99,6 @@ GFAPI bool	gf_makeCurrent(t_window win) {
 		return (false);
 	}
 #endif
-
-#if defined (VERBOSE)
-	gf_logi("GL: Version: %s\n", glGetString(GL_VERSION));
-	gf_logi("GL: Vendor: %s\n", glGetString(GL_VENDOR));
-	gf_logi("GL: Renderer: %s\n", glGetString(GL_RENDERER));
-		
-	gf_logi("GLSL: Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-#endif
-
-	/* Setting up some default context settings
-	 * */
-	gf_setWindowVSync(win, 0);
 
 	return (true);
 }
@@ -125,18 +136,6 @@ GFAPI void	*gf_getProcAddress(const char *name) {
 /* SECTION:
  *  Private interface definitions
  * */
-
-GFAPIS bool	__gf_createContext(t_window win) {
-
-#if defined (USE_GLX)
-	return (__gf_createContextGLX(win));
-#elif defined (USE_EGL)
-	return (__gf_createContextEGL(win));
-#else
-	return (false);
-#endif
-
-}
 
 GFAPIS bool	__gf_createContextEGL(t_window win) {
 	int32_t	_attr_cont_cnt;
@@ -206,6 +205,15 @@ GFAPIS bool	__gf_createContextEGL(t_window win) {
 		return (false);
 	}
 
+	if (!eglMakeCurrent(win->egl.dsp, win->egl.surf, win->egl.surf, win->egl.ctx)) {
+
+#if defined (VERBOSE)
+		gf_loge("EGL: Context failed\n");
+#endif
+
+		return (false);
+	}
+
 #if defined (VERBOSE)
 	gf_logi("EGL: Created successfully\n");
 	gf_logi("EGL: Client: %s\n", eglQueryString(win->egl.dsp, EGL_CLIENT_APIS));
@@ -229,6 +237,15 @@ GFAPIS bool	__gf_createContextGLX(t_window win) {
 		if (!win->glx.ctx) {
 			return (false);
 		}
+	}
+
+	if (!glXMakeCurrent(win->x11.dsp, win->x11.id, win->glx.ctx)) {
+
+#if defined (VERBOSE)
+		gf_loge("GLX: Context failed\n");
+#endif
+
+		return (false);
 	}
 
 #if defined (VERBOSE)

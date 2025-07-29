@@ -204,6 +204,7 @@ typedef struct s_window	*t_window;
 GFAPI bool	gf_createWindow(t_window *, const size_t, const size_t, const char *);
 GFAPI bool	gf_destroyWindow(t_window);
 
+GFAPI bool	gf_createContext(t_window);
 GFAPI bool	gf_makeCurrent(t_window);
 
 GFAPI bool	gf_swapBuffers(t_window);

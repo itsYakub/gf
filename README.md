@@ -59,7 +59,7 @@ $ make all
 #### 4. Run one of demo program supplied with the repository:
 
 ```console
-$ gcc ./demo/hello-world.c -L. -lgf -lEGL -lGL -lX11
+$ gcc ./demo/00-hello-world.c -L. -lgf -lEGL -lGL -lX11
 ```
 
 </details>
