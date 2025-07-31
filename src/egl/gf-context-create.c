@@ -84,7 +84,13 @@ GFAPI bool	gf_createContext(t_window win) {
 
 	/* Create EGL surface based on X11 window
 	 * */
+
+#if defined (USE_X11)
 	win->egl.surf = eglCreateWindowSurface(win->egl.dsp, win->egl.conf, (EGLNativeWindowType) win->x11.id, 0);
+#elif defined (USE_WL)
+	win->egl.surf = eglCreateWindowSurface(win->egl.dsp, win->egl.conf, (EGLNativeWindowType) 0, 0);
+#endif
+
 	if (!win->egl.surf) {
 
 #if defined (VERBOSE)
