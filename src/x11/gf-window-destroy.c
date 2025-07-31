@@ -4,9 +4,6 @@
 #include "./../gf-int.h"
 #include "./../gf.h"
 
-#include <assert.h>
-#include <stdlib.h>
-
 /* SECTION:
  *  Public API implementation
  * */

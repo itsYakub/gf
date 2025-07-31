@@ -26,7 +26,9 @@
 #  define _NET_WM_STATE_REMOVE      0    /* remove/unset property */
 #  define _NET_WM_STATE_ADD         1    /* add/set property */
 #  define _NET_WM_STATE_TOGGLE      2    /* toggle property  */
-# endif	
+# elif defined (USE_WL)
+
+# endif
 
 struct s_window {
 
@@ -51,6 +53,10 @@ struct s_window {
 		Atom	wm_net_window_normal;
 		Atom	wm_net_window_dock;
 	} atoms;
+# elif defined (USE_WL)
+	struct {
+
+	} wl;
 # endif
 
 # if defined (USE_EGL)

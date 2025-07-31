@@ -10,6 +10,13 @@ SRCS_X11= \
 	./src/x11/gf-window-utils.c \
 	./src/x11/gf-window-config.c
 
+SRCS_WL= \
+	./src/wl/gf-window-create.c \
+	./src/wl/gf-window-destroy.c \
+	./src/wl/gf-window-events.c \
+	./src/wl/gf-window-utils.c \
+	./src/wl/gf-window-config.c
+
 SRCS_EGL= \
 	./src/egl/gf-context-create.c \
 	./src/egl/gf-context-destroy.c \
@@ -64,7 +71,12 @@ ifeq ($(UNAME_S),Linux)
 		else
 			$(error Unrecognized OpenGL API: $(X11_USE_API))
 		endif
-
+	else ifeq ($(XDG_SESSION_TYPE), wayland)
+		CFLAGS	+= -DUSE_WL
+		CFLAGS	+= -DUSE_EGL # wayland uses EGL by default
+		SRCS	:= $(SRCS_WL)
+	else
+		$(error Unrecognized session type: $(XDG_SESSION_TYPE))
 	endif
 else ifeq ($(UNAME_S), Windows_NT)
 	CFLAGS	+= -DUSE_WIN32
