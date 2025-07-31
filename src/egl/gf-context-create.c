@@ -37,7 +37,13 @@ GFAPI bool	gf_createContext(t_window win) {
 
 	/* Create EGL display object based on X11 object
 	 * */
+
+#if defined (USE_X11)
 	win->egl.dsp = eglGetDisplay((EGLNativeDisplayType) win->x11.dsp);
+#elif defined (USE_WL)
+	win->egl.dsp = eglGetDisplay((EGLNativeDisplayType) 0);
+#endif
+
 	if (!win->egl.dsp) {
 
 #if defined (VERBOSE)
