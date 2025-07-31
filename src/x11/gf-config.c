@@ -22,6 +22,17 @@
 
 static PFNGLXSWAPINTERVALEXTPROC	glXSwapIntervalEXT;
 
+
+
+/* SECTION:
+ *  Private interface declarations
+ * */
+
+GFAPIS bool	__gf_sendX11Event(t_window, bool, Atom, Atom);
+
+
+
+
 /* SECTION:
  *  Public API implementation
  * */
@@ -32,6 +43,7 @@ GFAPI bool	gf_setWindowResizable(t_window win, bool state) {
 	int32_t		_width;
 	int32_t		_height;
 	
+	gf_int_ensureWindow(win);
 	_width = _height = 0;
 	gf_getWindowSize(win, &_width, &_height);
 	XGetWMNormalHints(win->x11.dsp, win->x11.id, &_hints, &_toto);	
@@ -49,6 +61,7 @@ GFAPI bool	gf_setWindowResizable(t_window win, bool state) {
 GFAPI bool	gf_setWindowBorderless(t_window win, bool state) {
 	Atom	_type;
 
+	gf_int_ensureWindow(win);
 	_type = state ? win->atoms.wm_net_window_dock : win->atoms.wm_net_window_normal;
 	XChangeProperty(
 		win->x11.dsp, win->x11.id,
@@ -59,30 +72,16 @@ GFAPI bool	gf_setWindowBorderless(t_window win, bool state) {
 	return (true);
 }
 
-GFAPI bool	gf_setWindowTopMost(t_window win, bool state) {
-	XClientMessageEvent	_event;
-	
-	memset(&_event, 0, sizeof(XClientMessageEvent));
-	_event.type = ClientMessage;
-	_event.display = win->x11.dsp;
-	_event.window = win->x11.id;
-	_event.send_event = true;
-	_event.serial = 0;
-	_event.format = 32;
-	
-	_event.message_type = win->atoms.wm_net_state;
-	_event.data.l[0] = state ? 1 : 0;
-	_event.data.l[1] = win->atoms.wm_net_state_above;
-	_event.data.l[3] = 1;
-	
-	XSendEvent(win->x11.dsp, DefaultRootWindow(win->x11.dsp), 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &_event);
-	XFlush(win->x11.dsp);
+GFAPI bool	gf_setWindowFullscreen(t_window win, bool state) {
+	gf_int_ensureWindow(win);
+	__gf_sendX11Event(win, state, win->atoms.wm_net_state_fullscreen, 0);
 	return (true);
 }
 
 GFAPI bool	gf_setWindowVSync(t_window win, bool state) {
 	int32_t	_interval;
 
+	gf_int_ensureWindow(win);
 	_interval = state ? 1 : 0;
 
 #if defined (USE_GLX)
@@ -98,5 +97,35 @@ GFAPI bool	gf_setWindowVSync(t_window win, bool state) {
 	return (false);
 #endif
 
+	return (true);
+}
+
+
+
+
+
+/* SECTION:
+ *  Private interface definitions
+ * */
+
+GFAPIS bool	__gf_sendX11Event(t_window win, bool state, Atom atom0, Atom atom1) {
+	XEvent	_event;
+	
+	memset(&_event, 0, sizeof(XEvent));
+	_event.type = ClientMessage;
+	_event.xclient.display = win->x11.dsp;
+	_event.xclient.window = win->x11.id;
+	_event.xclient.send_event = true;
+	_event.xclient.serial = 0;
+	_event.xclient.format = 32;
+	
+	_event.xclient.message_type = win->atoms.wm_net_state;
+	_event.xclient.data.l[0] = state ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE;
+	_event.xclient.data.l[1] = atom0;
+	_event.xclient.data.l[2] = atom1;
+	_event.xclient.data.l[3] = 1;
+	
+	XSendEvent(win->x11.dsp, win->x11.root_id, 0, SubstructureRedirectMask | SubstructureNotifyMask, &_event);
+	XFlush(win->x11.dsp);
 	return (true);
 }

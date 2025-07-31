@@ -59,7 +59,7 @@ int	main(void) {
 
 	if (
 		!gf_createWindow(&window, 960, 540, "gf 1.0 - Hello, OpenGL!") ||
-		!gf_makeCurrent(window)
+		!gf_createContext(window)
 	) {
 		return (1);
 	}
@@ -147,7 +147,7 @@ int	main(void) {
 				} break;
 
 				case (GF_EVENT_RESIZE): {
-					glViewport(0, 0, event.data[0], event.data[1]);
+					glViewport(0, 0, event.resize.w, event.resize.h);
 				} break;
 
 			}

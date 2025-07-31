@@ -164,14 +164,18 @@ enum {
 
 enum {
 	GF_EVENT_NONE = 0,
-	GF_EVENT_QUIT = 1,		/* DATA: none */
-	GF_EVENT_RESIZE,		/* DATA: [0] -> width, [1] -> height */
-	GF_EVENT_MOVE,			/* DATA: [0] -> x, [1] -> y */
-	GF_EVENT_MOUSEMOTION,	/* DATA: [0] -> x, [1] -> y, [2] -> x (relative), [3] -> y (relative) */
-	GF_EVENT_MOUSE_PRESS,	/* DATA: [0] -> button pressed, [1] -> state */
-	GF_EVENT_MOUSE_RELEASE,	/* DATA: [0] -> button released, [1] -> state */
-	GF_EVENT_KEY_PRESS,		/* DATA: [0] -> key pressed, [1] -> state */
-	GF_EVENT_KEY_RELEASE,	/* DATA: [0] -> key released, [1] -> state */
+	GF_EVENT_QUIT = 1,
+	GF_EVENT_RESIZE,
+	GF_EVENT_MOVE,
+	GF_EVENT_MINIMIZE,
+	GF_EVENT_MAXIMIZE,
+	GF_EVENT_FULLSCREEN,
+	GF_EVENT_MOUSEMOTION,
+	GF_EVENT_MOUSE_SCROLL,
+	GF_EVENT_MOUSE_PRESS,
+	GF_EVENT_MOUSE_RELEASE,
+	GF_EVENT_KEY_PRESS,	
+	GF_EVENT_KEY_RELEASE,
 	/* ...More events put here...
 	 * */
 	GF_EVENT_COUNT
@@ -181,7 +185,18 @@ enum {
 
 struct s_event {
 	int32_t	type;
-	int32_t	data[8];
+	union {
+		struct { int32_t type; } quit;
+		struct { int32_t w, h; } resize;
+		struct { int32_t x, y; } move;
+		struct { bool state; } minimize;
+		struct { bool state; } maximize;
+		struct { bool state; } fullscreen;
+		struct { int32_t x, xrel, y, yrel; } motion;
+		struct { int32_t val; } scroll;
+		struct { int32_t btn; bool state; } button;
+		struct { int32_t key; bool state; } key;
+	};
 };
 
 typedef struct s_event	t_event;
@@ -204,24 +219,28 @@ typedef struct s_window	*t_window;
 GFAPI bool	gf_createWindow(t_window *, const size_t, const size_t, const char *);
 GFAPI bool	gf_destroyWindow(t_window);
 
-GFAPI bool	gf_createContext(t_window);
-GFAPI bool	gf_makeCurrent(t_window);
-
-GFAPI bool	gf_swapBuffers(t_window);
-
-GFAPI bool	gf_pollEvents(t_window, t_event *);
-GFAPI bool	gf_popEvent(t_window, t_event *);
-GFAPI bool	gf_pushEvent(t_window, t_event *);
-
 GFAPI bool	gf_getWindowSize(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getMonitorSize(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getWindowPosition(t_window, int32_t *, int32_t *);
 
 GFAPI bool	gf_setWindowResizable(t_window, bool);
 GFAPI bool	gf_setWindowBorderless(t_window, bool);
-GFAPI bool	gf_setWindowTopMost(t_window, bool);
+GFAPI bool	gf_setWindowFullscreen(t_window, bool);
 GFAPI bool	gf_setWindowVSync(t_window, bool);
 
+
+
+GFAPI bool	gf_createContext(t_window);
+GFAPI bool	gf_makeCurrent(t_window);
+GFAPI bool	gf_swapBuffers(t_window);
 GFAPI void	*gf_getProcAddress(const char *);
+
+
+
+GFAPI bool	gf_pollEvents(t_window, t_event *);
+GFAPI bool	gf_popEvent(t_window, t_event *);
+GFAPI bool	gf_pushEvent(t_window, t_event *);
+
+GFAPI char	*gf_keyToString(const int32_t);
 
 #endif

@@ -26,6 +26,7 @@ GFAPIS bool	__gf_destroyContext(t_window);
  * */
 
 GFAPI bool	gf_destroyWindow(t_window win) {
+	gf_int_ensureWindow(win);
 	assert(__gf_destroyContext(win));
 	assert(__gf_destroyWindow(win));
 	free(win);

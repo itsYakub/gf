@@ -8,6 +8,7 @@
 GFAPI bool	gf_getWindowSize(t_window win, int32_t *wptr, int32_t *hptr) {
 	XWindowAttributes	_attr;
 
+	gf_int_ensureWindow(win);
 	memset(&_attr, 0, sizeof(XWindowAttributes));
 	if (!XGetWindowAttributes(win->x11.dsp, win->x11.id, &_attr)) {
 		return (false);
@@ -30,13 +31,14 @@ GFAPI bool	gf_getWindowSize(t_window win, int32_t *wptr, int32_t *hptr) {
 }
 
 GFAPI bool	gf_getMonitorSize(t_window win, int32_t *wptr, int32_t *hptr) {
+	gf_int_ensureWindow(win);
 	/* Setting the value of the 'wptr' and 'hptr' (memory safe)
 	 * */
 	if (wptr) {
-		*wptr = DisplayWidth(win->x11.dsp, DefaultScreen(win->x11.dsp));
+		*wptr = DisplayWidth(win->x11.dsp, win->x11.screen_id);
 	}
 	if (hptr) {
-		*hptr = DisplayHeight(win->x11.dsp, DefaultScreen(win->x11.dsp));
+		*hptr = DisplayHeight(win->x11.dsp, win->x11.screen_id);
 	}
 	return (true);
 }
@@ -46,6 +48,7 @@ GFAPI bool	gf_getWindowPosition(t_window win, int32_t *xptr, int32_t *yptr) {
 	Window				_child;
 	int32_t				_x, _y;
 
+	gf_int_ensureWindow(win);
 	memset(&_attr, 0, sizeof(XWindowAttributes));
 	if (!XGetWindowAttributes(win->x11.dsp, win->x11.id, &_attr)) {
 		return (false);
@@ -53,7 +56,7 @@ GFAPI bool	gf_getWindowPosition(t_window win, int32_t *xptr, int32_t *yptr) {
 
 	_x = _y = 0;
 	XTranslateCoordinates(
-		win->x11.dsp, win->x11.id, DefaultRootWindow(win->x11.dsp),
+		win->x11.dsp, win->x11.id, win->x11.root_id,
 		0, 0, &_x, &_y,
 		&_child
 	);

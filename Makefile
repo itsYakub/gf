@@ -3,7 +3,13 @@ CFLAGS	= -Wall -Wextra -Werror -std=c99
 AR		= ar
 ARFLAGS	= rcs
 
-SRCS_X11= ./src/x11/gf-window-create.c ./src/x11/gf-window-destroy.c ./src/x11/gf-context.c ./src/x11/gf-events.c ./src/x11/gf-utils.c ./src/x11/gf-config.c
+SRCS_X11= \
+	./src/x11/gf-window-create.c \
+	./src/x11/gf-window-destroy.c \
+	./src/x11/gf-context.c \
+	./src/x11/gf-events.c \
+	./src/x11/gf-utils.c \
+	./src/x11/gf-config.c
 
 SRCS	= $(SRCS_X11)
 OBJS	= $(SRCS:.c=.o)
@@ -18,7 +24,7 @@ OBJS	= $(SRCS:.c=.o)
 # ON / OFF (DEFAULT)
 SHARED	= OFF
 # ON / OFF (DEFAULT)
-VERBOSE	= OFF
+VERBOSE	= ON
 # ---------------------
 # X11 specific section:
 # ---------------------

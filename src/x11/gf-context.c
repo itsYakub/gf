@@ -52,6 +52,7 @@ GFAPIS bool	__gf_createContextGLX(t_window);
  * */
 
 GFAPI bool	gf_createContext(t_window win) {
+	gf_int_ensureWindow(win);
 
 #if defined (USE_GLX)
 	__gf_createContextGLX(win);
@@ -76,6 +77,7 @@ GFAPI bool	gf_createContext(t_window win) {
 }
 
 GFAPI bool	gf_makeCurrent(t_window win) {
+	gf_int_ensureWindow(win);
 	if (!win->glx.ctx && !win->egl.ctx) {
 		return (gf_createContext(win));
 	}
@@ -104,6 +106,7 @@ GFAPI bool	gf_makeCurrent(t_window win) {
 }
 
 GFAPI bool	gf_swapBuffers(t_window win) {
+	gf_int_ensureWindow(win);
 
 #if defined (USE_GLX)
 	glXSwapBuffers(win->x11.dsp, win->x11.id);
