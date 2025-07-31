@@ -1,28 +1,8 @@
+#if !defined USE_X11
+# define USE_X11
+#endif
+#include "./../gf-int.h"
 #include "./../gf.h"
-#include "./gf-int.h"
-
-#include <string.h>
-
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
-#include <X11/Xutil.h>
-
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-
-#include <GL/glx.h>
-#include <GL/glxext.h>
-
-#include <GL/gl.h>
-
-/* SECTION:
- *  Static globals
- * */
-
-static PFNGLXSWAPINTERVALEXTPROC	glXSwapIntervalEXT;
-
-
 
 /* SECTION:
  *  Private interface declarations
@@ -43,7 +23,6 @@ GFAPI bool	gf_setWindowResizable(t_window win, bool state) {
 	int32_t		_width;
 	int32_t		_height;
 	
-	gf_int_ensureWindow(win);
 	_width = _height = 0;
 	gf_getWindowSize(win, &_width, &_height);
 	XGetWMNormalHints(win->x11.dsp, win->x11.id, &_hints, &_toto);	
@@ -61,7 +40,6 @@ GFAPI bool	gf_setWindowResizable(t_window win, bool state) {
 GFAPI bool	gf_setWindowBorderless(t_window win, bool state) {
 	Atom	_type;
 
-	gf_int_ensureWindow(win);
 	_type = state ? win->atoms.wm_net_window_dock : win->atoms.wm_net_window_normal;
 	XChangeProperty(
 		win->x11.dsp, win->x11.id,
@@ -73,30 +51,7 @@ GFAPI bool	gf_setWindowBorderless(t_window win, bool state) {
 }
 
 GFAPI bool	gf_setWindowFullscreen(t_window win, bool state) {
-	gf_int_ensureWindow(win);
 	__gf_sendX11Event(win, state, win->atoms.wm_net_state_fullscreen, 0);
-	return (true);
-}
-
-GFAPI bool	gf_setWindowVSync(t_window win, bool state) {
-	int32_t	_interval;
-
-	gf_int_ensureWindow(win);
-	_interval = state ? 1 : 0;
-
-#if defined (USE_GLX)
-	glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress((GLubyte *) "glXSwapIntervalEXT");
-	if (!glXSwapIntervalEXT) {
-		return (false);
-	}
-	glXSwapIntervalEXT(win->x11.dsp, win->x11.id, _interval);
-#elif defined (USE_EGL)
-	(void) glXSwapIntervalEXT;
-	eglSwapInterval(win->egl.dsp, _interval);
-#else
-	return (false);
-#endif
-
 	return (true);
 }
 

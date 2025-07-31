@@ -231,6 +231,7 @@ GFAPI bool	gf_setWindowVSync(t_window, bool);
 
 
 GFAPI bool	gf_createContext(t_window);
+GFAPI bool	gf_destroyContext(t_window);
 GFAPI bool	gf_makeCurrent(t_window);
 GFAPI bool	gf_swapBuffers(t_window);
 GFAPI void	*gf_getProcAddress(const char *);

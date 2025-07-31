@@ -35,8 +35,8 @@ int	main(void) {
 	
 exit:
 
-	gf_destroyWindow(window0);
-	gf_destroyWindow(window1);
+	gf_destroyContext(window0); gf_destroyWindow(window0);
+	gf_destroyContext(window1); gf_destroyWindow(window1);
 	
 	return (0);
 }

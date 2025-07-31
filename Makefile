@@ -6,13 +6,19 @@ ARFLAGS	= rcs
 SRCS_X11= \
 	./src/x11/gf-window-create.c \
 	./src/x11/gf-window-destroy.c \
-	./src/x11/gf-context.c \
-	./src/x11/gf-events.c \
-	./src/x11/gf-utils.c \
-	./src/x11/gf-config.c
+	./src/x11/gf-window-events.c \
+	./src/x11/gf-window-utils.c \
+	./src/x11/gf-window-config.c
 
-SRCS	= $(SRCS_X11)
-OBJS	= $(SRCS:.c=.o)
+SRCS_EGL= \
+	./src/egl/gf-context-create.c \
+	./src/egl/gf-context-destroy.c \
+	./src/egl/gf-context-config.c
+
+SRCS_GLX= \
+	./src/glx/gf-context-create.c \
+	./src/glx/gf-context-destroy.c \
+	./src/glx/gf-context-config.c
 
 
 
@@ -24,7 +30,7 @@ OBJS	= $(SRCS:.c=.o)
 # ON / OFF (DEFAULT)
 SHARED	= OFF
 # ON / OFF (DEFAULT)
-VERBOSE	= ON
+VERBOSE	= OFF
 # ---------------------
 # X11 specific section:
 # ---------------------
@@ -34,12 +40,49 @@ X11_USE_API = EGL
 
 
 # SECTION:
+#  PLATFORM Configuration
+
+ifeq ($(OS),Windows_NT)
+	UNAME_S := Windows_NT
+else
+	UNAME_S := $(shell uname -s)
+endif
+
+ifeq ($(UNAME_S),Linux)
+	XDG_SESSION_TYPE = $(shell echo $${XDG_SESSION_TYPE})
+
+	ifeq ($(XDG_SESSION_TYPE),x11)
+		CFLAGS	+= -DUSE_X11
+		SRCS	:= $(SRCS_X11)
+
+		ifeq ($(X11_USE_API),EGL)
+			CFLAGS	+= -DUSE_EGL
+			SRCS	+= $(SRCS_EGL)
+		else ifeq ($(X11_USE_API),GLX)
+			CFLAGS	+= -DUSE_GLX
+			SRCS	+= $(SRCS_GLX)
+		else
+			$(error Unrecognized OpenGL API: $(X11_USE_API))
+		endif
+
+	endif
+else ifeq ($(UNAME_S), Windows_NT)
+	CFLAGS	+= -DUSE_WIN32
+	SRCS	:= $(SRCS_WIN32)
+	SRCS	+= $(SRCS_WGL)
+else
+	$(error Unrecognized Platform: $(UNAME_S))
+endif
+
+OBJS	= $(SRCS:.c=.o)
+
+# SECTION:
 #  OPTIONS Configuration
 
 ifeq ($(SHARED),OFF)
-	TARGET = libgf.a
+	TARGET := libgf.a
 else ifeq ($(SHARED),ON)
-	TARGET = libgf.so
+	TARGET := libgf.so
 else
 $(error SHARED flag not set to the correct value (EXPECTED: ON/OFF) (GOT: $(SHARED)))
 endif
@@ -48,14 +91,6 @@ ifeq ($(VERBOSE),ON)
 	CFLAGS += -DVERBOSE
 else ifneq ($(VERBOSE),OFF)
 $(error VERBOSE flag not set to the correct value (EXPECTED: ON/OFF) (GOT: $(VERBOSE)))
-endif
-
-ifeq ($(X11_USE_API),EGL)
-	CFLAGS += -DUSE_EGL
-else ifeq ($(X11_USE_API),GLX)
-	CFLAGS += -DUSE_GLX
-else
-$(error X11_USE_API flag not set to the correct value (EXPECTED: EGL/GLX) (GOT: $(VERBOSE)))
 endif
 
 

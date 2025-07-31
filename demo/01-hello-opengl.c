@@ -178,7 +178,8 @@ int	main(void) {
 	
 	glUseProgram(0);
 	glDeleteProgram(shader); shader = 0;
-	
+
+	gf_destroyContext(window);	
 	gf_destroyWindow(window);
 	
 	return (0);

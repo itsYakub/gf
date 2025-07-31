@@ -1,17 +1,14 @@
+#if !defined USE_X11
+# define USE_X11
+#endif
+#include "./../gf-int.h"
 #include "./../gf.h"
-#include "./gf-int.h"
-
-#include <assert.h>
-#include <stdlib.h>
-
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
 
 /* SECTION:
  *  Static globals
  * */
 
+#if defined (USE_GLX)
 static int32_t	g_glx_attr_conf[] = {
 	GLX_USE_GL,				1,
 	GLX_DOUBLEBUFFER,		1,
@@ -25,6 +22,7 @@ static int32_t	g_glx_attr_conf[] = {
 	GLX_DRAWABLE_TYPE,      GLX_WINDOW_BIT,
 	None
 };
+#endif
 
 /* SECTION:
  *  Private interface declarations
@@ -108,6 +106,8 @@ GFAPIS	bool	__gf_connectDisplay(t_window win) {
 }
 
 GFAPIS bool	__gf_createVisualInfo(t_window win) {
+
+#if defined (USE_GLX)
 	GLXFBConfig	*_fbconf_arr;
 	int32_t		_fbconf_best,
 				_fbconf_count,
@@ -153,6 +153,10 @@ GFAPIS bool	__gf_createVisualInfo(t_window win) {
 		return (false);
 	}
 	return (true);
+#endif
+
+	(void) win;
+	return (false);
 }
 
 GFAPIS	bool	__gf_createWindow(t_window win, const size_t w, const size_t h, const char * t) {

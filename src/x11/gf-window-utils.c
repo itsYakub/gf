@@ -1,14 +1,12 @@
+#if !defined USE_X11
+# define USE_X11
+#endif
+#include "./../gf-int.h"
 #include "./../gf.h"
-#include "./gf-int.h"
-
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
 
 GFAPI bool	gf_getWindowSize(t_window win, int32_t *wptr, int32_t *hptr) {
 	XWindowAttributes	_attr;
 
-	gf_int_ensureWindow(win);
 	memset(&_attr, 0, sizeof(XWindowAttributes));
 	if (!XGetWindowAttributes(win->x11.dsp, win->x11.id, &_attr)) {
 		return (false);
@@ -31,7 +29,6 @@ GFAPI bool	gf_getWindowSize(t_window win, int32_t *wptr, int32_t *hptr) {
 }
 
 GFAPI bool	gf_getMonitorSize(t_window win, int32_t *wptr, int32_t *hptr) {
-	gf_int_ensureWindow(win);
 	/* Setting the value of the 'wptr' and 'hptr' (memory safe)
 	 * */
 	if (wptr) {
@@ -48,7 +45,6 @@ GFAPI bool	gf_getWindowPosition(t_window win, int32_t *xptr, int32_t *yptr) {
 	Window				_child;
 	int32_t				_x, _y;
 
-	gf_int_ensureWindow(win);
 	memset(&_attr, 0, sizeof(XWindowAttributes));
 	if (!XGetWindowAttributes(win->x11.dsp, win->x11.id, &_attr)) {
 		return (false);

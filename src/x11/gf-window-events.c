@@ -1,16 +1,8 @@
+#if !defined USE_X11
+# define USE_X11
+#endif
+#include "./../gf-int.h"
 #include "./../gf.h"
-#include "./gf-int.h"
-
-#include <limits.h>
-#include <stdlib.h>
-
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
-#include <X11/XKBlib.h>
-#include <X11/keysym.h>
-#include <X11/keysymdef.h>
 
 /* SECTION:
  *  Static globals
@@ -218,7 +210,6 @@ GFAPIS bool		__gf_pollInternal_Key(t_window, XEvent *);
  * */
 
 GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
-	gf_int_ensureWindow(win);
 	if (__gf_pollGfEvents(win, event)) {
 		return (true);
 	}
@@ -230,7 +221,6 @@ GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
 }
 
 GFAPI bool	gf_popEvent(t_window win, t_event *e) {
-	gf_int_ensureWindow(win);
 	if (win->events.cnt <= 0) {
 		return (false);
 	}
@@ -242,10 +232,9 @@ GFAPI bool	gf_popEvent(t_window win, t_event *e) {
 }
 
 GFAPI bool	gf_pushEvent(t_window win, t_event *e) {
-	gf_int_ensureWindow(win);
 	/* Check overflows of event queue
 	 * */
-	if (win->events.cnt >= GF_INT_EVENT_QUEUE_SIZE) {
+	if (win->events.cnt >= _GF_EVENT_QUEUE_SIZE) {
 		return (false);
 	}
 	/* Check if event is valid
