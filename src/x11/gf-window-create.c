@@ -47,12 +47,13 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 #endif
 
 	assert(__gf_createWindow(*win, w, h, t));
-	
+	assert(__gf_processAtoms(*win));
+
+	/* Get the misc. data
+	 * */
 	assert(gf_getWindowSize(*win, 0, 0));
 	assert(gf_getWindowPosition(*win, 0, 0));
 	
-	assert(__gf_processAtoms(*win));
-
 	/* Setting up default window configs
 	 * */	
 	gf_setWindowResizable(*win, false);
@@ -61,6 +62,10 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 
 	return (true);
 }
+
+
+
+
 
 /* SECTION:
  *  Private interface definitions

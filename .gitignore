@@ -13,3 +13,7 @@
 *.swp
 *.swo
 .vscode/
+
+# xdg-shell
+xdg-shell.h
+xdg-shell.c

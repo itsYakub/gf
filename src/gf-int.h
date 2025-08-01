@@ -10,6 +10,10 @@
 # if defined (USE_EGL)
 #  include <EGL/egl.h>
 #  include <EGL/eglext.h>
+#  if defined (USE_WL)
+#   include <wayland-egl.h>
+#   include <wayland-egl-core.h>
+#  endif
 # elif defined (USE_GLX)
 #  include <GL/glx.h>
 #  include <GL/glxext.h>
@@ -27,7 +31,17 @@
 #  define _NET_WM_STATE_ADD         1    /* add/set property */
 #  define _NET_WM_STATE_TOGGLE      2    /* toggle property  */
 # elif defined (USE_WL)
+#  include <wayland-client.h>
+#  include <wayland-client-core.h>
+#  include <wayland-client-protocol.h>
 
+/* This client needs to be generated either by the build system or manually in the ./src/wl directory:
+ * $ wayland-scanner client-header /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml /path/to/gf/src/wl/xdg-shell.h
+ *
+ * REMEBER: We also need to generate a source code for the xdg library, preferably at the same location as xdg-shell.h
+ * $ wayland-scanner private-code /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml /path/to/gf/src/wl/xdg-shell.c
+ * */
+#  include "./wl/xdg-shell.h"
 # endif
 
 struct s_window {
@@ -55,8 +69,18 @@ struct s_window {
 	} atoms;
 # elif defined (USE_WL)
 	struct {
-
+		struct wl_display		*dsp;
+		struct wl_egl_window	*id;
+		struct wl_registry		*reg;
+		struct wl_compositor	*comp;
+		struct wl_surface		*surf;
 	} wl;
+	
+	struct {
+		struct xdg_wm_base		*base;
+		struct xdg_surface		*surf;
+		struct xdg_toplevel		*toplevel;
+	} xdg;
 # endif
 
 # if defined (USE_EGL)

@@ -1,31 +1,33 @@
+MK_ROOT	:=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+
 CC		= cc
 CFLAGS	= -Wall -Wextra -Werror -std=c99
 AR		= ar
 ARFLAGS	= rcs
 
 SRCS_X11= \
-	./src/x11/gf-window-create.c \
-	./src/x11/gf-window-destroy.c \
-	./src/x11/gf-window-events.c \
-	./src/x11/gf-window-utils.c \
-	./src/x11/gf-window-config.c
+	$(MK_ROOT)src/x11/gf-window-create.c \
+	$(MK_ROOT)src/x11/gf-window-destroy.c \
+	$(MK_ROOT)src/x11/gf-window-events.c \
+	$(MK_ROOT)src/x11/gf-window-utils.c \
+	$(MK_ROOT)src/x11/gf-window-config.c
 
-SRCS_WL= \
-	./src/wl/gf-window-create.c \
-	./src/wl/gf-window-destroy.c \
-	./src/wl/gf-window-events.c \
-	./src/wl/gf-window-utils.c \
-	./src/wl/gf-window-config.c
+SRCS_WL	= \
+	$(MK_ROOT)src/wl/gf-window-create.c \
+	$(MK_ROOT)src/wl/gf-window-destroy.c \
+	$(MK_ROOT)src/wl/gf-window-events.c \
+	$(MK_ROOT)src/wl/gf-window-utils.c \
+	$(MK_ROOT)src/wl/gf-window-config.c
 
 SRCS_EGL= \
-	./src/egl/gf-context-create.c \
-	./src/egl/gf-context-destroy.c \
-	./src/egl/gf-context-config.c
+	$(MK_ROOT)src/egl/gf-context-create.c \
+	$(MK_ROOT)src/egl/gf-context-destroy.c \
+	$(MK_ROOT)src/egl/gf-context-config.c
 
 SRCS_GLX= \
-	./src/glx/gf-context-create.c \
-	./src/glx/gf-context-destroy.c \
-	./src/glx/gf-context-config.c
+	$(MK_ROOT)src/glx/gf-context-create.c \
+	$(MK_ROOT)src/glx/gf-context-destroy.c \
+	$(MK_ROOT)src/glx/gf-context-config.c
 
 
 
@@ -71,13 +73,21 @@ ifeq ($(UNAME_S),Linux)
 		else
 			$(error Unrecognized OpenGL API: $(X11_USE_API))
 		endif
+
 	else ifeq ($(XDG_SESSION_TYPE), wayland)
+		# wayland client is dependent on xdg, which is some sort of stdlib for windowing, to work
+		# we need to generate it in order to use it properly
+		XDG_HEADER := $(shell wayland-scanner client-header /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml $(MK_ROOT)src/wl/xdg-shell.h)
+		XDG_SOURCE := $(shell wayland-scanner private-code /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml $(MK_ROOT)src/wl/xdg-shell.c)
+		
 		CFLAGS	+= -DUSE_WL
 		CFLAGS	+= -DUSE_EGL # wayland uses EGL by default
 		SRCS	:= $(SRCS_WL)
+		SRCS	+= $(XDG_SOURCE)
 	else
 		$(error Unrecognized session type: $(XDG_SESSION_TYPE))
 	endif
+
 else ifeq ($(UNAME_S), Windows_NT)
 	CFLAGS	+= -DUSE_WIN32
 	SRCS	:= $(SRCS_WIN32)
@@ -142,7 +152,7 @@ clean :
 
 install :
 	cp $(TARGET) /usr/local/lib
-	cp ./src/gf.h /usr/local/include
+	cp $(MK_ROOT)src/gf.h /usr/local/include
 
 $(TARGET) : $(OBJS)
 
