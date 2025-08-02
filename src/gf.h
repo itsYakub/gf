@@ -241,6 +241,7 @@ GFAPI void	*gf_getProcAddress(const char *);
 GFAPI bool	gf_pollEvents(t_window, t_event *);
 GFAPI bool	gf_popEvent(t_window, t_event *);
 GFAPI bool	gf_pushEvent(t_window, t_event *);
+GFAPI bool	gf_flushEvents(t_window);
 
 GFAPI char	*gf_keyToString(const int32_t);
 

@@ -184,11 +184,12 @@ static const struct {
 /* * Wayland to gf inputting translation
  * * */
 GFAPIS int32_t	__gf_getButtonFromWlButtons(const int32_t);
-GFAPIS int32_t	__gf_getKeycodeFromWl1Keysym(const int32_t);
+GFAPIS int32_t	__gf_getKeycodeFromWlKeysym(const int32_t);
 
 /* * gf internal event processing
  * * */
 GFAPIS bool		__gf_pollGfEvents(t_window, t_event *);
+GFAPIS bool		__gf_pollInternalEvents(t_window);
 
 
 
@@ -202,6 +203,8 @@ GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
 	if (__gf_pollGfEvents(win, event)) {
 		return (true);
 	}
+
+	__gf_pollInternalEvents(win);
 	*event = (t_event) { 0 };
 	return (false);
 }
@@ -229,6 +232,25 @@ GFAPI bool	gf_pushEvent(t_window win, t_event *e) {
 		return (false);
 	}
 	memcpy(&win->events.lst[win->events.cnt++], e, sizeof(t_event));
+	return (true);
+}
+
+GFAPI bool	gf_flushEvents(t_window win) {
+	struct pollfd	_fd;
+
+	_fd = (struct pollfd) {
+		.fd = wl_display_get_fd(win->wl.dsp), .events = POLLOUT
+	};
+	while (wl_display_flush(win->wl.dsp) == -1) {
+		if (errno == EAGAIN) {
+			return (false);
+		}
+		while (poll(&_fd, 1, -1) == -1) {
+			if (errno != EINTR && errno != EAGAIN) {
+				return (false);
+			}
+		}
+	}
 	return (true);
 }
 
@@ -285,4 +307,41 @@ GFAPIS bool	__gf_pollGfEvents(t_window win, t_event *event) {
 		return (true);
 	}
 	return (false);
+}
+
+GFAPIS bool	__gf_pollInternalEvents(t_window win) {
+	struct pollfd	_fd;
+	bool			_event;
+
+	_fd = (struct pollfd) {
+		.fd = wl_display_get_fd(win->wl.dsp), .events = POLLIN
+	};
+	_event = false;
+	while (!_event) {
+		while (wl_display_prepare_read(win->wl.dsp) != 0) {
+			if (wl_display_dispatch_pending(win->wl.dsp) > 0) {
+				return (false);
+			}
+		}
+		if (!gf_flushEvents(win)) {
+			wl_display_cancel_read(win->wl.dsp);
+			return (false);
+		}
+
+		if (poll(&_fd, 1, -1) > 0) {
+			wl_display_cancel_read(win->wl.dsp);
+			return (false);
+		}
+
+		if (_fd.revents & POLLIN) {
+			wl_display_read_events(win->wl.dsp);
+			if (wl_display_dispatch_pending(win->wl.dsp) > 0) {
+				_event = true;
+			}
+		}
+		else {
+			wl_display_cancel_read(win->wl.dsp);
+		}
+	}
+	return (true);
 }

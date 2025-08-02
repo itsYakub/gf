@@ -246,6 +246,13 @@ GFAPI bool	gf_pushEvent(t_window win, t_event *e) {
 	return (true);
 }
 
+GFAPI bool	gf_flushEvents(t_window win) {
+	if (!XFlush(win->x11.dsp)) {
+		return (false);
+	}
+	return (true);
+}
+
 GFAPI char	*gf_keyToString(const int32_t key) {
 	for (size_t i = 0; g_key_map[i].gf != GF_KEY_NONE; i++) {
 		if (g_key_map[i].gf == (int32_t) key) {

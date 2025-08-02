@@ -55,6 +55,10 @@ GFAPI bool	gf_createContext(t_window win) {
 	gf_logi("GLX: Version: %s\n", glXGetClientString(win->x11.dsp, GLX_VERSION));
 	gf_logi("GLX: Vendor: %s\n", glXGetClientString(win->x11.dsp, GLX_VENDOR));
 #endif
+	
+	/* Setting up some default context settings
+	 * */
+	gf_setWindowVSync(win, 0);
 
 	return (true);
 }

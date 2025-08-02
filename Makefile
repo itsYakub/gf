@@ -19,6 +19,9 @@ SRCS_WL	= \
 	$(MK_ROOT)src/wl/gf-window-utils.c \
 	$(MK_ROOT)src/wl/gf-window-config.c
 
+SRCS_XDG= \
+	$(MK_ROOT)src/wl/xdg-shell.c \
+
 SRCS_EGL= \
 	$(MK_ROOT)src/egl/gf-context-create.c \
 	$(MK_ROOT)src/egl/gf-context-destroy.c \
@@ -39,7 +42,7 @@ SRCS_GLX= \
 # ON / OFF (DEFAULT)
 SHARED	= OFF
 # ON / OFF (DEFAULT)
-VERBOSE	= OFF
+VERBOSE	= ON
 # ---------------------
 # X11 specific section:
 # ---------------------
@@ -83,7 +86,8 @@ ifeq ($(UNAME_S),Linux)
 		CFLAGS	+= -DUSE_WL
 		CFLAGS	+= -DUSE_EGL # wayland uses EGL by default
 		SRCS	:= $(SRCS_WL)
-		SRCS	+= $(XDG_SOURCE)
+		SRCS	+= $(SRCS_XDG)
+		SRCS	+= $(SRCS_EGL)
 	else
 		$(error Unrecognized session type: $(XDG_SESSION_TYPE))
 	endif

@@ -33,17 +33,23 @@ static int32_t	g_egl_attr_ctx[] = {
  * */
 
 GFAPI bool	gf_createContext(t_window win) {
-	int32_t	_attr_cont_cnt;
-
-	/* Create EGL display object based on X11 object
-	 * */
+	EGLNativeDisplayType	_dsp;
+	EGLNativeWindowType		_win;
+	int32_t					_attr_cont_cnt;
+	int32_t					_major;
+	int32_t					_minor;
 
 #if defined (USE_X11)
-	win->egl.dsp = eglGetDisplay((EGLNativeDisplayType) win->x11.dsp);
+	_dsp = (EGLNativeDisplayType) win->x11.dsp;
+	_win = (EGLNativeWindowType) win->x11.id;
 #elif defined (USE_WL)
-	win->egl.dsp = eglGetDisplay((EGLNativeDisplayType) 0);
+	_dsp = (EGLNativeDisplayType) win->wl.dsp;
+	_win = (EGLNativeWindowType) win->wl.id;
 #endif
 
+	/* Create EGL display object based on platform display
+	 * */
+	win->egl.dsp = eglGetDisplay(_dsp);
 	if (!win->egl.dsp) {
 
 #if defined (VERBOSE)
@@ -52,7 +58,7 @@ GFAPI bool	gf_createContext(t_window win) {
 
 		return (false);
 	}
-	if (!eglInitialize(win->egl.dsp, 0, 0)) {
+	if (!eglInitialize(win->egl.dsp, &_major, &_minor)) {
 
 #if defined (VERBOSE)
 		gf_loge("EGL: Initialization failed\n");
@@ -82,15 +88,9 @@ GFAPI bool	gf_createContext(t_window win) {
 		return (false);
 	}
 
-	/* Create EGL surface based on X11 window
+	/* Create EGL surface based on platform window
 	 * */
-
-#if defined (USE_X11)
-	win->egl.surf = eglCreateWindowSurface(win->egl.dsp, win->egl.conf, (EGLNativeWindowType) win->x11.id, 0);
-#elif defined (USE_WL)
-	win->egl.surf = eglCreateWindowSurface(win->egl.dsp, win->egl.conf, (EGLNativeWindowType) 0, 0);
-#endif
-
+	win->egl.surf = eglCreateWindowSurface(win->egl.dsp, win->egl.conf, _win, 0);
 	if (!win->egl.surf) {
 
 #if defined (VERBOSE)
@@ -123,12 +123,10 @@ GFAPI bool	gf_createContext(t_window win) {
 
 #if defined (VERBOSE)
 	gf_logi("EGL: Created successfully\n");
+	gf_logi("EGL: Version: %d.%d\n", _major, _minor);
 	gf_logi("EGL: Client: %s\n", eglQueryString(win->egl.dsp, EGL_CLIENT_APIS));
-	gf_logi("EGL: Version: %s\n", eglQueryString(win->egl.dsp, EGL_VERSION));
 	gf_logi("EGL: Vendor: %s\n", eglQueryString(win->egl.dsp, EGL_VENDOR));
 #endif
-
-	return (true);
 
 	/* Setting up some default context settings
 	 * */

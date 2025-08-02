@@ -81,6 +81,6 @@ GFAPIS bool	__gf_sendX11Event(t_window win, bool state, Atom atom0, Atom atom1) 
 	_event.xclient.data.l[3] = 1;
 	
 	XSendEvent(win->x11.dsp, win->x11.root_id, 0, SubstructureRedirectMask | SubstructureNotifyMask, &_event);
-	XFlush(win->x11.dsp);
+	gf_flushEvents(win);
 	return (true);
 }

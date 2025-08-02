@@ -17,7 +17,8 @@
 # elif defined (USE_GLX)
 #  include <GL/glx.h>
 #  include <GL/glxext.h>
-#endif
+# endif
+# include <GL/gl.h>
 
 # if defined (USE_X11)
 #  include <X11/X.h>
@@ -27,9 +28,9 @@
 #  include <X11/XKBlib.h>
 #  include <X11/keysym.h>
 #  include <X11/keysymdef.h>
-#  define _NET_WM_STATE_REMOVE      0    /* remove/unset property */
-#  define _NET_WM_STATE_ADD         1    /* add/set property */
-#  define _NET_WM_STATE_TOGGLE      2    /* toggle property  */
+#  define _NET_WM_STATE_REMOVE	0	/* remove/unset property */
+#  define _NET_WM_STATE_ADD		1	/* add/set property */
+#  define _NET_WM_STATE_TOGGLE	2	/* toggle property  */
 # elif defined (USE_WL)
 #  include <wayland-client.h>
 #  include <wayland-client-core.h>
@@ -112,9 +113,13 @@ struct s_window {
 
 typedef struct s_window	*t_window;
 
-# include <dlfcn.h>
+# include <errno.h>
 # include <string.h>
 # include <limits.h>
 # include <assert.h>
 # include <stdlib.h>
+# if defined (__linux__)
+#  include <poll.h>
+#  include <dlfcn.h>
+# endif
 #endif
