@@ -17,6 +17,10 @@ GFAPI bool	gf_destroyWindow(t_window win) {
 	gf_logi("XDG: Terminated successfully\n");
 #endif
 
+	wl_pointer_destroy(win->wl.pointer);
+	wl_keyboard_destroy(win->wl.keyboard);
+	wl_seat_destroy(win->wl.seat);
+
 	wl_surface_destroy(win->wl.surf);
 	wl_compositor_destroy(win->wl.comp);
 	wl_registry_destroy(win->wl.reg);

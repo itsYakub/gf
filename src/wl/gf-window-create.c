@@ -30,6 +30,27 @@ GFAPIS void	__xdg_toplevel_close(void *, struct xdg_toplevel *);
 GFAPIS void	__xdg_toplevel_configure_bounds(void *, struct xdg_toplevel *, int32_t, int32_t);
 GFAPIS void	__xdg_toplevel_wm_capabilities(void *, struct xdg_toplevel *, struct wl_array *);
 
+GFAPIS void __wl_seat_capabilities(void *, struct wl_seat *, uint32_t);
+GFAPIS void __wl_seat_name(void *, struct wl_seat *, const char *);
+	
+GFAPIS void	__wl_keyboard_keymap(void *, struct wl_keyboard *, uint32_t, int32_t, uint32_t);
+GFAPIS void	__wl_keyboard_enter(void *, struct wl_keyboard *, uint32_t, struct wl_surface *, struct wl_array *);
+GFAPIS void	__wl_keyboard_leave(void *, struct wl_keyboard *, uint32_t, struct wl_surface *);
+GFAPIS void	__wl_keyboard_key(void *, struct wl_keyboard *, uint32_t, uint32_t, uint32_t, uint32_t);
+GFAPIS void	__wl_keyboard_modifiers(void *, struct wl_keyboard *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+GFAPIS void	__wl_keyboard_repeat_info(void *, struct wl_keyboard *, int32_t, int32_t);
+
+GFAPIS void	__wl_pointer_enter(void *, struct wl_pointer *, uint32_t, struct wl_surface *, wl_fixed_t, wl_fixed_t);
+GFAPIS void	__wl_pointer_leave(void *, struct wl_pointer *, uint32_t, struct wl_surface *);
+GFAPIS void	__wl_pointer_motion(void *, struct wl_pointer *, uint32_t, wl_fixed_t, wl_fixed_t);
+GFAPIS void	__wl_pointer_button(void *, struct wl_pointer *, uint32_t, uint32_t, uint32_t, uint32_t);
+GFAPIS void	__wl_pointer_axis(void *, struct wl_pointer *, uint32_t, uint32_t, wl_fixed_t);
+GFAPIS void	__wl_pointer_frame(void *, struct wl_pointer *); 
+GFAPIS void	__wl_pointer_axis_source(void *, struct wl_pointer *, uint32_t);
+GFAPIS void	__wl_pointer_axis_stop(void *, struct wl_pointer *, uint32_t, uint32_t);
+GFAPIS void	__wl_pointer_axis_discrete(void *, struct wl_pointer *, uint32_t, int32_t);
+GFAPIS void	__wl_pointer_axis_value120(void *, struct wl_pointer *, uint32_t, int32_t);
+
 
 
 
@@ -41,6 +62,33 @@ GFAPIS void	__xdg_toplevel_wm_capabilities(void *, struct xdg_toplevel *, struct
 static struct wl_registry_listener	g_registry_listener = {
 	.global = __wl_registry_global,
 	.global_remove = __wl_registry_global_remove
+};
+
+static struct wl_seat_listener		g_seat_listener = {
+	.capabilities = __wl_seat_capabilities,
+	.name = __wl_seat_name
+};
+
+static struct wl_keyboard_listener	g_keyboard_listener = {
+	.keymap = __wl_keyboard_keymap,
+	.enter = __wl_keyboard_enter,
+	.leave = __wl_keyboard_leave,
+	.key = __wl_keyboard_key,
+	.modifiers = __wl_keyboard_modifiers,
+	.repeat_info = __wl_keyboard_repeat_info
+};
+
+static struct wl_pointer_listener	g_pointer_listener = {
+	.enter = __wl_pointer_enter,
+	.leave = __wl_pointer_leave,
+	.motion = __wl_pointer_motion,
+	.button = __wl_pointer_button,
+	.axis = __wl_pointer_axis,
+	.frame = __wl_pointer_frame,
+	.axis_source = __wl_pointer_axis_source,
+	.axis_stop = __wl_pointer_axis_stop,
+	.axis_discrete = __wl_pointer_axis_discrete,
+	.axis_value120 = __wl_pointer_axis_value120,
 };
 
 static struct xdg_wm_base_listener	g_wm_base_listener = {
@@ -291,4 +339,82 @@ GFAPIS void	__xdg_toplevel_wm_capabilities(void *data, struct xdg_toplevel *xdg_
 	(void) data;
 	(void) xdg_toplevel;
 	(void) capabilities;
+}
+
+
+
+GFAPIS void __wl_seat_capabilities(void *data, struct wl_seat *wl_seat, uint32_t capabilities) {
+
+}
+
+GFAPIS void __wl_seat_name(void *data, struct wl_seat *wl_seat, const char *name) {
+
+}
+
+
+
+GFAPIS void	__wl_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, uint32_t format, int32_t fd, uint32_t size) {
+
+}
+
+GFAPIS void	__wl_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, struct wl_surface *surface, struct wl_array *keys) {
+
+}
+
+GFAPIS void	__wl_keyboard_leave(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, struct wl_surface *surface) {
+
+}
+
+GFAPIS void	__wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t state) {
+
+}
+
+GFAPIS void	__wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked, uint32_t group) {
+
+}
+
+GFAPIS void	__wl_keyboard_repeat_info(void *data, struct wl_keyboard *wl_keyboard, int32_t rate, int32_t delay) {
+
+}
+
+
+
+GFAPIS void	__wl_pointer_enter(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface, wl_fixed_t surface_x, wl_fixed_t surface_y) {
+
+}
+
+GFAPIS void	__wl_pointer_leave(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface) {
+
+}
+
+GFAPIS void	__wl_pointer_motion(void *data, struct wl_pointer *wl_pointer, uint32_t time, wl_fixed_t surface_x, wl_fixed_t surface_y) {
+
+}
+
+GFAPIS void	__wl_pointer_button(void *data, struct wl_pointer *wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state) {
+
+}
+
+GFAPIS void	__wl_pointer_axis(void *data, struct wl_pointer *wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value) {
+
+}
+
+GFAPIS void	__wl_pointer_frame(void *data, struct wl_pointer *wl_pointer) {
+
+}
+
+GFAPIS void	__wl_pointer_axis_source(void *data, struct wl_pointer *wl_pointer, uint32_t axis_source) {
+
+}
+
+GFAPIS void	__wl_pointer_axis_stop(void *data, struct wl_pointer *wl_pointer, uint32_t time, uint32_t axis) {
+
+}
+
+GFAPIS void	__wl_pointer_axis_discrete(void *data, struct wl_pointer *wl_pointer, uint32_t axis, int32_t discrete) {
+
+}
+
+GFAPIS void	__wl_pointer_axis_value120(void *data, struct wl_pointer *wl_pointer, uint32_t axis, int32_t value120) {
+
 }

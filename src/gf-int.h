@@ -75,6 +75,10 @@ struct s_window {
 		struct wl_registry		*reg;
 		struct wl_compositor	*comp;
 		struct wl_surface		*surf;
+
+		struct wl_seat			*seat;
+		struct wl_keyboard		*keyboard;
+		struct wl_pointer		*pointer;
 	} wl;
 	
 	struct {
