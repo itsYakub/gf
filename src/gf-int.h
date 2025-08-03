@@ -36,6 +36,8 @@
 #  include <wayland-client-core.h>
 #  include <wayland-client-protocol.h>
 
+#  include <xkbcommon/xkbcommon.h>
+
 /* This client needs to be generated either by the build system or manually in the ./src/wl directory:
  * $ wayland-scanner client-header /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml /path/to/gf/src/wl/xdg-shell.h
  *
@@ -86,6 +88,12 @@ struct s_window {
 		struct xdg_surface		*surf;
 		struct xdg_toplevel		*toplevel;
 	} xdg;
+
+	struct {
+		struct xkb_context		*ctx;
+		struct xkb_keymap		*keymap;
+		struct xkb_state		*state;
+	} xkb;
 # endif
 
 # if defined (USE_EGL)
@@ -117,6 +125,9 @@ struct s_window {
 
 typedef struct s_window	*t_window;
 
+GFAPI int32_t	_gf_buttonPlatformToGf(const int32_t);
+GFAPI int32_t	_gf_keymapPlatformToGf(const int32_t);
+
 # include <errno.h>
 # include <string.h>
 # include <limits.h>
@@ -125,5 +136,8 @@ typedef struct s_window	*t_window;
 # if defined (__linux__)
 #  include <poll.h>
 #  include <dlfcn.h>
+#  include <unistd.h>
+#  include <sys/mman.h>
+#  include <linux/input-event-codes.h>
 # endif
 #endif

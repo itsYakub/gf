@@ -131,7 +131,7 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 		return (false);
 	}
 	
-	if (!t) {
+	if (t) {
 		xdg_toplevel_set_title((*win)->xdg.toplevel, t);
 
 #if defined (VERBOSE)
@@ -144,6 +144,10 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 #if defined (VERBOSE)
 	gf_logi("WINDOW: Created successfully\n");
 #endif
+
+	/* Another roundtrip to create all the remaining structures, especially wl_seat
+	 * */
+	wl_display_roundtrip((*win)->wl.dsp);
 
 	/* Get the misc. data
 	 * */
@@ -274,6 +278,16 @@ GFAPIS void __wl_registry_global(void *data, struct wl_registry *wl_registry, ui
 #endif
 
 	}
+	
+	if (!strcmp(interface, wl_seat_interface.name)) {
+		_win->wl.seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 1);
+		wl_seat_add_listener(_win->wl.seat, &g_seat_listener, data);
+
+#if defined (VERBOSE)
+		gf_logi("REGISTRY: Bound seat interface\n");
+#endif
+
+	}
 }
 
 GFAPIS void	__wl_registry_global_remove(void *data, struct wl_registry *wl_registry, uint32_t name) {
@@ -344,77 +358,232 @@ GFAPIS void	__xdg_toplevel_wm_capabilities(void *data, struct xdg_toplevel *xdg_
 
 
 GFAPIS void __wl_seat_capabilities(void *data, struct wl_seat *wl_seat, uint32_t capabilities) {
+	t_window	_win;
 
+	_win = (t_window) data;
+	if (capabilities & WL_SEAT_CAPABILITY_KEYBOARD && !_win->wl.keyboard) {
+		_win->wl.keyboard = wl_seat_get_keyboard(wl_seat);
+		_win->xkb.ctx = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+		wl_keyboard_add_listener(_win->wl.keyboard, &g_keyboard_listener, data);
+
+#if defined (VERBOSE)
+		gf_logi("KEYBOARD: Created successfully\n");
+#endif
+
+	}
+
+	if (capabilities & WL_SEAT_CAPABILITY_POINTER && !_win->wl.pointer) {
+		_win->wl.pointer = wl_seat_get_pointer(wl_seat);
+		wl_pointer_add_listener(_win->wl.pointer, &g_pointer_listener, data);
+
+#if defined (VERBOSE)
+		gf_logi("POINTER: Created successfully\n");
+#endif
+
+	}
 }
 
 GFAPIS void __wl_seat_name(void *data, struct wl_seat *wl_seat, const char *name) {
-
+	(void) data;
+	(void) wl_seat;
+	(void) name;
 }
 
 
 
 GFAPIS void	__wl_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, uint32_t format, int32_t fd, uint32_t size) {
+	t_window	_win;
+	char		*_str;
+
+	(void) wl_keyboard;
+	(void) format;
+	(void) fd;
+
+	_win = (t_window) data;
+	_str = 0;
+	_str = mmap(_str, size, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (_str == MAP_FAILED) {
+
+#if defined (VERBOSE)
+		gf_loge("XKB: Shared-memory allocation failed\n");
+#endif
+
+		return;
+	}
+
+	_win->xkb.keymap = xkb_keymap_new_from_string(_win->xkb.ctx, _str, XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
+	if (!_win->xkb.keymap) {
+
+#if defined (VERBOSE)
+		gf_loge("XKB: Failed to create keymap\n");
+#endif
+
+		return;
+	}
+
+#if defined (VERBOSE)
+	gf_logi("XKB: Keymap created successfully\n");
+#endif
+
+	munmap(_str, size);
+	close(fd);
+
+	_win->xkb.state = xkb_state_new(_win->xkb.keymap);
+	if (!_win->xkb.state) {
+
+#if defined (VERBOSE)
+		gf_loge("XKB: Failed to create a State Machine\n");
+#endif
+
+		return;
+	}
+
+#if defined (VERBOSE)
+	gf_logi("XKB: State Machine created successfully\n");
+#endif
 
 }
 
 GFAPIS void	__wl_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, struct wl_surface *surface, struct wl_array *keys) {
-
+	(void) data;
+	(void) wl_keyboard;
+	(void) serial;
+	(void) surface;
+	(void) keys;
 }
 
 GFAPIS void	__wl_keyboard_leave(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, struct wl_surface *surface) {
-
+	(void) data;
+	(void) wl_keyboard;
+	(void) serial;
+	(void) surface;
 }
 
 GFAPIS void	__wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t state) {
+	xkb_keysym_t	_keysym;
+	t_window		_win;
+	t_event			_event;
 
+	(void) wl_keyboard;
+	(void) serial;
+	(void) time;
+
+	_win = (t_window) data;
+	_event.type = state ? GF_EVENT_KEY_PRESS : GF_EVENT_KEY_RELEASE;
+	_keysym = xkb_state_key_get_one_sym(_win->xkb.state, key + 8);
+	_event.key.key = _gf_keymapPlatformToGf(_keysym);
+	_event.key.state = state;
+	gf_pushEvent(data, &_event);	
 }
 
 GFAPIS void	__wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked, uint32_t group) {
-
+	(void) data;
+	(void) wl_keyboard;
+	(void) serial;
+	(void) mods_depressed;
+	(void) mods_latched;
+	(void) mods_locked;
+	(void) group;
+	/* TODO(yakub):
+	 *  Current key press can be modified by modifier keys
+	 *  Implement that as a modification to the main event (maybe stored in the 'data')
+	 * */
 }
 
 GFAPIS void	__wl_keyboard_repeat_info(void *data, struct wl_keyboard *wl_keyboard, int32_t rate, int32_t delay) {
-
+	(void) data;
+	(void) wl_keyboard;
+	(void) rate;
+	(void) delay;
 }
 
 
 
 GFAPIS void	__wl_pointer_enter(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface, wl_fixed_t surface_x, wl_fixed_t surface_y) {
-
+	(void) data;
+	(void) wl_pointer;
+	(void) serial;
+	(void) surface;
+	(void) surface_x;
+	(void) surface_y;
+	/* TODO(yakub):
+	 *  Implement focus event
+	 * */
 }
 
 GFAPIS void	__wl_pointer_leave(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface) {
-
+	(void) data;
+	(void) wl_pointer;
+	(void) serial;
+	(void) surface;
+	/* TODO(yakub):
+	 *  Implement focus event
+	 * */
 }
 
 GFAPIS void	__wl_pointer_motion(void *data, struct wl_pointer *wl_pointer, uint32_t time, wl_fixed_t surface_x, wl_fixed_t surface_y) {
+	t_event	_event;
 
+	(void) wl_pointer;
+	(void) time;
+	_event.type = GF_EVENT_MOUSEMOTION;
+	/* TODO(yakub):
+	 *  Get different values for position and relative position
+	 * */
+	_event.motion.x = _event.motion.xrel = surface_x;
+	_event.motion.y = _event.motion.yrel = surface_y;
+	gf_pushEvent(data, &_event);
 }
 
 GFAPIS void	__wl_pointer_button(void *data, struct wl_pointer *wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state) {
+	t_event	_event;
 
+	(void) data;
+	(void) wl_pointer;
+	(void) serial;
+	(void) time;
+	_event.type = state ? GF_EVENT_MOUSE_PRESS : GF_EVENT_MOUSE_RELEASE;
+	_event.key.key = _gf_buttonPlatformToGf(button);
+	_event.key.state = state;
+	gf_pushEvent(data, &_event);	
 }
 
 GFAPIS void	__wl_pointer_axis(void *data, struct wl_pointer *wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value) {
-
+	(void) data;
+	(void) wl_pointer;
+	(void) time;
+	(void) axis;
+	(void) value;
 }
 
 GFAPIS void	__wl_pointer_frame(void *data, struct wl_pointer *wl_pointer) {
-
+	(void) data;
+	(void) wl_pointer;
 }
 
 GFAPIS void	__wl_pointer_axis_source(void *data, struct wl_pointer *wl_pointer, uint32_t axis_source) {
-
+	(void) data;
+	(void) wl_pointer;
+	(void) axis_source;
 }
 
 GFAPIS void	__wl_pointer_axis_stop(void *data, struct wl_pointer *wl_pointer, uint32_t time, uint32_t axis) {
-
+	(void) data;
+	(void) wl_pointer;
+	(void) time;
+	(void) axis;
 }
 
 GFAPIS void	__wl_pointer_axis_discrete(void *data, struct wl_pointer *wl_pointer, uint32_t axis, int32_t discrete) {
-
+	(void) data;
+	(void) wl_pointer;
+	(void) axis;
+	(void) discrete;
 }
 
 GFAPIS void	__wl_pointer_axis_value120(void *data, struct wl_pointer *wl_pointer, uint32_t axis, int32_t value120) {
-
+	(void) data;
+	(void) wl_pointer;
+	(void) axis;
+	(void) value120;
 }

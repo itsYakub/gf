@@ -136,6 +136,7 @@ static const struct {
 	 * */
 
 	{ XK_Return, GF_KEY_ENTER, "GF_KEY_ENTER" },
+	{ XK_Escape, GF_KEY_ESCAPE, "GF_KEY_ESCAPE" },
 	{ XK_Tab, GF_KEY_TAB, "GF_KEY_TAB" },
 	{ XK_BackSpace, GF_KEY_BACKSPACE, "GF_KEY_BACKSPACE" },
 	{ XK_Caps_Lock, GF_KEY_CAPSLOCK, "GF_KEY_CAPSLOCK" },
@@ -182,11 +183,6 @@ static const struct {
 /* SECTION:
  *  Private interface declarations
  * */
-
-/* * X11 to gf inputting translation
- * * */
-GFAPIS int32_t	__gf_getButtonFromX11Buttons(const int32_t);
-GFAPIS int32_t	__gf_getKeycodeFromX11Keysym(const int32_t);
 
 /* * gf internal event processing
  * * */
@@ -273,7 +269,7 @@ GFAPI char	*gf_keyToString(const int32_t key) {
 /* * X11 to gf inputting translation
  * * */
 
-GFAPIS int32_t	__gf_getButtonFromX11Buttons(const int32_t btn) {
+GFAPI int32_t	_gf_buttonPlatformToGf(const int32_t btn) {
 	for (size_t i = 0; g_button_map[i].gf != GF_BUTTON_NONE; i++) {
 		if (g_button_map[i].x11 == (int32_t) btn) {
 			return (g_button_map[i].gf);
@@ -282,7 +278,7 @@ GFAPIS int32_t	__gf_getButtonFromX11Buttons(const int32_t btn) {
 	return (GF_KEY_NONE);
 }
 
-GFAPIS int32_t	__gf_getKeycodeFromX11Keysym(const int32_t key) {
+GFAPI int32_t	_gf_keymapPlatformToGf(const int32_t key) {
 	for (size_t i = 0; g_key_map[i].gf != GF_KEY_NONE; i++) {
 		if (g_key_map[i].x11 == (int32_t) key) {
 			return (g_key_map[i].gf);
@@ -453,7 +449,7 @@ GFAPIS bool		__gf_pollInternal_Mouse(t_window win, XEvent *e) {
 		else {
 			_event.type = e->type == ButtonPress ? GF_EVENT_MOUSE_PRESS : GF_EVENT_MOUSE_RELEASE;
 			_event.button.state = e->type == ButtonPress ? true : false;
-			_event.button.btn = __gf_getButtonFromX11Buttons(e->xbutton.button);
+			_event.button.btn = _gf_buttonPlatformToGf(e->xbutton.button);
 			if (_event.button.btn == GF_KEY_NONE) {
 				return (false);
 			}
@@ -469,7 +465,7 @@ GFAPIS bool	__gf_pollInternal_Key(t_window win, XEvent *e) {
 	_key = XkbKeycodeToKeysym(win->x11.dsp, e->xkey.keycode, 0, e->xkey.state & ShiftMask ? 1 : 0);
 	_event.type = e->type == KeyPress ? GF_EVENT_KEY_PRESS : GF_EVENT_KEY_RELEASE;
 	_event.key.state = e->type == KeyPress ? true : false; 
-	_event.key.key = __gf_getKeycodeFromX11Keysym(_key);
+	_event.key.key = _gf_keymapPlatformToGf(_key);
 	if (_event.key.key == GF_KEY_NONE) {
 		return (false);
 	}

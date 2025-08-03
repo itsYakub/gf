@@ -5,6 +5,25 @@ CFLAGS	= -Wall -Wextra -Werror -std=c99
 AR		= ar
 ARFLAGS	= rcs
 
+
+
+# SECTION:
+#  OPTIONS
+# ----------------
+# General section:
+# ----------------
+# ON / OFF (DEFAULT)
+SHARED	= OFF
+# ON / OFF (DEFAULT)
+VERBOSE	= ON
+# ---------------------
+# X11 specific section:
+# ---------------------
+# EGL (DEFAULT) / GLX
+X11_USE_API = EGL
+
+
+
 SRCS_X11= \
 	$(MK_ROOT)src/x11/gf-window-create.c \
 	$(MK_ROOT)src/x11/gf-window-destroy.c \
@@ -31,23 +50,6 @@ SRCS_GLX= \
 	$(MK_ROOT)src/glx/gf-context-create.c \
 	$(MK_ROOT)src/glx/gf-context-destroy.c \
 	$(MK_ROOT)src/glx/gf-context-config.c
-
-
-
-# SECTION:
-#  OPTIONS
-# ----------------
-# General section:
-# ----------------
-# ON / OFF (DEFAULT)
-SHARED	= OFF
-# ON / OFF (DEFAULT)
-VERBOSE	= ON
-# ---------------------
-# X11 specific section:
-# ---------------------
-# EGL (DEFAULT) / GLX
-X11_USE_API = EGL
 
 
 

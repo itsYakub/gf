@@ -9,6 +9,14 @@
  * */
 
 GFAPI bool	gf_destroyWindow(t_window win) {
+	xkb_state_unref(win->xkb.state);
+	xkb_keymap_unref(win->xkb.keymap);
+	xkb_context_unref(win->xkb.ctx);
+
+#if defined (VERBOSE)
+	gf_logi("XKB: Terminated successfully\n");
+#endif
+
 	xdg_toplevel_destroy(win->xdg.toplevel);
 	xdg_surface_destroy(win->xdg.surf);
 	xdg_wm_base_destroy(win->xdg.base);

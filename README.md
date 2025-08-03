@@ -24,12 +24,10 @@ but also to sharpen your knowledge with low - level windowing and graphics, than
 The main philosophy of this project is quite simple: *I wanted to learn how to make decent windowing library, focusing on speed and simplicity.* <br>
 **gf** borrows concept from most popular and battle-tested libraries out there: SDL3, glfw, RGFW, raylib to name a few.
 
-**gf** relies entirely on local dependencies of your operating system. As a USER you don't need to download any external dependency other than core development tools.
-
 I hope you'll have lot's of fun using **gf**!
 
 *NOTE:* <br>
-*For the current state of the project, **gf** only supports **GNU/LINUX** operating system with X11 as a windowing server. In the future I plan to add support for Wayland, Win32 API and potentialy MacOS support.*
+*For the current state of the project, **gf** only supports **GNU/LINUX** operating system, with Xorg and Wayland windowing servers. In the future I plan to add support for Win32 API and potentialy MacOS support.*
 
 ## Building:
 <details>
@@ -44,6 +42,16 @@ I hope you'll have lot's of fun using **gf**!
 $ sudo apt install build-essential -y
 $ sudo apt install git -y
 ```
+
+For X11:
+- ensure you have installed all the necessary dependencies to run xorg clients.
+- ensure you have installed all the necessary dependencies to run OpenGL applications with glX and egl.
+
+For Wayland:
+- ensure you have installed all the necessary dependencies to run wayland clients.
+- ensure you have installed all the necessary dependencies to run OpenGL applications with egl.
+- ensure you have installed xkbcommon library for inputting purposes.
+
 #### 2. Clone this repository:
 
 ```console
@@ -58,8 +66,14 @@ $ make all
 
 #### 4. Run one of demo program supplied with the repository:
 
+For the X11 support:
 ```console
 $ gcc ./demo/00-hello-world.c -L. -lgf -lEGL -lGL -lX11
+```
+
+For the Wayland support:
+```console
+$ gcc ./demo/00-hello-world.c -L. -lgf -lEGL -lGL -lwayland-client -lwayland-egl -lxkbcommon
 ```
 
 </details>
@@ -75,36 +89,6 @@ $ gcc ./demo/00-hello-world.c -L. -lgf -lEGL -lGL -lX11
 
 *NOTE:* <br>
 *As of now, **gf** doesn't support MacOS platform.*
-
-</details>
-
-## TODO:
-
-<details>
-<summary><h3>X11</h3></summary>
-
-- [ ] Extend the window configuration;
-- [ ] Select window icon at runtime (if that's even a good idea???);
-- [ ] Functions for getting the addressess of Display, Context and an ID of the window (if that can be multi - platform);
-
-</details>
-<details>
-<summary><h3>Wayland</h3></summary>
-
-- [ ] Implement Wayland backend;
-
-</details>
-<details>
-<summary><h3>Win32</h3></summary>
-
-- [ ] Implement Win32 backend;
-
-</details>
-
-<details>
-<summary><h3>MacOS</h3></summary>
-
-- [ ] Implement MacOS backend;
 
 </details>
 

@@ -135,6 +135,7 @@ enum {
 	GF_KEY_TILDE = '~',
 
 	GF_KEY_RETURN = 128,
+	GF_KEY_ESCAPE,
 
 	GF_KEY_ENTER = 256,
 	GF_KEY_TAB,
