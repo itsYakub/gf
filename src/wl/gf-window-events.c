@@ -182,8 +182,6 @@ static const struct {
  *  Private interface declarations
  * */
 
-/* * gf internal event processing
- * * */
 GFAPIS bool		__gf_pollGfEvents(t_window, t_event *);
 GFAPIS bool		__gf_pollInternalEvents(t_window);
 
@@ -270,7 +268,7 @@ GFAPI char	*gf_keyToString(const int32_t key) {
 /* * Wayland to gf inputting translation
  * * */
 
-GFAPI int32_t	_gf_buttonPlatformToGf(const int32_t btn) {
+GFAPII int32_t	gf_int_buttonPlatformToGf(const int32_t btn) {
 	for (size_t i = 0; g_button_map[i].gf != GF_BUTTON_NONE; i++) {
 		if (g_button_map[i].wl == (int32_t) btn) {
 			return (g_button_map[i].gf);
@@ -279,7 +277,7 @@ GFAPI int32_t	_gf_buttonPlatformToGf(const int32_t btn) {
 	return (GF_KEY_NONE);
 }
 
-GFAPI int32_t	_gf_keymapPlatformToGf(const int32_t key) {
+GFAPII int32_t	gf_int_keymapPlatformToGf(const int32_t key) {
 	for (size_t i = 0; g_key_map[i].gf != GF_KEY_NONE; i++) {
 		if (g_key_map[i].wl == (int32_t) key) {
 			return (g_key_map[i].gf);

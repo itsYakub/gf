@@ -20,6 +20,14 @@
 #  define GFAPIS static inline
 # endif
 
+/* GFAPIS:
+ *  keyword for internal (not static) interface declarations/definitions
+ * */
+
+# if !defined (GFAPII)
+#  define GFAPII extern
+# endif
+
 /* GF_VERSION:
  *  the current up-to-date version of gf
  * GF_VERSION_MAJOR:
@@ -172,6 +180,7 @@ enum {
 	GF_EVENT_MAXIMIZE,
 	GF_EVENT_FULLSCREEN,
 	GF_EVENT_MOUSEMOTION,
+	GF_EVENT_MOUSE_FOCUS,
 	GF_EVENT_MOUSE_SCROLL,
 	GF_EVENT_MOUSE_PRESS,
 	GF_EVENT_MOUSE_RELEASE,
@@ -194,6 +203,7 @@ struct s_event {
 		struct { bool state; } maximize;
 		struct { bool state; } fullscreen;
 		struct { int32_t x, xrel, y, yrel; } motion;
+		struct { bool state; } focus;
 		struct { int32_t val; } scroll;
 		struct { int32_t btn; bool state; } button;
 		struct { int32_t key; bool state; } key;

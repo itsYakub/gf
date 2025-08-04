@@ -82,6 +82,16 @@ struct s_window {
 		struct wl_keyboard		*keyboard;
 		struct wl_pointer		*pointer;
 	} wl;
+
+	struct {
+		struct wl_registry_listener		registry;
+		struct wl_seat_listener			seat;
+		struct wl_keyboard_listener		keyboard;
+		struct wl_pointer_listener		pointer;
+		struct xdg_wm_base_listener		wm_base;
+		struct xdg_surface_listener		surface;
+		struct xdg_toplevel_listener	toplevel;
+	} listener;
 	
 	struct {
 		struct xdg_wm_base		*base;
@@ -125,8 +135,14 @@ struct s_window {
 
 typedef struct s_window	*t_window;
 
-GFAPI int32_t	_gf_buttonPlatformToGf(const int32_t);
-GFAPI int32_t	_gf_keymapPlatformToGf(const int32_t);
+
+
+/* SECTION:
+ *  Interface
+ * */
+
+GFAPII int32_t	gf_int_buttonPlatformToGf(const int32_t);
+GFAPII int32_t	gf_int_keymapPlatformToGf(const int32_t);
 
 # include <errno.h>
 # include <string.h>

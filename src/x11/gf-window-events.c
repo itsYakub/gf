@@ -269,7 +269,7 @@ GFAPI char	*gf_keyToString(const int32_t key) {
 /* * X11 to gf inputting translation
  * * */
 
-GFAPI int32_t	_gf_buttonPlatformToGf(const int32_t btn) {
+GFAPII int32_t	gf_int_buttonPlatformToGf(const int32_t btn) {
 	for (size_t i = 0; g_button_map[i].gf != GF_BUTTON_NONE; i++) {
 		if (g_button_map[i].x11 == (int32_t) btn) {
 			return (g_button_map[i].gf);
@@ -278,7 +278,7 @@ GFAPI int32_t	_gf_buttonPlatformToGf(const int32_t btn) {
 	return (GF_KEY_NONE);
 }
 
-GFAPI int32_t	_gf_keymapPlatformToGf(const int32_t key) {
+GFAPII int32_t	gf_int_keymapPlatformToGf(const int32_t key) {
 	for (size_t i = 0; g_key_map[i].gf != GF_KEY_NONE; i++) {
 		if (g_key_map[i].x11 == (int32_t) key) {
 			return (g_key_map[i].gf);
@@ -449,7 +449,7 @@ GFAPIS bool		__gf_pollInternal_Mouse(t_window win, XEvent *e) {
 		else {
 			_event.type = e->type == ButtonPress ? GF_EVENT_MOUSE_PRESS : GF_EVENT_MOUSE_RELEASE;
 			_event.button.state = e->type == ButtonPress ? true : false;
-			_event.button.btn = _gf_buttonPlatformToGf(e->xbutton.button);
+			_event.button.btn = gf_int_buttonPlatformToGf(e->xbutton.button);
 			if (_event.button.btn == GF_KEY_NONE) {
 				return (false);
 			}
@@ -465,7 +465,7 @@ GFAPIS bool	__gf_pollInternal_Key(t_window win, XEvent *e) {
 	_key = XkbKeycodeToKeysym(win->x11.dsp, e->xkey.keycode, 0, e->xkey.state & ShiftMask ? 1 : 0);
 	_event.type = e->type == KeyPress ? GF_EVENT_KEY_PRESS : GF_EVENT_KEY_RELEASE;
 	_event.key.state = e->type == KeyPress ? true : false; 
-	_event.key.key = _gf_keymapPlatformToGf(_key);
+	_event.key.key = gf_int_keymapPlatformToGf(_key);
 	if (_event.key.key == GF_KEY_NONE) {
 		return (false);
 	}

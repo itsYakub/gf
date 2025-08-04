@@ -7,8 +7,6 @@ int	main(void) {
 	t_window	window1;
 
 	gf_createWindow(&window0, 960, 540, "gf 1.0 - Hello, World!");
-	gf_setWindowTopMost(window0, true);
-
 	gf_createWindow(&window1, 960, 540, "gf 1.0 - Hello, World!");
 
 	for ( ;; ) {

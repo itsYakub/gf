@@ -15,7 +15,7 @@ ARFLAGS	= rcs
 # ON / OFF (DEFAULT)
 SHARED	= OFF
 # ON / OFF (DEFAULT)
-VERBOSE	= ON
+VERBOSE	= OFF
 # ---------------------
 # X11 specific section:
 # ---------------------
@@ -34,6 +34,7 @@ SRCS_X11= \
 SRCS_WL	= \
 	$(MK_ROOT)src/wl/gf-window-create.c \
 	$(MK_ROOT)src/wl/gf-window-destroy.c \
+	$(MK_ROOT)src/wl/gf-listener.c \
 	$(MK_ROOT)src/wl/gf-window-events.c \
 	$(MK_ROOT)src/wl/gf-window-utils.c \
 	$(MK_ROOT)src/wl/gf-window-config.c

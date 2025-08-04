@@ -48,6 +48,9 @@ int	main(void) {
 				case (GF_EVENT_MOUSEMOTION): {
 					gf_logi("EVENT: MOUSEMOTION (w.:%d, h.:%d)\n", event.motion.x, event.motion.y);
 				} break;
+				case (GF_EVENT_MOUSE_FOCUS): {
+					gf_logi("EVENT: MOUSE FOCUS (state:%d)\n", event.focus.state);
+				} break;
 
 				case (GF_EVENT_MOUSE_SCROLL): {
 					gf_logi("EVENT: MOUSE SCROLL (value:%d)\n", event.scroll.val);
