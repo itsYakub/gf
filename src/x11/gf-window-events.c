@@ -3,6 +3,7 @@
 #endif
 #include "./../gf-int.h"
 #include "./../gf.h"
+#include "./gf-int-x11.h"
 
 /* SECTION:
  *  Static globals
@@ -184,18 +185,8 @@ static const struct {
  *  Private interface declarations
  * */
 
-/* * gf internal event processing
- * * */
-GFAPIS bool		__gf_pollGfEvents(t_window, t_event *);
-
-/* * X11 internal event processing
- * * */
-GFAPIS bool		__gf_pollInternalEvents(t_window);
-GFAPIS bool		__gf_pollInternal_Client(t_window, XEvent *);
-GFAPIS bool		__gf_pollInternal_Property(t_window, XEvent *);
-GFAPIS bool		__gf_pollInternal_Configure(t_window, XEvent *);
-GFAPIS bool		__gf_pollInternal_Mouse(t_window, XEvent *);
-GFAPIS bool		__gf_pollInternal_Key(t_window, XEvent *);
+GFAPIS bool	__gf_pollGfEvents(t_window, t_event *);
+GFAPIS bool	__gf_pollInternalEvents(t_window);
 
 
 
@@ -305,12 +296,6 @@ GFAPIS bool	__gf_pollGfEvents(t_window win, t_event *event) {
 }
 
 
-
-
-
-/* * X11 internal event processing
- * * */
-
 GFAPIS bool	__gf_pollInternalEvents(t_window win) {
 	XEvent	_event;
 
@@ -320,33 +305,41 @@ GFAPIS bool	__gf_pollInternalEvents(t_window win) {
 		XNextEvent(win->x11.dsp, &_event);
 		switch (_event.type) {
 			case (ClientMessage): {
-				__gf_pollInternal_Client(win, &_event);
+				gf_int_pollInternal_Client(win, &_event);
 			} break;
 
 			case (PropertyNotify): {
-				__gf_pollInternal_Property(win, &_event);
+				gf_int_pollInternal_Property(win, &_event);
 			} break;
 			
 			case (ConfigureNotify): {
-				__gf_pollInternal_Configure(win, &_event);
+				gf_int_pollInternal_Configure(win, &_event);
 			} break;	
 
 			case (MotionNotify):	
 			case (ButtonPress):
 			case (ButtonRelease): {
-				__gf_pollInternal_Mouse(win, &_event);
+				gf_int_pollInternal_Mouse(win, &_event);
 			} break;
 
 			case (KeyPress):
 			case (KeyRelease): {
-				__gf_pollInternal_Key(win, &_event);
+				gf_int_pollInternal_Key(win, &_event);
 			} break;
 		}
 	}
 	return (true);
 }
 
-GFAPIS bool	__gf_pollInternal_Client(t_window win, XEvent *e) {
+
+
+
+
+/* SECTION:
+ *  Event Interface
+ * */
+
+GFAPII bool	gf_int_pollInternal_Client(t_window win, XEvent *e) {
 	t_event	_event;
 
 	if ((Atom) e->xclient.data.l[0] == win->atoms.wm_delete_window) {
@@ -359,7 +352,7 @@ GFAPIS bool	__gf_pollInternal_Client(t_window win, XEvent *e) {
 /* NOTE(yakub):
  *  This function is barely tested due to me being on i3wm which is kind of problematic if it comes to property changes
  * */
-GFAPIS bool	__gf_pollInternal_Property(t_window win, XEvent *e) {
+GFAPII bool	gf_int_pollInternal_Property(t_window win, XEvent *e) {
 	t_event		_event;
 	Atom		_actual_type;
 	int32_t		_actual_format;
@@ -388,7 +381,7 @@ GFAPIS bool	__gf_pollInternal_Property(t_window win, XEvent *e) {
 	return (gf_pushEvent(win, &_event));
 }
 
-GFAPIS bool	__gf_pollInternal_Configure(t_window win, XEvent *e) {
+GFAPII bool	gf_int_pollInternal_Configure(t_window win, XEvent *e) {
 	t_event	_event;
 
 	/* GF_EVENT_RESIZE
@@ -417,7 +410,7 @@ GFAPIS bool	__gf_pollInternal_Configure(t_window win, XEvent *e) {
 	return (gf_pushEvent(win, &_event));
 }
 
-GFAPIS bool		__gf_pollInternal_Mouse(t_window win, XEvent *e) {
+GFAPII bool		gf_int_pollInternal_Mouse(t_window win, XEvent *e) {
 	t_event	_event;
 
 	/* GF_EVENT_MOUSEMOTION
@@ -458,7 +451,7 @@ GFAPIS bool		__gf_pollInternal_Mouse(t_window win, XEvent *e) {
 	return (gf_pushEvent(win, &_event));
 }
 
-GFAPIS bool	__gf_pollInternal_Key(t_window win, XEvent *e) {
+GFAPII bool	gf_int_pollInternal_Key(t_window win, XEvent *e) {
 	t_event	_event;
 	int32_t	_key;
 
