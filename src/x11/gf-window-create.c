@@ -54,12 +54,6 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 	assert(gf_getWindowSize(*win, 0, 0));
 	assert(gf_getWindowPosition(*win, 0, 0));
 	
-	/* Setting up default window configs
-	 * */	
-	gf_setWindowResizable(*win, false);
-	gf_setWindowBorderless(*win, false);
-	gf_setWindowFullscreen(*win, false);
-
 	return (true);
 }
 

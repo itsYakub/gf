@@ -6,6 +6,7 @@
 
 # include "./gf.h"
 # define _GF_EVENT_QUEUE_SIZE	64
+# define _GF_WINDOW_TITLE_LEN	1024
 
 # if defined (USE_EGL)
 #  include <EGL/egl.h>
@@ -35,7 +36,6 @@
 #  include <wayland-client.h>
 #  include <wayland-client-core.h>
 #  include <wayland-client-protocol.h>
-
 #  include <xkbcommon/xkbcommon.h>
 
 /* This client needs to be generated either by the build system or manually in the ./src/wl directory:
@@ -126,8 +126,18 @@ struct s_window {
 	} events;
 
 	struct {
+		char	title[_GF_WINDOW_TITLE_LEN + 1];
+
 		int32_t	width;
 		int32_t	height;
+
+		/* NOTE(yakub):
+		 *  These two variables are used
+		 *  mainly by libdecor and wayland
+		 * */
+		int32_t	width0;
+		int32_t	height0;
+
 		int32_t	x;
 		int32_t	y;
 	} misc;

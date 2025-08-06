@@ -8,7 +8,9 @@
  *  Private interface declarations
  * */
 
+/*
 GFAPIS bool	__gf_sendX11Event(t_window, bool, Atom, Atom);
+*/
 
 
 
@@ -17,6 +19,9 @@ GFAPIS bool	__gf_sendX11Event(t_window, bool, Atom, Atom);
  *  Public API implementation
  * */
 
+
+/* TODO(yakub):
+ *  Implement better version of window config
 GFAPI bool	gf_setWindowResizable(t_window win, bool state) {
 	XSizeHints	_hints;
 	int64_t		_toto;
@@ -59,9 +64,9 @@ GFAPI bool	gf_setWindowFullscreen(t_window win, bool state) {
 
 
 
-/* SECTION:
+/ * SECTION:
  *  Private interface definitions
- * */
+ * * /
 
 GFAPIS bool	__gf_sendX11Event(t_window win, bool state, Atom atom0, Atom atom1) {
 	XEvent	_event;
@@ -84,3 +89,5 @@ GFAPIS bool	__gf_sendX11Event(t_window win, bool state, Atom atom0, Atom atom1) 
 	gf_flushEvents(win);
 	return (true);
 }
+
+*/

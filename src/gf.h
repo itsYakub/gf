@@ -233,11 +233,11 @@ GFAPI bool	gf_destroyWindow(t_window);
 GFAPI bool	gf_getWindowSize(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getMonitorSize(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getWindowPosition(t_window, int32_t *, int32_t *);
+GFAPI bool	gf_getWindowTitle(t_window, char **);
 
-GFAPI bool	gf_setWindowResizable(t_window, bool);
-GFAPI bool	gf_setWindowBorderless(t_window, bool);
-GFAPI bool	gf_setWindowFullscreen(t_window, bool);
-GFAPI bool	gf_setWindowVSync(t_window, bool);
+GFAPI bool	gf_setWindowSize(t_window, int32_t, int32_t);
+GFAPI bool	gf_setWindowPosition(t_window, int32_t, int32_t);
+GFAPI bool	gf_setWindowTitle(t_window, const char *);
 
 
 

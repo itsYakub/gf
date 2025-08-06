@@ -13,10 +13,5 @@ GFAPI bool	gf_destroyContext(t_window win) {
 	eglDestroyContext(win->egl.dsp, win->egl.ctx);
 	eglDestroySurface(win->egl.dsp, win->egl.surf);
 	eglTerminate(win->egl.dsp);
-
-# if defined (VERBOSE)
-	gf_logi("EGL: Terminated successfully\n");
-# endif
-
 	return (true);
 }

@@ -4,7 +4,6 @@
 
 int	main(void) {
 	t_window	window;
-	bool		state;
 
 	if (
 		!gf_createWindow(&window, 960, 540, "gf 1.0 - Hello, World!") ||
@@ -13,7 +12,6 @@ int	main(void) {
 		return (1);
 	}
 
-	state = false;
 	for ( ;; ) {
 		t_event		event;
 	
@@ -64,10 +62,6 @@ int	main(void) {
 
 				case (GF_EVENT_KEY_PRESS): {
 					gf_logi("EVENT: KEY PRESS (key.:%s, state:%d)\n", gf_keyToString(event.key.key), event.key.state);
-					if (event.key.key == 32) {
-						state = !state;
-						gf_setWindowFullscreen(window, state);
-					}
 				} break;
 				case (GF_EVENT_KEY_RELEASE): {
 					gf_logi("EVENT: KEY RELEASE (key.:%s, state:%d)\n", gf_keyToString(event.key.key), event.key.state);

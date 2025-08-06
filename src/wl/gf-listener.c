@@ -1,5 +1,6 @@
-#if !defined USE_WL
+#if !defined (USE_WL) && !defined (USE_EGL)
 # define USE_WL
+# define USE_EGL
 #endif
 #include "./../gf-int.h"
 #include "./../gf.h"
@@ -35,7 +36,7 @@ GFAPII bool	gf_int_initListeners(t_window win) {
 		gf_int_pointer_axis_source, gf_int_pointer_axis_stop,
 		gf_int_pointer_axis_discrete, gf_int_pointer_axis_value120,
 	};
-
+	
 	return (true);
 }
 
@@ -52,32 +53,17 @@ GFAPII void gf_int_registry_global(void *data, struct wl_registry *wl_registry, 
 	_win = (t_window) data;
 	if (!strcmp(interface, wl_compositor_interface.name)) {
 		_win->wl.comp = wl_registry_bind(wl_registry, name, &wl_compositor_interface, 4);
-
-#if defined (VERBOSE)
-		gf_logi("REGISTRY: Bound compositor interface\n");
-#endif
-
 	}
 
 	if (!strcmp(interface, xdg_wm_base_interface.name)) {
 		_win->xdg.base = wl_registry_bind(wl_registry, name, &xdg_wm_base_interface, 1);
 		xdg_wm_base_add_listener(_win->xdg.base, &_win->listener.wm_base, data);
-
-#if defined (VERBOSE)
-		gf_logi("REGISTRY: Bound xdg window manager's base interface\n");
-#endif
-
 	}
 	
 	if (!strcmp(interface, wl_seat_interface.name)) {
 		_win->wl.seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 1);
 
 		wl_seat_add_listener(_win->wl.seat, &_win->listener.seat, data);
-
-#if defined (VERBOSE)
-		gf_logi("REGISTRY: Bound seat interface\n");
-#endif
-
 	}
 }
 
@@ -116,25 +102,22 @@ GFAPII void	gf_int_surface_configure(void *data, struct xdg_surface *xdg_surface
  * */
 
 GFAPII void	gf_int_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel, int32_t width, int32_t height, struct wl_array *states) {
-	t_window	_win;
 	t_event		_event;
 
+	(void) data;
 	(void) xdg_toplevel;
 	(void) states;
-	_win = (t_window) data;
 
 	/* Resize the window itself
 	 * */
-	_win->misc.width = width;
-	_win->misc.height = height;
-	wl_egl_window_resize(_win->wl.id, width, height, 0, 0);
+	gf_setWindowSize(data, width, height);
 
 	/* Push the resize event
 	 * */
 	_event.type = GF_EVENT_RESIZE;
 	_event.resize.w = width;
 	_event.resize.h = height;
-	gf_pushEvent(_win, &_event);
+	gf_pushEvent(data, &_event);
 }
 
 GFAPII void	gf_int_toplevel_close(void *data, struct xdg_toplevel *xdg_toplevel) {
@@ -172,21 +155,11 @@ GFAPII void gf_int_seat_capabilities(void *data, struct wl_seat *wl_seat, uint32
 		_win->wl.keyboard = wl_seat_get_keyboard(wl_seat);
 		_win->xkb.ctx = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 		wl_keyboard_add_listener(_win->wl.keyboard, &_win->listener.keyboard, data);
-
-#if defined (VERBOSE)
-		gf_logi("KEYBOARD: Created successfully\n");
-#endif
-
 	}
 
 	if (capabilities & WL_SEAT_CAPABILITY_POINTER && !_win->wl.pointer) {
 		_win->wl.pointer = wl_seat_get_pointer(wl_seat);
 		wl_pointer_add_listener(_win->wl.pointer, &_win->listener.pointer, data);
-
-#if defined (VERBOSE)
-		gf_logi("POINTER: Created successfully\n");
-#endif
-
 	}
 }
 
@@ -231,11 +204,6 @@ GFAPII void	gf_int_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, 
 
 		return;
 	}
-
-#if defined (VERBOSE)
-	gf_logi("XKB: Keymap created successfully\n");
-#endif
-
 	munmap(_str, size);
 	close(fd);
 
@@ -248,11 +216,6 @@ GFAPII void	gf_int_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, 
 
 		return;
 	}
-
-#if defined (VERBOSE)
-	gf_logi("XKB: State Machine created successfully\n");
-#endif
-
 }
 
 GFAPII void	gf_int_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, struct wl_surface *surface, struct wl_array *keys) {

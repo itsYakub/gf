@@ -15,7 +15,7 @@ ARFLAGS	= rcs
 # ON / OFF (DEFAULT)
 SHARED	= OFF
 # ON / OFF (DEFAULT)
-VERBOSE	= OFF
+VERBOSE	= ON
 # ---------------------
 # X11 specific section:
 # ---------------------
@@ -23,6 +23,9 @@ VERBOSE	= OFF
 X11_USE_API = EGL
 
 
+
+# SECTION:
+#  PLATFORM Configuration
 
 SRCS_X11= \
 	$(MK_ROOT)src/x11/gf-window-create.c \
@@ -52,11 +55,6 @@ SRCS_GLX= \
 	$(MK_ROOT)src/glx/gf-context-destroy.c \
 	$(MK_ROOT)src/glx/gf-context-config.c
 
-
-
-# SECTION:
-#  PLATFORM Configuration
-
 ifeq ($(OS),Windows_NT)
 	UNAME_S := Windows_NT
 else
@@ -81,10 +79,9 @@ ifeq ($(UNAME_S),Linux)
 		endif
 
 	else ifeq ($(XDG_SESSION_TYPE), wayland)
-		# wayland client is dependent on xdg, which is some sort of stdlib for windowing, to work
-		# we need to generate it in order to use it properly
-		XDG_HEADER := $(shell wayland-scanner client-header /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml $(MK_ROOT)src/wl/xdg-shell.h)
-		XDG_SOURCE := $(shell wayland-scanner private-code /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml $(MK_ROOT)src/wl/xdg-shell.c)
+		# Generating xdg-shell.h and xdg-shell.c files for XDG support
+		XDG_HEADER := $(shell wayland-scanner client-header $(MK_ROOT)src/wl/deps/xdg-shell.xml $(MK_ROOT)src/wl/xdg-shell.h)
+		XDG_SOURCE := $(shell wayland-scanner private-code $(MK_ROOT)src/wl/deps/xdg-shell.xml $(MK_ROOT)src/wl/xdg-shell.c)
 		
 		CFLAGS	+= -DUSE_WL
 		CFLAGS	+= -DUSE_EGL # wayland uses EGL by default
@@ -160,6 +157,15 @@ clean :
 install :
 	cp $(TARGET) /usr/local/lib
 	cp $(MK_ROOT)src/gf.h /usr/local/include
+
+.PHONY : test
+
+test : all
+ifeq ($(UNAME_S),Linux)
+	$(CC) $(MK_ROOT)demo/00-hello-world.c -o 00-hello-world.out -L. -lgf
+	$(CC) $(MK_ROOT)demo/01-hello-opengl.c -o 01-hello-opengl.out -L. -lgf
+	$(CC) $(MK_ROOT)demo/02-hello-multiple-windows.c -o 02-hello-mutliple-windows.out -L. -lgf
+endif	
 
 $(TARGET) : $(OBJS)
 

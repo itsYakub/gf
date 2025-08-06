@@ -8,6 +8,9 @@
  *  Public API implementation
  * */
 
+/* TODO(yakub):
+ *  Implement better version of window config
+ *
 GFAPI bool	gf_setWindowResizable(t_window win, bool state) {
 	if (!state) {
 		xdg_toplevel_set_min_size(win->xdg.toplevel, win->misc.width, win->misc.height);
@@ -32,3 +35,5 @@ GFAPI bool	gf_setWindowFullscreen(t_window win, bool state) {
 		xdg_toplevel_unset_fullscreen(win->xdg.toplevel);
 	return (true);
 }
+
+*/

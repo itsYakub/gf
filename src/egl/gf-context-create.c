@@ -47,10 +47,16 @@ GFAPI bool	gf_createContext(t_window win) {
 	_win = (EGLNativeWindowType) win->wl.id;
 #endif
 
+	/* Safety check if context is already created
+	 * */
+	if (win->egl.ctx) {
+		return (true);
+	}
+
 	/* Create EGL display object based on platform display
 	 * */
 	win->egl.dsp = eglGetDisplay(_dsp);
-	if (!win->egl.dsp) {
+	if (win->egl.dsp == EGL_NO_DISPLAY) {
 
 #if defined (VERBOSE)
 		gf_loge("EGL: Display failed\n");
@@ -61,7 +67,7 @@ GFAPI bool	gf_createContext(t_window win) {
 	if (!eglInitialize(win->egl.dsp, &_major, &_minor)) {
 
 #if defined (VERBOSE)
-		gf_loge("EGL: Initialization failed\n");
+		gf_loge("EGL: Initialization failed | code:%d\n", eglGetError());
 #endif
 
 		return (false);
@@ -120,17 +126,6 @@ GFAPI bool	gf_createContext(t_window win) {
 
 		return (false);
 	}
-
-#if defined (VERBOSE)
-	gf_logi("EGL: Created successfully\n");
-	gf_logi("EGL: Version: %d.%d\n", _major, _minor);
-	gf_logi("EGL: Client: %s\n", eglQueryString(win->egl.dsp, EGL_CLIENT_APIS));
-	gf_logi("EGL: Vendor: %s\n", eglQueryString(win->egl.dsp, EGL_VENDOR));
-#endif
-
-	/* Setting up some default context settings
-	 * */
-	gf_setWindowVSync(win, 0);
 	return (true);
 }
 

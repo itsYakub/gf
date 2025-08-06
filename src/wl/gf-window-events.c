@@ -194,11 +194,18 @@ GFAPIS bool		__gf_pollInternalEvents(t_window);
  * */
 
 GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
+	/* Poll gf events
+	 * */
 	if (__gf_pollGfEvents(win, event)) {
 		return (true);
 	}
 
+	/* Poll internal events
+	 * */
 	__gf_pollInternalEvents(win);
+
+	/* Return an empty 'None' event
+	 * */
 	*event = (t_event) { 0 };
 	return (false);
 }
@@ -304,14 +311,15 @@ GFAPIS bool	__gf_pollGfEvents(t_window win, t_event *event) {
 }
 
 GFAPIS bool	__gf_pollInternalEvents(t_window win) {
-	struct pollfd	_fd;
 	bool			_event;
-
-	_fd = (struct pollfd) {
-		.fd = wl_display_get_fd(win->wl.dsp), .events = POLLIN
+	enum { POLLFD_DISPLAY = 0 };
+	struct pollfd	_fd[2] = {
+		[POLLFD_DISPLAY] = { .fd = wl_display_get_fd(win->wl.dsp), .events = POLLIN },
 	};
 	_event = false;
 	while (!_event) {
+		/* Prepare event reading
+		 * */
 		while (wl_display_prepare_read(win->wl.dsp) != 0) {
 			if (wl_display_dispatch_pending(win->wl.dsp) > 0) {
 				return (false);
@@ -321,13 +329,17 @@ GFAPIS bool	__gf_pollInternalEvents(t_window win) {
 			wl_display_cancel_read(win->wl.dsp);
 			return (false);
 		}
-
-		if (poll(&_fd, 1, -1) > 0) {
+		if (poll(_fd, 1, -1) > 0) {
 			wl_display_cancel_read(win->wl.dsp);
 			return (false);
 		}
 
-		if (_fd.revents & POLLIN) {
+		/* Process events
+		 * */
+
+		/* * Display events
+		 * * */
+		if (_fd[POLLFD_DISPLAY].revents & POLLIN) {
 			wl_display_read_events(win->wl.dsp);
 			if (wl_display_dispatch_pending(win->wl.dsp) > 0) {
 				_event = true;
