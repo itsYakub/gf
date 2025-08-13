@@ -7,29 +7,29 @@
 #include "./gf-int-wl.h"
 
 GFAPII bool	gf_int_initListeners(t_window win) {
-	win->listener.registry.global = gf_int_registry_global;
-	win->listener.registry.global_remove = gf_int_registry_global_remove;
+	win->client.listener.registry.global = gf_int_registry_global;
+	win->client.listener.registry.global_remove = gf_int_registry_global_remove;
 
-	win->listener.wm_base.ping = gf_int_wm_base_ping;
+	win->client.listener.wm_base.ping = gf_int_wm_base_ping;
 		
-	win->listener.seat.name = gf_int_seat_name;
-	win->listener.seat.capabilities = gf_int_seat_capabilities;
+	win->client.listener.seat.name = gf_int_seat_name;
+	win->client.listener.seat.capabilities = gf_int_seat_capabilities;
 	
-	win->listener.surface.configure = gf_int_surface_configure;
+	win->client.listener.surface.configure = gf_int_surface_configure;
 	
-	win->listener.toplevel = (struct xdg_toplevel_listener) {
+	win->client.listener.toplevel = (struct xdg_toplevel_listener) {
 		gf_int_toplevel_configure,
 		gf_int_toplevel_close,
 		gf_int_toplevel_configure_bounds,
 		gf_int_toplevel_wm_capabilities,
 	};
 
-	win->listener.keyboard = (struct wl_keyboard_listener) {
+	win->client.listener.keyboard = (struct wl_keyboard_listener) {
 		gf_int_keyboard_keymap, gf_int_keyboard_enter, gf_int_keyboard_leave,
 		gf_int_keyboard_key, gf_int_keyboard_modifiers, gf_int_keyboard_repeat_info,
 	};
 	
-	win->listener.pointer = (struct wl_pointer_listener) {
+	win->client.listener.pointer = (struct wl_pointer_listener) {
 		gf_int_pointer_enter, gf_int_pointer_leave,
 		gf_int_pointer_motion, gf_int_pointer_button,
 		gf_int_pointer_axis, gf_int_pointer_frame,
@@ -52,18 +52,18 @@ GFAPII void gf_int_registry_global(void *data, struct wl_registry *wl_registry, 
 	(void) version;
 	_win = (t_window) data;
 	if (!strcmp(interface, wl_compositor_interface.name)) {
-		_win->wl.comp = wl_registry_bind(wl_registry, name, &wl_compositor_interface, 4);
+		_win->client.comp = wl_registry_bind(wl_registry, name, &wl_compositor_interface, 4);
 	}
 
 	if (!strcmp(interface, xdg_wm_base_interface.name)) {
 		_win->xdg.base = wl_registry_bind(wl_registry, name, &xdg_wm_base_interface, 1);
-		xdg_wm_base_add_listener(_win->xdg.base, &_win->listener.wm_base, data);
+		xdg_wm_base_add_listener(_win->xdg.base, &_win->client.listener.wm_base, data);
 	}
 	
 	if (!strcmp(interface, wl_seat_interface.name)) {
-		_win->wl.seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 1);
+		_win->client.seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 1);
 
-		wl_seat_add_listener(_win->wl.seat, &_win->listener.seat, data);
+		wl_seat_add_listener(_win->client.seat, &_win->client.listener.seat, data);
 	}
 }
 
@@ -151,15 +151,15 @@ GFAPII void gf_int_seat_capabilities(void *data, struct wl_seat *wl_seat, uint32
 	t_window	_win;
 
 	_win = (t_window) data;
-	if (capabilities & WL_SEAT_CAPABILITY_KEYBOARD && !_win->wl.keyboard) {
-		_win->wl.keyboard = wl_seat_get_keyboard(wl_seat);
-		_win->xkb.ctx = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
-		wl_keyboard_add_listener(_win->wl.keyboard, &_win->listener.keyboard, data);
+	if (capabilities & WL_SEAT_CAPABILITY_KEYBOARD && !_win->client.keyboard) {
+		_win->client.keyboard = wl_seat_get_keyboard(wl_seat);
+		_win->client.xkb.ctx = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+		wl_keyboard_add_listener(_win->client.keyboard, &_win->client.listener.keyboard, data);
 	}
 
-	if (capabilities & WL_SEAT_CAPABILITY_POINTER && !_win->wl.pointer) {
-		_win->wl.pointer = wl_seat_get_pointer(wl_seat);
-		wl_pointer_add_listener(_win->wl.pointer, &_win->listener.pointer, data);
+	if (capabilities & WL_SEAT_CAPABILITY_POINTER && !_win->client.pointer) {
+		_win->client.pointer = wl_seat_get_pointer(wl_seat);
+		wl_pointer_add_listener(_win->client.pointer, &_win->client.listener.pointer, data);
 	}
 }
 
@@ -195,8 +195,8 @@ GFAPII void	gf_int_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, 
 		return;
 	}
 
-	_win->xkb.keymap = xkb_keymap_new_from_string(_win->xkb.ctx, _str, XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
-	if (!_win->xkb.keymap) {
+	_win->client.xkb.keymap = xkb_keymap_new_from_string(_win->client.xkb.ctx, _str, XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
+	if (!_win->client.xkb.keymap) {
 
 #if defined (VERBOSE)
 		gf_loge("XKB: Failed to create keymap\n");
@@ -207,8 +207,8 @@ GFAPII void	gf_int_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, 
 	munmap(_str, size);
 	close(fd);
 
-	_win->xkb.state = xkb_state_new(_win->xkb.keymap);
-	if (!_win->xkb.state) {
+	_win->client.xkb.state = xkb_state_new(_win->client.xkb.keymap);
+	if (!_win->client.xkb.state) {
 
 #if defined (VERBOSE)
 		gf_loge("XKB: Failed to create a State Machine\n");
@@ -244,7 +244,7 @@ GFAPII void	gf_int_keyboard_key(void *data, struct wl_keyboard *wl_keyboard, uin
 
 	_win = (t_window) data;
 	_event.type = state ? GF_EVENT_KEY_PRESS : GF_EVENT_KEY_RELEASE;
-	_keysym = xkb_state_key_get_one_sym(_win->xkb.state, key + 8);
+	_keysym = xkb_state_key_get_one_sym(_win->client.xkb.state, key + 8);
 	_event.key.key = gf_int_keymapPlatformToGf(_keysym);
 	_event.key.state = state;
 	gf_pushEvent(data, &_event);	

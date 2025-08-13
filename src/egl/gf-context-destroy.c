@@ -9,9 +9,9 @@
  * */
 
 GFAPI bool	gf_destroyContext(t_window win) {
-	eglMakeCurrent(win->egl.dsp, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-	eglDestroyContext(win->egl.dsp, win->egl.ctx);
-	eglDestroySurface(win->egl.dsp, win->egl.surf);
-	eglTerminate(win->egl.dsp);
+	eglMakeCurrent(win->context.dsp, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+	if (win->context.ctx) eglDestroyContext(win->context.dsp, win->context.ctx);
+	if (win->context.surf) eglDestroySurface(win->context.dsp, win->context.surf);
+	if (win->context.ctx) eglTerminate(win->context.dsp);
 	return (true);
 }

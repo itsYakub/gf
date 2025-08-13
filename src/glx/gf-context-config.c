@@ -20,7 +20,7 @@ static PFNGLXSWAPINTERVALEXTPROC	glXSwapIntervalEXT = 0;
  * */
 
 GFAPI bool	gf_swapBuffers(t_window win) {
-	glXSwapBuffers(win->x11.dsp, win->x11.id);
+	glXSwapBuffers(win->client.dsp, win->client.id);
 	return (true);
 }
 
@@ -48,6 +48,6 @@ GFAPI bool	gf_setWindowVSync(t_window win, bool state) {
 			return (false);
 		}
 	}
-	glXSwapIntervalEXT(win->x11.dsp, win->x11.id, state);
+	glXSwapIntervalEXT(win->client.dsp, win->client.id, state);
 	return (true);
 }

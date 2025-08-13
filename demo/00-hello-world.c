@@ -1,5 +1,6 @@
 #include "./../src/gf.h"
 
+#include <stdlib.h>
 #include <GL/gl.h>
 
 int	main(void) {

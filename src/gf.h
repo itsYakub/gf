@@ -193,6 +193,15 @@ enum {
 
 
 
+enum {
+	GF_CONFIG_NONE			= 0,
+	GF_CONFIG_RESIZABLE		= 1 << 1,
+	GF_CONFIG_BORDERLESS	= 1 << 2,
+	GF_CONFIG_COUNT
+} /* Window config */;
+
+
+
 struct s_event {
 	int32_t	type;
 	union {
@@ -238,6 +247,10 @@ GFAPI bool	gf_getWindowTitle(t_window, char **);
 GFAPI bool	gf_setWindowSize(t_window, int32_t, int32_t);
 GFAPI bool	gf_setWindowPosition(t_window, int32_t, int32_t);
 GFAPI bool	gf_setWindowTitle(t_window, const char *);
+
+
+
+GFAPI bool	gf_setWindowConfig(t_window, int32_t);
 
 
 

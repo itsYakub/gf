@@ -10,11 +10,6 @@
  * */
 
 GFAPI bool	gf_destroyContext(t_window win) {
-	glXDestroyContext(win->x11.dsp, win->glx.ctx);
-
-# if defined (VERBOSE)
-	gf_logi("EGL: Terminated successfully\n");
-# endif
-
+	if (win->context.id) glXDestroyContext(win->client.dsp, win->context.id);
 	return (true);
 }

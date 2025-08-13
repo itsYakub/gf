@@ -3,14 +3,13 @@
 #endif
 #include "./../gf-int.h"
 #include "./../gf.h"
-#include "./gf-int-x11.h"
 
 /* SECTION:
  *  Static globals
  * */
 
 static const struct {
-	int32_t	x11;
+	int32_t	client;
 	int32_t	gf;
 } g_button_map[] = {
 	{ 1, GF_BUTTON_LEFT },
@@ -21,7 +20,7 @@ static const struct {
 };
 
 static const struct {
-	int32_t	x11;
+	int32_t	client;
 	int32_t	gf;
 	char	*str;
 } g_key_map[] = {
@@ -234,7 +233,7 @@ GFAPI bool	gf_pushEvent(t_window win, t_event *e) {
 }
 
 GFAPI bool	gf_flushEvents(t_window win) {
-	if (!XFlush(win->x11.dsp)) {
+	if (!XFlush(win->client.dsp)) {
 		return (false);
 	}
 	return (true);
@@ -262,7 +261,7 @@ GFAPI char	*gf_keyToString(const int32_t key) {
 
 GFAPII int32_t	gf_int_buttonPlatformToGf(const int32_t btn) {
 	for (size_t i = 0; g_button_map[i].gf != GF_BUTTON_NONE; i++) {
-		if (g_button_map[i].x11 == (int32_t) btn) {
+		if (g_button_map[i].client == (int32_t) btn) {
 			return (g_button_map[i].gf);
 		}
 	}
@@ -271,7 +270,7 @@ GFAPII int32_t	gf_int_buttonPlatformToGf(const int32_t btn) {
 
 GFAPII int32_t	gf_int_keymapPlatformToGf(const int32_t key) {
 	for (size_t i = 0; g_key_map[i].gf != GF_KEY_NONE; i++) {
-		if (g_key_map[i].x11 == (int32_t) key) {
+		if (g_key_map[i].client == (int32_t) key) {
 			return (g_key_map[i].gf);
 		}
 	}
@@ -301,8 +300,8 @@ GFAPIS bool	__gf_pollInternalEvents(t_window win) {
 
 	/* Event queue emtpy, now we need to poll the events from implementation
 	 * */
-	while (XPending(win->x11.dsp)) {
-		XNextEvent(win->x11.dsp, &_event);
+	while (XPending(win->client.dsp)) {
+		XNextEvent(win->client.dsp, &_event);
 		switch (_event.type) {
 			case (ClientMessage): {
 				gf_int_pollInternal_Client(win, &_event);
@@ -342,7 +341,7 @@ GFAPIS bool	__gf_pollInternalEvents(t_window win) {
 GFAPII bool	gf_int_pollInternal_Client(t_window win, XEvent *e) {
 	t_event	_event;
 
-	if ((Atom) e->xclient.data.l[0] == win->atoms.wm_delete_window) {
+	if ((Atom) e->xclient.data.l[0] == win->client.atoms.wm_delete_window) {
 		_event.type = _event.quit.type = GF_EVENT_QUIT;
 		return (gf_pushEvent(win, &_event));
 	}
@@ -365,7 +364,7 @@ GFAPII bool	gf_int_pollInternal_Property(t_window win, XEvent *e) {
 	(void) e;
 	_event = (t_event) { 0 };
 	if (XGetWindowProperty(
-			win->x11.dsp, win->x11.id, win->atoms.wm_net_state,
+			win->client.dsp, win->client.id, win->client.atoms.wm_net_state,
 			0L, sizeof (Atom), false,
 			AnyPropertyType, &_actual_type, &_actual_format,
 			&_nitems, &_bytes, &_prop) == Success && _prop
@@ -373,7 +372,7 @@ GFAPII bool	gf_int_pollInternal_Property(t_window win, XEvent *e) {
 		Atom	*_atoms;
 
 		_atoms = (Atom *) _prop;
-		if (_atoms[0] == win->atoms.wm_net_state_fullscreen) {
+		if (_atoms[0] == win->client.atoms.wm_net_state_fullscreen) {
 			_event = (t_event) { .type = GF_EVENT_FULLSCREEN, .maximize.state = true };
 		}
 		free(_prop);
@@ -387,22 +386,22 @@ GFAPII bool	gf_int_pollInternal_Configure(t_window win, XEvent *e) {
 	/* GF_EVENT_RESIZE
 	 * */
 	if (
-		win->misc.width != e->xconfigure.width ||
-		win->misc.height != e->xconfigure.height
+		win->data.width != e->xconfigure.width ||
+		win->data.height != e->xconfigure.height
 	) {
 		_event.type = GF_EVENT_RESIZE;
-		_event.resize.w = win->misc.width = e->xconfigure.width;
-		_event.resize.h = win->misc.height = e->xconfigure.height;
+		_event.resize.w = win->data.width = e->xconfigure.width;
+		_event.resize.h = win->data.height = e->xconfigure.height;
 	}
 	/* GF_EVENT_MOVE
 	 * */
 	else if (
-		win->misc.x != e->xconfigure.x ||
-		win->misc.y != e->xconfigure.y
+		win->data.x != e->xconfigure.x ||
+		win->data.y != e->xconfigure.y
 	) {
 		_event.type = GF_EVENT_MOVE;
-		_event.move.x = win->misc.x = e->xconfigure.x;
-		_event.move.y = win->misc.y = e->xconfigure.y;
+		_event.move.x = win->data.x = e->xconfigure.x;
+		_event.move.y = win->data.y = e->xconfigure.y;
 	}
 	else {
 		return (false);
@@ -455,7 +454,7 @@ GFAPII bool	gf_int_pollInternal_Key(t_window win, XEvent *e) {
 	t_event	_event;
 	int32_t	_key;
 
-	_key = XkbKeycodeToKeysym(win->x11.dsp, e->xkey.keycode, 0, e->xkey.state & ShiftMask ? 1 : 0);
+	_key = XkbKeycodeToKeysym(win->client.dsp, e->xkey.keycode, 0, e->xkey.state & ShiftMask ? 1 : 0);
 	_event.type = e->type == KeyPress ? GF_EVENT_KEY_PRESS : GF_EVENT_KEY_RELEASE;
 	_event.key.state = e->type == KeyPress ? true : false; 
 	_event.key.key = gf_int_keymapPlatformToGf(_key);

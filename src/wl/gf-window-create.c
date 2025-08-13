@@ -30,8 +30,8 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 	assert(__gf_createSurface(*win));
 	assert(__gf_createXDG(*win));
 
-	(*win)->wl.id = wl_egl_window_create((*win)->wl.surf, w, h);
-	if (!(*win)->wl.id) {
+	(*win)->client.id = wl_egl_window_create((*win)->client.surf, w, h);
+	if (!(*win)->client.id) {
 
 #if defined (VERBOSE)
 		gf_loge("WINDOW: Failed to create\n");
@@ -44,11 +44,11 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 		gf_setWindowTitle(*win, t);
 	}
 
-	wl_surface_commit((*win)->wl.surf);
+	wl_surface_commit((*win)->client.surf);
 
 	/* Another roundtrip to create all the remaining structures, especially wl_seat
 	 * */
-	wl_display_roundtrip((*win)->wl.dsp);
+	wl_display_roundtrip((*win)->client.dsp);
 
 	return (true);
 }
@@ -62,8 +62,8 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
  * */
 
 GFAPIS bool	__gf_connectDisplay(t_window win) {
-	win->wl.dsp = wl_display_connect(0);
-	if (!win->wl.dsp) {
+	win->client.dsp = wl_display_connect(0);
+	if (!win->client.dsp) {
 
 #if defined (VERBOSE)
 		gf_loge("DISPLAY: Failed to connect\n");
@@ -72,8 +72,8 @@ GFAPIS bool	__gf_connectDisplay(t_window win) {
 		return (false);
 	}
 
-	win->wl.reg = wl_display_get_registry(win->wl.dsp);
-	if (!win->wl.reg) {
+	win->client.reg = wl_display_get_registry(win->client.dsp);
+	if (!win->client.reg) {
 
 #if defined (VERBOSE)
 		gf_loge("REGISTRY: Failed to get\n");
@@ -82,14 +82,14 @@ GFAPIS bool	__gf_connectDisplay(t_window win) {
 		return (false);
 	}
 
-	wl_registry_add_listener(win->wl.reg, &win->listener.registry, win);
-	wl_display_roundtrip(win->wl.dsp);
-	return (win->wl.comp && win->xdg.base);
+	wl_registry_add_listener(win->client.reg, &win->client.listener.registry, win);
+	wl_display_roundtrip(win->client.dsp);
+	return (win->client.comp && win->client.xdg.base);
 }
 
 GFAPIS bool	__gf_createSurface(t_window win) {
-	win->wl.surf = wl_compositor_create_surface(win->wl.comp);
-	if (!win->wl.surf) {
+	win->client.surf = wl_compositor_create_surface(win->client.comp);
+	if (!win->client.surf) {
 
 #if defined (VERBOSE)
 		gf_loge("COMPOSITOR: Failed to create a surface\n");
@@ -102,8 +102,8 @@ GFAPIS bool	__gf_createSurface(t_window win) {
 }
 
 GFAPIS bool	__gf_createXDG(t_window win) {
-	win->xdg.surf = xdg_wm_base_get_xdg_surface(win->xdg.base, win->wl.surf);
-	if (!win->xdg.surf) {
+	win->client.xdg.surf = xdg_wm_base_get_xdg_surface(win->client.xdg.base, win->client.surf);
+	if (!win->client.xdg.surf) {
 
 #if defined (VERBOSE)
 		gf_loge("XDG: Failed to create a surface\n");
@@ -111,10 +111,10 @@ GFAPIS bool	__gf_createXDG(t_window win) {
 
 		return (false);
 	}
-	xdg_surface_add_listener(win->xdg.surf, &win->listener.surface, win);
+	xdg_surface_add_listener(win->client.xdg.surf, &win->client.listener.surface, win);
 
-	win->xdg.toplevel = xdg_surface_get_toplevel(win->xdg.surf);
-	if (!win->xdg.toplevel) {
+	win->client.xdg.toplevel = xdg_surface_get_toplevel(win->client.xdg.surf);
+	if (!win->client.xdg.toplevel) {
 
 #if defined (VERBOSE)
 		gf_loge("XDG: Failed to create a toplevel\n");
@@ -122,6 +122,6 @@ GFAPIS bool	__gf_createXDG(t_window win) {
 
 		return (false);
 	}
-	xdg_toplevel_add_listener(win->xdg.toplevel, &win->listener.toplevel, win);
+	xdg_toplevel_add_listener(win->client.xdg.toplevel, &win->client.listener.toplevel, win);
 	return (true);
 }

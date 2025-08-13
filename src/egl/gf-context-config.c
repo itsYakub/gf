@@ -9,7 +9,7 @@
  * */
 
 GFAPI bool	gf_swapBuffers(t_window win) {
-	eglSwapBuffers(win->egl.dsp, win->egl.surf);
+	eglSwapBuffers(win->context.dsp, win->context.surf);
 	return (true);
 }
 
@@ -31,6 +31,6 @@ GFAPI void	*gf_getProcAddress(const char *name) {
 }
 
 GFAPI bool	gf_setWindowVSync(t_window win, bool state) {
-	eglSwapInterval(win->egl.dsp, state);
+	eglSwapInterval(win->context.dsp, state);
 	return (true);
 }

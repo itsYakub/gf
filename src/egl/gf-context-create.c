@@ -8,7 +8,7 @@
  *  Static globals
  * */
 
-static int32_t	g_egl_attr_conf[] = {
+static int32_t	g_context_attr_conf[] = {
 	EGL_RED_SIZE,			8,
 	EGL_GREEN_SIZE,			8,
 	EGL_BLUE_SIZE,			8,
@@ -19,7 +19,7 @@ static int32_t	g_egl_attr_conf[] = {
 	EGL_NONE
 };
 
-static int32_t	g_egl_attr_ctx[] = {
+static int32_t	g_context_attr_ctx[] = {
 	EGL_CONTEXT_CLIENT_VERSION,	2,
 	EGL_NONE
 };
@@ -40,34 +40,34 @@ GFAPI bool	gf_createContext(t_window win) {
 	int32_t					_minor;
 
 #if defined (USE_X11)
-	_dsp = (EGLNativeDisplayType) win->x11.dsp;
-	_win = (EGLNativeWindowType) win->x11.id;
+	_dsp = (EGLNativeDisplayType) win->client.dsp;
+	_win = (EGLNativeWindowType) win->client.id;
 #elif defined (USE_WL)
-	_dsp = (EGLNativeDisplayType) win->wl.dsp;
-	_win = (EGLNativeWindowType) win->wl.id;
+	_dsp = (EGLNativeDisplayType) win->client.dsp;
+	_win = (EGLNativeWindowType) win->client.id;
 #endif
 
 	/* Safety check if context is already created
 	 * */
-	if (win->egl.ctx) {
+	if (win->context.ctx) {
 		return (true);
 	}
 
 	/* Create EGL display object based on platform display
 	 * */
-	win->egl.dsp = eglGetDisplay(_dsp);
-	if (win->egl.dsp == EGL_NO_DISPLAY) {
+	win->context.dsp = eglGetDisplay(_dsp);
+	if (win->context.dsp == EGL_NO_DISPLAY) {
 
 #if defined (VERBOSE)
-		gf_loge("EGL: Display failed\n");
+		gf_loge("CONTEXT: Display failed\n");
 #endif
 
 		return (false);
 	}
-	if (!eglInitialize(win->egl.dsp, &_major, &_minor)) {
+	if (!eglInitialize(win->context.dsp, &_major, &_minor)) {
 
 #if defined (VERBOSE)
-		gf_loge("EGL: Initialization failed | code:%d\n", eglGetError());
+		gf_loge("CONTEXT: Initialization failed\n");
 #endif
 
 		return (false);
@@ -76,7 +76,7 @@ GFAPI bool	gf_createContext(t_window win) {
 	if (!eglBindAPI(EGL_OPENGL_API)) {
 
 #if defined (VERBOSE)
-		gf_loge("EGL: Failed to bind OpenGL api\n");
+		gf_loge("CONTEXT: Failed to bind OpenGL api\n");
 #endif
 
 		return (false);
@@ -85,10 +85,10 @@ GFAPI bool	gf_createContext(t_window win) {
 	/* Create config object
 	 * */
 	_attr_cont_cnt = 0;
-	if (!eglChooseConfig(win->egl.dsp, g_egl_attr_conf, &win->egl.conf, 1, &_attr_cont_cnt)) {
+	if (!eglChooseConfig(win->context.dsp, g_context_attr_conf, &win->context.conf, 1, &_attr_cont_cnt)) {
 
 #if defined (VERBOSE)
-		gf_loge("EGL: Config failed\n");
+		gf_loge("CONTEXT: Configuration failed\n");
 #endif
 
 		return (false);
@@ -96,11 +96,11 @@ GFAPI bool	gf_createContext(t_window win) {
 
 	/* Create EGL surface based on platform window
 	 * */
-	win->egl.surf = eglCreateWindowSurface(win->egl.dsp, win->egl.conf, _win, 0);
-	if (!win->egl.surf) {
+	win->context.surf = eglCreateWindowSurface(win->context.dsp, win->context.conf, _win, 0);
+	if (!win->context.surf) {
 
 #if defined (VERBOSE)
-		gf_loge("EGL: Surface failed\n");
+		gf_loge("CONTEXT: Surface failed\n");
 #endif
 
 		return (false);
@@ -108,36 +108,28 @@ GFAPI bool	gf_createContext(t_window win) {
 
 	/* Create EGL Context
 	 * */
-	win->egl.ctx = eglCreateContext(win->egl.dsp, win->egl.conf, EGL_NO_CONTEXT, g_egl_attr_ctx);
-	if (!win->egl.ctx) {
+	win->context.ctx = eglCreateContext(win->context.dsp, win->context.conf, EGL_NO_CONTEXT, g_context_attr_ctx);
+	if (!win->context.ctx) {
 
 #if defined (VERBOSE)
-		gf_loge("EGL: Context failed\n");
+		gf_loge("CONTEXT: Failed to create\n");
 #endif
 
 		return (false);
 	}
 
-	if (!eglMakeCurrent(win->egl.dsp, win->egl.surf, win->egl.surf, win->egl.ctx)) {
-
-#if defined (VERBOSE)
-		gf_loge("EGL: Context failed\n");
-#endif
-
-		return (false);
-	}
-	return (true);
+	return (gf_makeCurrent(win));
 }
 
 GFAPI bool	gf_makeCurrent(t_window win) {
-	if (!win->egl.ctx) {
+	if (!win->context.ctx) {
 		return (gf_createContext(win));
 	}
 
-	if (!eglMakeCurrent(win->egl.dsp, win->egl.surf, win->egl.surf, win->egl.ctx)) {
+	if (!eglMakeCurrent(win->context.dsp, win->context.surf, win->context.surf, win->context.ctx)) {
 
 # if defined (VERBOSE)
-		gf_loge("EGL: Context current failed\n");
+		gf_loge("CONTEXT: Make current failed\n");
 # endif
 
 		return (false);

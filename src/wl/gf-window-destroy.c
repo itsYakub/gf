@@ -9,25 +9,25 @@
  * */
 
 GFAPI bool	gf_destroyWindow(t_window win) {
-	if (win->xkb.state) xkb_state_unref(win->xkb.state);
-	if (win->xkb.keymap) xkb_keymap_unref(win->xkb.keymap);
-	if (win->xkb.ctx) xkb_context_unref(win->xkb.ctx);
+	if (win->client.xkb.state) xkb_state_unref(win->client.xkb.state);
+	if (win->client.xkb.keymap) xkb_keymap_unref(win->client.xkb.keymap);
+	if (win->client.xkb.ctx) xkb_context_unref(win->client.xkb.ctx);
 	
-	if (win->xdg.toplevel) xdg_toplevel_destroy(win->xdg.toplevel);
-	if (win->xdg.surf) xdg_surface_destroy(win->xdg.surf);
-	if (win->xdg.base) xdg_wm_base_destroy(win->xdg.base);
+	if (win->client.xdg.toplevel) xdg_toplevel_destroy(win->client.xdg.toplevel);
+	if (win->client.xdg.surf) xdg_surface_destroy(win->client.xdg.surf);
+	if (win->client.xdg.base) xdg_wm_base_destroy(win->client.xdg.base);
 
-	if (win->wl.pointer) wl_pointer_destroy(win->wl.pointer);
-	if (win->wl.keyboard) wl_keyboard_destroy(win->wl.keyboard);
-	if (win->wl.seat) wl_seat_destroy(win->wl.seat);
+	if (win->client.pointer) wl_pointer_destroy(win->client.pointer);
+	if (win->client.keyboard) wl_keyboard_destroy(win->client.keyboard);
+	if (win->client.seat) wl_seat_destroy(win->client.seat);
 
-	if (win->wl.surf) wl_surface_destroy(win->wl.surf);
-	if (win->wl.comp) wl_compositor_destroy(win->wl.comp);
-	if (win->wl.reg) wl_registry_destroy(win->wl.reg);
+	if (win->client.surf) wl_surface_destroy(win->client.surf);
+	if (win->client.comp) wl_compositor_destroy(win->client.comp);
+	if (win->client.reg) wl_registry_destroy(win->client.reg);
 
-	if (win->wl.id) wl_egl_window_destroy(win->wl.id);
+	if (win->client.id) wl_egl_window_destroy(win->client.id);
 
-	if (win->wl.dsp) wl_display_disconnect(win->wl.dsp);
+	if (win->client.dsp) wl_display_disconnect(win->client.dsp);
 
 	free(win);
 	return (true);

@@ -20,12 +20,18 @@ VERBOSE	= ON
 # X11 specific section:
 # ---------------------
 # EGL (DEFAULT) / GLX
-X11_USE_API = EGL
+X11_USE_API = GLX
 
 
 
 # SECTION:
 #  PLATFORM Configuration
+
+SRCS				:=
+OBJS				:=
+UNAME_S				:=
+XDG_SESSION_TYPE	:=
+DEPS				:=
 
 SRCS_X11= \
 	$(MK_ROOT)src/x11/gf-window-create.c \
@@ -67,18 +73,21 @@ ifeq ($(UNAME_S),Linux)
 	ifeq ($(XDG_SESSION_TYPE),x11)
 		CFLAGS	+= -DUSE_X11
 		SRCS	:= $(SRCS_X11)
+		DEPS	:= -lX11 -lGL
 
 		ifeq ($(X11_USE_API),EGL)
 			CFLAGS	+= -DUSE_EGL
 			SRCS	+= $(SRCS_EGL)
+			DEPS	+= -lEGL
 		else ifeq ($(X11_USE_API),GLX)
 			CFLAGS	+= -DUSE_GLX
 			SRCS	+= $(SRCS_GLX)
+			DEPS	+= -lGLX
 		else
 			$(error Unrecognized OpenGL API: $(X11_USE_API))
 		endif
 
-	else ifeq ($(XDG_SESSION_TYPE), wayland)
+	else ifeq ($(XDG_SESSION_TYPE),wayland)
 		# Generating xdg-shell.h and xdg-shell.c files for XDG support
 		XDG_HEADER := $(shell wayland-scanner client-header $(MK_ROOT)src/wl/deps/xdg-shell.xml $(MK_ROOT)src/wl/xdg-shell.h)
 		XDG_SOURCE := $(shell wayland-scanner private-code $(MK_ROOT)src/wl/deps/xdg-shell.xml $(MK_ROOT)src/wl/xdg-shell.c)
@@ -88,6 +97,7 @@ ifeq ($(UNAME_S),Linux)
 		SRCS	:= $(SRCS_WL)
 		SRCS	+= $(SRCS_XDG)
 		SRCS	+= $(SRCS_EGL)
+		DEPS	:= -lwayland-client -lwayland-egl -lxkbcommon -lGL -lEGL
 	else
 		$(error Unrecognized session type: $(XDG_SESSION_TYPE))
 	endif
@@ -96,6 +106,7 @@ else ifeq ($(UNAME_S), Windows_NT)
 	CFLAGS	+= -DUSE_WIN32
 	SRCS	:= $(SRCS_WIN32)
 	SRCS	+= $(SRCS_WGL)
+	DEPS	:=
 else
 	$(error Unrecognized Platform: $(UNAME_S))
 endif
@@ -161,11 +172,9 @@ install :
 .PHONY : test
 
 test : all
-ifeq ($(UNAME_S),Linux)
-	$(CC) $(MK_ROOT)demo/00-hello-world.c -o 00-hello-world.out -L. -lgf
-	$(CC) $(MK_ROOT)demo/01-hello-opengl.c -o 01-hello-opengl.out -L. -lgf
-	$(CC) $(MK_ROOT)demo/02-hello-multiple-windows.c -o 02-hello-mutliple-windows.out -L. -lgf
-endif	
+	$(CC) $(MK_ROOT)demo/00-hello-world.c -o 00-hello-world.out -L. -lgf $(DEPS) -ggdb3
+	$(CC) $(MK_ROOT)demo/01-hello-opengl.c -o 01-hello-opengl.out -L. -lgf $(DEPS) -ggdb3
+	$(CC) $(MK_ROOT)demo/02-hello-multiple-windows.c -o 02-hello-mutliple-windows.out -L. -lgf $(DEPS) -ggdb3
 
 $(TARGET) : $(OBJS)
 

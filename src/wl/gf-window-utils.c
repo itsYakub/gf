@@ -38,7 +38,7 @@ GFAPI bool	gf_getWindowTitle(t_window win, char **tptr) {
 }
 
 GFAPI bool	gf_setWindowSize(t_window win, int32_t w, int32_t h) {
-	wl_egl_window_resize(win->wl.id, w, h, 0, 0);
+	wl_egl_window_resize(win->client.id, w, h, 0, 0);
 	win->misc.width = w;
 	win->misc.height = h;
 	return (true);
@@ -52,9 +52,10 @@ GFAPI bool	gf_setWindowPosition(t_window win, int32_t x, int32_t y) {
 }
 
 GFAPI bool	gf_setWindowTitle(t_window win, const char *t) {
-	if (win->xdg.toplevel) {
-		xdg_toplevel_set_title(win->xdg.toplevel, t);
+	if (!win->client.xdg.toplevel) {
+		return (false);
 	}
+	xdg_toplevel_set_title(win->client.xdg.toplevel, t);
 	memset(win->misc.title, 0, _GF_WINDOW_TITLE_LEN);
 	memcpy(win->misc.title, t, strlen(t));
 	return (true);

@@ -9,24 +9,10 @@
  * */
 
 GFAPI bool	gf_destroyWindow(t_window win) {
-	XDestroyWindow(win->x11.dsp, win->x11.id);
+	if (win->client.id) XDestroyWindow(win->client.dsp, win->client.id);
+	if (win->client.info) free(win->client.info);
+	if (win->client.dsp) XCloseDisplay(win->client.dsp);
 
-#if defined (VERBOSE)
-	gf_logi("WINDOW: Destroyed successfully\n");
-#endif
-
-	free(win->x11.info);
-
-#if defined (VERBOSE)
-	gf_logi("VISUAL: Freed successfully\n");
-#endif
-
-	XCloseDisplay(win->x11.dsp);
-
-#if defined (VERBOSE)
-	gf_logi("DISPLAY: Destroyed successfully\n");
-#endif
-	
 	free(win);
 	return (true);
 }
