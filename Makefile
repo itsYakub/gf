@@ -15,12 +15,12 @@ ARFLAGS	= rcs
 # ON / OFF (DEFAULT)
 SHARED	= OFF
 # ON / OFF (DEFAULT)
-VERBOSE	= ON
+VERBOSE	= OFF
 # ---------------------
 # X11 specific section:
 # ---------------------
 # EGL (DEFAULT) / GLX
-X11_USE_API = GLX
+X11_USE_API = EGL
 
 
 
@@ -34,22 +34,12 @@ XDG_SESSION_TYPE	:=
 DEPS				:=
 
 SRCS_X11= \
-	$(MK_ROOT)src/x11/gf-window-create.c \
-	$(MK_ROOT)src/x11/gf-window-destroy.c \
+	$(MK_ROOT)src/x11/gf-window-init.c \
 	$(MK_ROOT)src/x11/gf-window-events.c \
-	$(MK_ROOT)src/x11/gf-window-utils.c \
 	$(MK_ROOT)src/x11/gf-window-config.c
 
-SRCS_WL	= \
-	$(MK_ROOT)src/wl/gf-window-create.c \
-	$(MK_ROOT)src/wl/gf-window-destroy.c \
-	$(MK_ROOT)src/wl/gf-listener.c \
-	$(MK_ROOT)src/wl/gf-window-events.c \
-	$(MK_ROOT)src/wl/gf-window-utils.c \
-	$(MK_ROOT)src/wl/gf-window-config.c
-
-SRCS_XDG= \
-	$(MK_ROOT)src/wl/xdg-shell.c \
+SRCS_WL	= 
+SRCS_XDG= 
 
 SRCS_EGL= \
 	$(MK_ROOT)src/egl/gf-context-create.c \
@@ -98,6 +88,7 @@ ifeq ($(UNAME_S),Linux)
 		SRCS	+= $(SRCS_XDG)
 		SRCS	+= $(SRCS_EGL)
 		DEPS	:= -lwayland-client -lwayland-egl -lxkbcommon -lGL -lEGL
+		$(warning Wayland is currently unsupported. Revert back to X11 support)
 	else
 		$(error Unrecognized session type: $(XDG_SESSION_TYPE))
 	endif

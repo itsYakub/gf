@@ -100,15 +100,9 @@ enum {
 	GF_KEY_4, GF_KEY_5, GF_KEY_6,
 	GF_KEY_7, GF_KEY_8, GF_KEY_9,
 
-	GF_KEY_EXCLAM = '!',
-	GF_KEY_AT = '@',
-	GF_KEY_HASH = '#',
-	GF_KEY_DOLLAR = '$',
-	GF_KEY_PERCENT = '%',
-	GF_KEY_CARET = '^',
-	GF_KEY_AMPER = '&',
-	GF_KEY_ASTER = '*',
-	GF_KEY_OPENPAREN = '(',
+	GF_KEY_EXCLAM = '!', GF_KEY_AT = '@', GF_KEY_HASH = '#',
+	GF_KEY_DOLLAR = '$', GF_KEY_PERCENT = '%', GF_KEY_CARET = '^',
+	GF_KEY_AMPER = '&', GF_KEY_ASTER = '*', GF_KEY_OPENPAREN = '(',
 	GF_KEY_CLOSEPAREN = ')',
 
 	GF_KEY_A = 'A',
@@ -118,28 +112,16 @@ enum {
 	GF_KEY_Q, GF_KEY_R, GF_KEY_S, GF_KEY_T, GF_KEY_U,	
 	GF_KEY_V, GF_KEY_W, GF_KEY_X, GF_KEY_Y, GF_KEY_Z,
 	
-	GF_KEY_MINUS = '-',
-	GF_KEY_EQUAL = '=',
-	GF_KEY_OPENBRACE = '[',
-	GF_KEY_CLOSEBRACE = ']',
-	GF_KEY_BACKSLASH = '\\',
-	GF_KEY_SEMICOLON = ';',
-	GF_KEY_SQUOTE = '\'',
-	GF_KEY_COMMA = ',',
-	GF_KEY_PERIOD = '.',
-	GF_KEY_SLASH = '/',
+	GF_KEY_MINUS = '-', GF_KEY_EQUAL = '=',
+	GF_KEY_OPENBRACE = '[', GF_KEY_CLOSEBRACE = ']', GF_KEY_BACKSLASH = '\\',
+	GF_KEY_SEMICOLON = ';', GF_KEY_SQUOTE = '\'',
+	GF_KEY_COMMA = ',', GF_KEY_PERIOD = '.', GF_KEY_SLASH = '/',
 	GF_KEY_GRAVE = '`',
 	
-	GF_KEY_UNDERSCORE = '_',
-	GF_KEY_PLUS = '+',
-	GF_KEY_OPENCURLY = '{',
-	GF_KEY_CLOSECURLY = '}',
-	GF_KEY_PIPE = '|',
-	GF_KEY_COLON = ':',
-	GF_KEY_DQUOTE = '\"',
-	GF_KEY_OPENANGLE = '<',
-	GF_KEY_CLOSEANGLE = '>',
-	GF_KEY_QUESTION = '?',
+	GF_KEY_UNDERSCORE = '_', GF_KEY_PLUS = '+',
+	GF_KEY_OPENCURLY = '{', GF_KEY_CLOSECURLY = '}', GF_KEY_PIPE = '|',
+	GF_KEY_COLON = ':', GF_KEY_DQUOTE = '\"',
+	GF_KEY_OPENANGLE = '<', GF_KEY_CLOSEANGLE = '>', GF_KEY_QUESTION = '?',
 	GF_KEY_TILDE = '~',
 
 	GF_KEY_RETURN = 128,
@@ -197,7 +179,11 @@ enum {
 	GF_CONFIG_NONE			= 0,
 	GF_CONFIG_RESIZABLE		= 1 << 1,
 	GF_CONFIG_BORDERLESS	= 1 << 2,
-	GF_CONFIG_COUNT
+	GF_CONFIG_TRANSPARENT	= 1 << 3,
+	GF_CONFIG_TOPMOST		= 1 << 4,
+	GF_CONFIG_FULLSCREEN	= 1 << 5,
+	GF_CONFIG_MINIMIZED		= 1 << 6,
+	GF_CONFIG_MAXIMIZED		= 1 << 7,
 } /* Window config */;
 
 
@@ -239,23 +225,24 @@ typedef struct s_window	*t_window;
 GFAPI bool	gf_createWindow(t_window *, const size_t, const size_t, const char *);
 GFAPI bool	gf_destroyWindow(t_window);
 
+
+
 GFAPI bool	gf_getWindowSize(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getMonitorSize(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getWindowPosition(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getWindowTitle(t_window, char **);
-
 GFAPI bool	gf_setWindowSize(t_window, int32_t, int32_t);
 GFAPI bool	gf_setWindowPosition(t_window, int32_t, int32_t);
 GFAPI bool	gf_setWindowTitle(t_window, const char *);
-
-
-
 GFAPI bool	gf_setWindowConfig(t_window, int32_t);
 
 
 
 GFAPI bool	gf_createContext(t_window);
 GFAPI bool	gf_destroyContext(t_window);
+
+
+
 GFAPI bool	gf_makeCurrent(t_window);
 GFAPI bool	gf_swapBuffers(t_window);
 GFAPI void	*gf_getProcAddress(const char *);

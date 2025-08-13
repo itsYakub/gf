@@ -31,16 +31,20 @@ struct s_client {
 	int32_t		screen_id;
 	
 	struct {
-		Atom	wm_delete_window;
-		Atom	wm_net_state;
-		Atom	wm_net_state_above;
-		Atom	wm_net_state_fullscreen;
-		Atom	wm_net_state_hidden;
-		Atom	wm_net_state_maximized_horz;
-		Atom	wm_net_state_maximized_vert;
-		Atom	wm_net_window_type;
-		Atom	wm_net_window_normal;
-		Atom	wm_net_window_dock;
+		Atom	WM_DELETE_WINDOW;
+		Atom	WM_CHANGE_STATE;
+
+		Atom	_MOTIF_WM_HINTS;
+
+		Atom	_NET_WM_STATE;
+		Atom	_NET_WM_STATE_ABOVE;
+		Atom	_NET_WM_STATE_FULLSCREEN;
+		Atom	_NET_WM_STATE_HIDDEN;
+		Atom	_NET_WM_STATE_MAXIMIZED_HORZ;
+		Atom	_NET_WM_STATE_MAXIMIZED_VERT;
+		Atom	_NET_WM_WINDOW_TYPE;
+		Atom	_NET_WM_WINDOW_NORMAL;
+		Atom	_NET_WM_WINDOW_DOCK;
 	} atoms;
 };
 

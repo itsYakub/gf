@@ -341,7 +341,7 @@ GFAPIS bool	__gf_pollInternalEvents(t_window win) {
 GFAPII bool	gf_int_pollInternal_Client(t_window win, XEvent *e) {
 	t_event	_event;
 
-	if ((Atom) e->xclient.data.l[0] == win->client.atoms.wm_delete_window) {
+	if ((Atom) e->xclient.data.l[0] == win->client.atoms.WM_DELETE_WINDOW) {
 		_event.type = _event.quit.type = GF_EVENT_QUIT;
 		return (gf_pushEvent(win, &_event));
 	}
@@ -350,6 +350,8 @@ GFAPII bool	gf_int_pollInternal_Client(t_window win, XEvent *e) {
 
 /* NOTE(yakub):
  *  This function is barely tested due to me being on i3wm which is kind of problematic if it comes to property changes
+ * TODO(yakub):
+ *  Test it in the proper DE
  * */
 GFAPII bool	gf_int_pollInternal_Property(t_window win, XEvent *e) {
 	t_event		_event;
@@ -364,7 +366,7 @@ GFAPII bool	gf_int_pollInternal_Property(t_window win, XEvent *e) {
 	(void) e;
 	_event = (t_event) { 0 };
 	if (XGetWindowProperty(
-			win->client.dsp, win->client.id, win->client.atoms.wm_net_state,
+			win->client.dsp, win->client.id, win->client.atoms._NET_WM_STATE,
 			0L, sizeof (Atom), false,
 			AnyPropertyType, &_actual_type, &_actual_format,
 			&_nitems, &_bytes, &_prop) == Success && _prop
@@ -372,7 +374,7 @@ GFAPII bool	gf_int_pollInternal_Property(t_window win, XEvent *e) {
 		Atom	*_atoms;
 
 		_atoms = (Atom *) _prop;
-		if (_atoms[0] == win->client.atoms.wm_net_state_fullscreen) {
+		if (_atoms[0] == win->client.atoms._NET_WM_STATE_FULLSCREEN) {
 			_event = (t_event) { .type = GF_EVENT_FULLSCREEN, .maximize.state = true };
 		}
 		free(_prop);

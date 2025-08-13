@@ -24,6 +24,10 @@ static int32_t	g_context_attr_conf[] = {
 };
 #endif
 
+
+
+
+
 /* SECTION:
  *  Private interface declarations
  * */
@@ -33,25 +37,39 @@ GFAPIS bool	__gf_createVisualInfo(t_window);
 GFAPIS bool	__gf_createWindow(t_window, const size_t, const size_t);
 GFAPIS bool	__gf_processAtoms(t_window);
 
+
+
+
+
 /* SECTION:
  *  Public API implementation
  * */
 
 GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const char *t) {
-	*win = (t_window) calloc(1, sizeof(struct s_window));
+	t_window	_win;
 
-	assert(__gf_connectDisplay(*win));
-	assert(__gf_createVisualInfo(*win));
-	assert(__gf_createWindow(*win, w, h));
-	assert(__gf_processAtoms(*win));
+	_win = (t_window) calloc(1, sizeof(struct s_window));
 
-	/* Update the window configuration
-	 * */
-	gf_setWindowSize(*win, w, h);
-	gf_setWindowTitle(*win, t);
+	assert(__gf_connectDisplay(_win));
+	assert(__gf_createVisualInfo(_win));
+	assert(__gf_createWindow(_win, w, h));
+	assert(__gf_processAtoms(_win));
 
-	gf_int_updateWindowConfig(*win);
+	gf_setWindowSize(_win, w, h);
+	gf_setWindowTitle(_win, t);
+
+	gf_int_updateWindowConfig(_win);
 	
+	*win = _win;
+	return (true);
+}
+
+GFAPI bool	gf_destroyWindow(t_window win) {
+	if (win->client.id) XDestroyWindow(win->client.dsp, win->client.id);
+	if (win->client.info) free(win->client.info);
+	if (win->client.dsp) XCloseDisplay(win->client.dsp);
+
+	free(win);
 	return (true);
 }
 
@@ -75,15 +93,6 @@ GFAPIS	bool	__gf_connectDisplay(t_window win) {
 	}
 	
 	win->client.root_id = DefaultRootWindow(win->client.dsp);
-	if (!win->client.root_id) {
-
-#if defined (VERBOSE)
-		gf_loge("WINDOW: Inaccessible root window\n");
-#endif
-
-		return (false);
-	}
-
 	win->client.screen_id = DefaultScreen(win->client.dsp);
 	return (true);
 }
@@ -209,16 +218,21 @@ GFAPIS	bool	__gf_createWindow(t_window win, const size_t w, const size_t h) {
 }
 
 GFAPIS bool	__gf_processAtoms(t_window win) {
-	win->client.atoms.wm_delete_window = XInternAtom(win->client.dsp, "WM_DELETE_WINDOW", false);
-	win->client.atoms.wm_net_state = XInternAtom(win->client.dsp, "_NET_WM_STATE", false);
-	win->client.atoms.wm_net_state_above = XInternAtom(win->client.dsp, "_NET_WM_STATE_ABOVE", false);
-	win->client.atoms.wm_net_state_fullscreen = XInternAtom(win->client.dsp, "_NET_WM_STATE_FULLSCREEN", false);
-	win->client.atoms.wm_net_state_hidden = XInternAtom(win->client.dsp, "_NET_WM_STATE_HIDDEN", false);
-	win->client.atoms.wm_net_state_maximized_horz = XInternAtom(win->client.dsp, "_NET_WM_STATE_MAXIMIZED_HORZ", false);
-	win->client.atoms.wm_net_state_maximized_vert = XInternAtom(win->client.dsp, "_NET_WM_STATE_MAXIMIZED_VERT", false);
-	win->client.atoms.wm_net_window_type = XInternAtom(win->client.dsp, "_NET_WM_WINDOW_TYPE", false);
-	win->client.atoms.wm_net_window_normal = XInternAtom(win->client.dsp, "_NET_WM_WINDOW_NORMAL", false);
-	win->client.atoms.wm_net_window_dock = XInternAtom(win->client.dsp, "_NET_WM_WINDOW_DOCK", false);
-	XSetWMProtocols(win->client.dsp, win->client.id, &win->client.atoms.wm_delete_window, 1);
+	win->client.atoms.WM_DELETE_WINDOW = XInternAtom(win->client.dsp, "WM_DELETE_WINDOW", false);
+	win->client.atoms.WM_CHANGE_STATE = XInternAtom(win->client.dsp, "WM_CHANGE_STATE", false);
+
+	win->client.atoms._MOTIF_WM_HINTS = XInternAtom(win->client.dsp, "_MOTIF_WM_HINTS", false);
+
+	win->client.atoms._NET_WM_STATE = XInternAtom(win->client.dsp, "_NET_WM_STATE", false);
+	win->client.atoms._NET_WM_STATE_ABOVE = XInternAtom(win->client.dsp, "_NET_WM_STATE_ABOVE", false);
+	win->client.atoms._NET_WM_STATE_FULLSCREEN = XInternAtom(win->client.dsp, "_NET_WM_STATE_FULLSCREEN", false);
+	win->client.atoms._NET_WM_STATE_HIDDEN = XInternAtom(win->client.dsp, "_NET_WM_STATE_HIDDEN", false);
+	win->client.atoms._NET_WM_STATE_MAXIMIZED_HORZ = XInternAtom(win->client.dsp, "_NET_WM_STATE_MAXIMIZED_HORZ", false);
+	win->client.atoms._NET_WM_STATE_MAXIMIZED_VERT = XInternAtom(win->client.dsp, "_NET_WM_STATE_MAXIMIZED_VERT", false);
+	win->client.atoms._NET_WM_WINDOW_TYPE = XInternAtom(win->client.dsp, "_NET_WM_WINDOW_TYPE", false);
+	win->client.atoms._NET_WM_WINDOW_NORMAL = XInternAtom(win->client.dsp, "_NET_WM_WINDOW_NORMAL", false);
+	win->client.atoms._NET_WM_WINDOW_DOCK = XInternAtom(win->client.dsp, "_NET_WM_WINDOW_DOCK", false);
+
+	XSetWMProtocols(win->client.dsp, win->client.id, &win->client.atoms.WM_DELETE_WINDOW, 1);
 	return (true);
 }
