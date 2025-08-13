@@ -6,6 +6,22 @@
 #include "./../gf.h"
 
 /* SECTION:
+ *  Static globals
+ * */
+
+struct s_mwmhints {
+	uint64_t	flags;
+	uint64_t	funcs;
+	uint64_t	decor;
+	int64_t		input;
+	uint64_t	stat;
+};
+
+
+
+
+
+/* SECTION:
  *  Public API implementation
  * */
 
@@ -62,18 +78,33 @@ GFAPII bool	gf_int_updateWindowConfig(t_window win) {
 	/* Config: borderless
 	 * */
 	{
-		XSetWindowAttributes	_attr;
-			
-		if (win->config.id & GF_CONFIG_BORDERLESS) {
-			_attr = (XSetWindowAttributes) { 0 };
-			_attr.override_redirect = true;
-			XChangeWindowAttributes(win->client.dsp, win->client.id, CWOverrideRedirect, &_attr);
-		}
-		else {
-			_attr = (XSetWindowAttributes) { 0 };
-			_attr.override_redirect = true;
-		}
-		XChangeWindowAttributes(win->client.dsp, win->client.id, CWOverrideRedirect, &_attr);
+		struct s_mwmhints	_hints;
+		Atom				_mwm_hints_atom;
+
+		_mwm_hints_atom = XInternAtom(win->client.dsp, "_MOTIF_WM_HINTS", 0);
+		_hints = (struct s_mwmhints) { 0 };
+		_hints.flags = (1L << 1);
+		_hints.decor = (win->config.id & GF_CONFIG_BORDERLESS) ? 0 : 1;
+		XChangeProperty(
+			win->client.dsp, win->client.id,
+			_mwm_hints_atom, _mwm_hints_atom,
+			32, PropModeReplace,
+			(uint8_t *) &_hints,
+			sizeof(_hints) / sizeof(int64_t)
+		);
+	}
+
+	/* Last step: force-update window manager
+	 * */
+	{
+		XMapEvent	_event;
+
+		_event = (XMapEvent) { 0 };
+		_event.display = win->client.dsp;
+		_event.window = win->client.id;
+		_event.type = MapNotify;
+		XSendEvent(win->client.dsp, win->client.id, 0, 0, (XEvent *) &_event);
+		gf_flushEvents(win);
 	}
 	return (true);
 }
