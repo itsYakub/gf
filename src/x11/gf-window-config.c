@@ -188,8 +188,6 @@ GFAPII bool	gf_int_updateWindowConfig(t_window win) {
 	__gf_configBorderless(win);
 	
 	/* Config: topmost
-	 * TODO(yakub):
-	 *  This doesn't work on i3wm. Test on other DE
 	 * */
 	__gf_sendEvent(win,
 		win->client.atoms._NET_WM_STATE, win->client.atoms._NET_WM_STATE_ABOVE, 0,
@@ -205,7 +203,7 @@ GFAPII bool	gf_int_updateWindowConfig(t_window win) {
 	
 	/* Config: minimized
 	 * TODO(yakub):
-	 *  This doesn't work on i3wm. Test on other DE
+	 *  If we un-minimize the window, we need to remove the GF_CONFIG_MINIMIZED flag
 	 * */
 	__gf_sendEvent(win,
 		win->client.atoms.WM_CHANGE_STATE, win->client.atoms._NET_WM_STATE_HIDDEN, 0,
