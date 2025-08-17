@@ -22,4 +22,17 @@ struct s_context {
 	EGLContext	ctx;
 };
 
+struct s_EGL {
+	void	*handle;
+	struct {
+	} /* EGL API */;
+};
+
+/* SECTION:
+ *  Internal function declarations
+ * */
+
+GFAPII struct s_EGL	*gf_int_EGL(void);
+GFAPII bool			gf_int_initPlatformEGL(void);
+
 #endif

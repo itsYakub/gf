@@ -233,7 +233,7 @@ GFAPI bool	gf_pushEvent(t_window win, t_event *e) {
 }
 
 GFAPI bool	gf_flushEvents(t_window win) {
-	if (!XFlush(win->client.dsp)) {
+	if (!gf_int_X11()->XFlush(win->client.dsp)) {
 		return (false);
 	}
 	return (true);
@@ -300,8 +300,8 @@ GFAPIS bool	__gf_pollInternalEvents(t_window win) {
 
 	/* Event queue emtpy, now we need to poll the events from implementation
 	 * */
-	while (XPending(win->client.dsp)) {
-		XNextEvent(win->client.dsp, &_event);
+	while (gf_int_X11()->XPending(win->client.dsp)) {
+		gf_int_X11()->XNextEvent(win->client.dsp, &_event);
 		switch (_event.type) {
 			case (ClientMessage): {
 				gf_int_pollInternal_Client(win, &_event);
@@ -365,7 +365,7 @@ GFAPII bool	gf_int_pollInternal_Property(t_window win, XEvent *e) {
 	 * */
 	(void) e;
 	_event = (t_event) { 0 };
-	if (XGetWindowProperty(
+	if (gf_int_X11()->XGetWindowProperty(
 			win->client.dsp, win->client.id, win->client.atoms._NET_WM_STATE,
 			0L, sizeof (Atom), false,
 			AnyPropertyType, &_actual_type, &_actual_format,
@@ -456,7 +456,7 @@ GFAPII bool	gf_int_pollInternal_Key(t_window win, XEvent *e) {
 	t_event	_event;
 	int32_t	_key;
 
-	_key = XkbKeycodeToKeysym(win->client.dsp, e->xkey.keycode, 0, e->xkey.state & ShiftMask ? 1 : 0);
+	_key = gf_int_X11()->XkbKeycodeToKeysym(win->client.dsp, e->xkey.keycode, 0, e->xkey.state & ShiftMask ? 1 : 0);
 	_event.type = e->type == KeyPress ? GF_EVENT_KEY_PRESS : GF_EVENT_KEY_RELEASE;
 	_event.key.state = e->type == KeyPress ? true : false; 
 	_event.key.key = gf_int_keymapPlatformToGf(_key);

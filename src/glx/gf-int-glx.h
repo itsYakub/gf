@@ -20,4 +20,17 @@ struct s_context {
 	GLXContext	id;
 };
 
+struct s_GLX {
+	void	*handle;
+	struct {
+	} /* GLX API */;
+};
+
+/* SECTION:
+ *  Internal function declarations
+ * */
+
+GFAPII struct s_GLX	*gf_int_GLX(void);
+GFAPII bool			gf_int_initPlatformGLX(void);
+
 #endif

@@ -34,6 +34,7 @@ XDG_SESSION_TYPE	:=
 DEPS				:=
 
 SRCS_X11= \
+	$(MK_ROOT)src/x11/gf-init.c \
 	$(MK_ROOT)src/x11/gf-window-init.c \
 	$(MK_ROOT)src/x11/gf-window-events.c \
 	$(MK_ROOT)src/x11/gf-window-config.c
@@ -63,14 +64,13 @@ ifeq ($(UNAME_S),Linux)
 	ifeq ($(XDG_SESSION_TYPE),x11)
 		CFLAGS	+= -DUSE_X11
 		SRCS	:= $(SRCS_X11)
-		DEPS	:= -lX11 -lGL
 
 		ifeq ($(X11_USE_API),EGL)
 			CFLAGS	+= -DUSE_EGL
 			SRCS	+= $(SRCS_EGL)
-			DEPS	+= -lEGL
+			DEPS	+= -lEGL -lGL
 		else ifeq ($(X11_USE_API),GLX)
-			CFLAGS	+= -DUSE_GLX
+			CFLAGS	+= -DUSE_GLX -lGL
 			SRCS	+= $(SRCS_GLX)
 			DEPS	+= -lGLX
 		else
