@@ -38,7 +38,7 @@ GFAPI bool	gf_getWindowSize(t_window win, int32_t *wptr, int32_t *hptr) {
 	XWindowAttributes	_attr;
 
 	memset(&_attr, 0, sizeof(XWindowAttributes));
-	if (!gf_int_X11()->XGetWindowAttributes(win->client.dsp, win->client.id, &_attr)) {
+	if (!g_X11.XGetWindowAttributes(win->client.dsp, win->client.id, &_attr)) {
 		return (false);
 	}
 	
@@ -76,12 +76,12 @@ GFAPI bool	gf_getWindowPosition(t_window win, int32_t *xptr, int32_t *yptr) {
 	int32_t				_x, _y;
 
 	memset(&_attr, 0, sizeof(XWindowAttributes));
-	if (!gf_int_X11()->XGetWindowAttributes(win->client.dsp, win->client.id, &_attr)) {
+	if (!g_X11.XGetWindowAttributes(win->client.dsp, win->client.id, &_attr)) {
 		return (false);
 	}
 
 	_x = _y = 0;
-	gf_int_X11()->XTranslateCoordinates(
+	g_X11.XTranslateCoordinates(
 		win->client.dsp, win->client.id, win->client.root_id,
 		0, 0, &_x, &_y,
 		&_child
@@ -104,21 +104,21 @@ GFAPI bool	gf_getWindowPosition(t_window win, int32_t *xptr, int32_t *yptr) {
 }
 
 GFAPI bool	gf_setWindowSize(t_window win, int32_t w, int32_t h) {
-	gf_int_X11()->XResizeWindow(win->client.dsp, win->client.id, w, h);
+	g_X11.XResizeWindow(win->client.dsp, win->client.id, w, h);
 	win->data.width = w;
 	win->data.height = h;
 	return (true);
 }
 
 GFAPI bool	gf_setWindowPosition(t_window win, int32_t x, int32_t y) {
-	gf_int_X11()->XMoveWindow(win->client.dsp, win->client.id, x, y);
+	g_X11.XMoveWindow(win->client.dsp, win->client.id, x, y);
 	win->data.x = x;
 	win->data.y = y;
 	return (true);
 }
 
 GFAPI bool	gf_setWindowTitle(t_window win, const char *t) {
-	gf_int_X11()->XStoreName(win->client.dsp, win->client.id, t);
+	g_X11.XStoreName(win->client.dsp, win->client.id, t);
 	memset(win->data.title, 0, _GF_WINDOW_TITLE_LEN);
 	memcpy(win->data.title, t, strlen(t));
 	return (true);
@@ -226,7 +226,7 @@ GFAPII bool	gf_int_updateWindowConfig(t_window win) {
 		_event.display = win->client.dsp;
 		_event.window = win->client.id;
 		_event.type = MapNotify;
-		gf_int_X11()->XSendEvent(win->client.dsp, win->client.id, 0, 0, (XEvent *) &_event);
+		g_X11.XSendEvent(win->client.dsp, win->client.id, 0, 0, (XEvent *) &_event);
 		gf_flushEvents(win);
 	}
 	return (true);
@@ -256,7 +256,7 @@ GFAPIS bool	__gf_sendEvent(t_window win, Atom atom0, Atom atom1, Atom atom2, int
 	_event.data.l[3] = 0;
 	_event.data.l[4] = 0;
 
-	gf_int_X11()->XSendEvent(win->client.dsp, win->client.root_id, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &_event);
+	g_X11.XSendEvent(win->client.dsp, win->client.root_id, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &_event);
 	gf_flushEvents(win);
 	return (true);
 }
@@ -265,7 +265,7 @@ GFAPIS bool	__gf_configResizable(t_window win) {
 	XSizeHints	_hints;
 	long		_supp;
 
-	gf_int_X11()->XGetWMNormalHints(win->client.dsp, win->client.id, &_hints, &_supp);
+	g_X11.XGetWMNormalHints(win->client.dsp, win->client.id, &_hints, &_supp);
 	_hints.flags = PPosition | PSize | PMinSize | PMaxSize;
 	if (win->config.id & GF_CONFIG_RESIZABLE) {
 		_hints.flags |= PMinSize;
@@ -279,7 +279,7 @@ GFAPIS bool	__gf_configResizable(t_window win) {
 		_hints.flags |= PMaxSize;
 		_hints.min_height = _hints.max_height = win->data.height;
 	}
-	gf_int_X11()->XSetWMNormalHints(win->client.dsp, win->client.id, &_hints);
+	g_X11.XSetWMNormalHints(win->client.dsp, win->client.id, &_hints);
 	return (true);
 }
 
@@ -289,7 +289,7 @@ GFAPIS bool	__gf_configBorderless(t_window win) {
 	_hints = (struct s_mwmhints) { 0 };
 	_hints.flags = (1L << 1);
 	_hints.decor = (win->config.id & GF_CONFIG_BORDERLESS) ? 0 : 1;
-	gf_int_X11()->XChangeProperty(
+	g_X11.XChangeProperty(
 		win->client.dsp, win->client.id,
 		win->client.atoms._MOTIF_WM_HINTS, XA_ATOM,
 		32, PropModeReplace,

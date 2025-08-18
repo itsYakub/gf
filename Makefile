@@ -43,6 +43,7 @@ SRCS_WL	=
 SRCS_XDG= 
 
 SRCS_EGL= \
+	$(MK_ROOT)src/egl/gf-init.c \
 	$(MK_ROOT)src/egl/gf-context-create.c \
 	$(MK_ROOT)src/egl/gf-context-destroy.c \
 	$(MK_ROOT)src/egl/gf-context-config.c
@@ -68,11 +69,9 @@ ifeq ($(UNAME_S),Linux)
 		ifeq ($(X11_USE_API),EGL)
 			CFLAGS	+= -DUSE_EGL
 			SRCS	+= $(SRCS_EGL)
-			DEPS	+= -lEGL -lGL
 		else ifeq ($(X11_USE_API),GLX)
-			CFLAGS	+= -DUSE_GLX -lGL
+			CFLAGS	+= -DUSE_GLX
 			SRCS	+= $(SRCS_GLX)
-			DEPS	+= -lGLX
 		else
 			$(error Unrecognized OpenGL API: $(X11_USE_API))
 		endif
@@ -87,7 +86,7 @@ ifeq ($(UNAME_S),Linux)
 		SRCS	:= $(SRCS_WL)
 		SRCS	+= $(SRCS_XDG)
 		SRCS	+= $(SRCS_EGL)
-		DEPS	:= -lwayland-client -lwayland-egl -lxkbcommon -lGL -lEGL
+		DEPS	:= -lwayland-client -lwayland-egl -lxkbcommon -lGL
 		$(warning Wayland is currently unsupported. Revert back to X11 support)
 	else
 		$(error Unrecognized session type: $(XDG_SESSION_TYPE))
@@ -163,9 +162,9 @@ install :
 .PHONY : test
 
 test : all
-	$(CC) $(MK_ROOT)demo/00-hello-world.c -o 00-hello-world.out -L. -lgf $(DEPS) -ggdb3
-	$(CC) $(MK_ROOT)demo/01-hello-opengl.c -o 01-hello-opengl.out -L. -lgf $(DEPS) -ggdb3
-	$(CC) $(MK_ROOT)demo/02-hello-multiple-windows.c -o 02-hello-mutliple-windows.out -L. -lgf $(DEPS) -ggdb3
+	$(CC) $(MK_ROOT)demo/00-hello-world.c -o 00-hello-world.out -L. -lgf -lGL -ggdb3
+	$(CC) $(MK_ROOT)demo/01-hello-opengl.c -o 01-hello-opengl.out -L. -lgf -lGL -ggdb3
+	$(CC) $(MK_ROOT)demo/02-hello-multiple-windows.c -o 02-hello-mutliple-windows.out -L. -lgf -lGL -ggdb3
 
 $(TARGET) : $(OBJS)
 

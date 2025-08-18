@@ -4,11 +4,7 @@
 #include "./../gf-int.h"
 #include "./../gf.h"
 
-static struct s_X11	g_X11 = { 0 };
-
-GFAPII struct s_X11	*gf_int_X11(void) {
-	return (&g_X11);
-}
+struct s_X11	g_X11 = { 0 };
 
 GFAPII bool	gf_int_initPlatformX11(void) {
 	const char	*_names[] = { "libX11.so", "libX11.so.6", "libX11.so.6.4.0", 0 };
@@ -61,13 +57,5 @@ GFAPII bool	gf_int_initPlatformX11(void) {
 	if (!(g_X11.XSetWMNormalHints = dlsym(g_X11.handle, "XSetWMNormalHints"))) return (false);
 	if (!(g_X11.XChangeProperty = dlsym(g_X11.handle, "XChangeProperty"))) return (false);
 	if (!(g_X11.XkbKeycodeToKeysym = dlsym(g_X11.handle, "XkbKeycodeToKeysym"))) return (false);
-	return (true);
-}
-
-GFAPII bool	gf_int_closePlatformX11(void) {
-	if (dlclose(g_X11.handle)) {
-		return (false);
-	}
-	g_X11.handle = 0;
 	return (true);
 }

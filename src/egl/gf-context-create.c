@@ -53,9 +53,15 @@ GFAPI bool	gf_createContext(t_window win) {
 		return (true);
 	}
 
+	/* NOTE(yakub):
+	 *  Don't worry; this function will execute completely only if the handle doesn't exist.
+	 *  This means we won't run multiple function loading during the program execution!
+	 * */
+	gf_int_initPlatformEGL();
+
 	/* Create EGL display object based on platform display
 	 * */
-	win->context.dsp = eglGetDisplay(_dsp);
+	win->context.dsp = g_EGL.eglGetDisplay(_dsp);
 	if (win->context.dsp == EGL_NO_DISPLAY) {
 
 #if defined (VERBOSE)
@@ -64,7 +70,7 @@ GFAPI bool	gf_createContext(t_window win) {
 
 		return (false);
 	}
-	if (!eglInitialize(win->context.dsp, &_major, &_minor)) {
+	if (!g_EGL.eglInitialize(win->context.dsp, &_major, &_minor)) {
 
 #if defined (VERBOSE)
 		gf_loge("CONTEXT: Initialization failed\n");
@@ -73,7 +79,7 @@ GFAPI bool	gf_createContext(t_window win) {
 		return (false);
 	}
 	
-	if (!eglBindAPI(EGL_OPENGL_API)) {
+	if (!g_EGL.eglBindAPI(EGL_OPENGL_API)) {
 
 #if defined (VERBOSE)
 		gf_loge("CONTEXT: Failed to bind OpenGL api\n");
@@ -85,7 +91,7 @@ GFAPI bool	gf_createContext(t_window win) {
 	/* Create config object
 	 * */
 	_attr_cont_cnt = 0;
-	if (!eglChooseConfig(win->context.dsp, g_context_attr_conf, &win->context.conf, 1, &_attr_cont_cnt)) {
+	if (!g_EGL.eglChooseConfig(win->context.dsp, g_context_attr_conf, &win->context.conf, 1, &_attr_cont_cnt)) {
 
 #if defined (VERBOSE)
 		gf_loge("CONTEXT: Configuration failed\n");
@@ -96,7 +102,7 @@ GFAPI bool	gf_createContext(t_window win) {
 
 	/* Create EGL surface based on platform window
 	 * */
-	win->context.surf = eglCreateWindowSurface(win->context.dsp, win->context.conf, _win, 0);
+	win->context.surf = g_EGL.eglCreateWindowSurface(win->context.dsp, win->context.conf, _win, 0);
 	if (!win->context.surf) {
 
 #if defined (VERBOSE)
@@ -108,7 +114,7 @@ GFAPI bool	gf_createContext(t_window win) {
 
 	/* Create EGL Context
 	 * */
-	win->context.ctx = eglCreateContext(win->context.dsp, win->context.conf, EGL_NO_CONTEXT, g_context_attr_ctx);
+	win->context.ctx = g_EGL.eglCreateContext(win->context.dsp, win->context.conf, EGL_NO_CONTEXT, g_context_attr_ctx);
 	if (!win->context.ctx) {
 
 #if defined (VERBOSE)
@@ -126,7 +132,7 @@ GFAPI bool	gf_makeCurrent(t_window win) {
 		return (gf_createContext(win));
 	}
 
-	if (!eglMakeCurrent(win->context.dsp, win->context.surf, win->context.surf, win->context.ctx)) {
+	if (!g_EGL.eglMakeCurrent(win->context.dsp, win->context.surf, win->context.surf, win->context.ctx)) {
 
 # if defined (VERBOSE)
 		gf_loge("CONTEXT: Make current failed\n");

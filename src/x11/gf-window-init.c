@@ -71,9 +71,9 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 }
 
 GFAPI bool	gf_destroyWindow(t_window win) {
-	if (win->client.id) gf_int_X11()->XDestroyWindow(win->client.dsp, win->client.id);
-	if (win->client.info) gf_int_X11()->XFree(win->client.info);
-	if (win->client.dsp) gf_int_X11()->XCloseDisplay(win->client.dsp);
+	if (win->client.id) g_X11.XDestroyWindow(win->client.dsp, win->client.id);
+	if (win->client.info) g_X11.XFree(win->client.info);
+	if (win->client.dsp) g_X11.XCloseDisplay(win->client.dsp);
 	free(win);
 	return (true);
 }
@@ -87,7 +87,7 @@ GFAPI bool	gf_destroyWindow(t_window win) {
  * */
 
 GFAPIS	bool	__gf_connectDisplay(t_window win) {
-	win->client.dsp = gf_int_X11()->XOpenDisplay(0);
+	win->client.dsp = g_X11.XOpenDisplay(0);
 	if (!win->client.dsp) {
 
 #if defined (VERBOSE)
@@ -162,7 +162,7 @@ GFAPIS bool	__gf_createVisualInfo(t_window win) {
 
 		return (false);
 	}
-	gf_int_X11()->XMatchVisualInfo(win->client.dsp, win->client.screen_id, 24, TrueColor, win->client.info);
+	g_X11.XMatchVisualInfo(win->client.dsp, win->client.screen_id, 24, TrueColor, win->client.info);
 	if (!win->client.info) {
 
 #if defined (VERBOSE)
@@ -195,7 +195,7 @@ GFAPIS	bool	__gf_createWindow(t_window win, const size_t w, const size_t h) {
 	/* Creating window attributes
 	 * */
 	memset(&_attr, 0, sizeof(XSetWindowAttributes));
-	_attr.colormap = gf_int_X11()->XCreateColormap(win->client.dsp, win->client.root_id, win->client.info->visual, AllocNone);
+	_attr.colormap = g_X11.XCreateColormap(win->client.dsp, win->client.root_id, win->client.info->visual, AllocNone);
 	_attr.background_pixmap = None;
 	_attr.background_pixel = 0;
 	_attr.border_pixel = 0;
@@ -203,7 +203,7 @@ GFAPIS	bool	__gf_createWindow(t_window win, const size_t w, const size_t h) {
 
 	/* Creating the window itself
 	 * */
-	win->client.id = gf_int_X11()->XCreateWindow(
+	win->client.id = g_X11.XCreateWindow(
 		win->client.dsp, win->client.root_id,
 		0, 0, w, h, 0,
 		win->client.info->depth,
@@ -216,28 +216,28 @@ GFAPIS	bool	__gf_createWindow(t_window win, const size_t w, const size_t h) {
 	memset(&_hints, 0, sizeof(XWMHints));
 	_hints.input = true;
 	_hints.flags = InputHint;
-	gf_int_X11()->XSetWMHints(win->client.dsp, win->client.id, &_hints);
-	gf_int_X11()->XSelectInput(win->client.dsp, win->client.id, _event_mask);
-	gf_int_X11()->XMapWindow(win->client.dsp, win->client.id);
+	g_X11.XSetWMHints(win->client.dsp, win->client.id, &_hints);
+	g_X11.XSelectInput(win->client.dsp, win->client.id, _event_mask);
+	g_X11.XMapWindow(win->client.dsp, win->client.id);
 	return (true);
 }
 
 GFAPIS bool	__gf_processAtoms(t_window win) {
-	win->client.atoms.WM_DELETE_WINDOW = gf_int_X11()->XInternAtom(win->client.dsp, "WM_DELETE_WINDOW", false);
-	win->client.atoms.WM_CHANGE_STATE = gf_int_X11()->XInternAtom(win->client.dsp, "WM_CHANGE_STATE", false);
+	win->client.atoms.WM_DELETE_WINDOW = g_X11.XInternAtom(win->client.dsp, "WM_DELETE_WINDOW", false);
+	win->client.atoms.WM_CHANGE_STATE = g_X11.XInternAtom(win->client.dsp, "WM_CHANGE_STATE", false);
 
-	win->client.atoms._MOTIF_WM_HINTS = gf_int_X11()->XInternAtom(win->client.dsp, "_MOTIF_WM_HINTS", false);
+	win->client.atoms._MOTIF_WM_HINTS = g_X11.XInternAtom(win->client.dsp, "_MOTIF_WM_HINTS", false);
 
-	win->client.atoms._NET_WM_STATE = gf_int_X11()->XInternAtom(win->client.dsp, "_NET_WM_STATE", false);
-	win->client.atoms._NET_WM_STATE_ABOVE = gf_int_X11()->XInternAtom(win->client.dsp, "_NET_WM_STATE_ABOVE", false);
-	win->client.atoms._NET_WM_STATE_FULLSCREEN = gf_int_X11()->XInternAtom(win->client.dsp, "_NET_WM_STATE_FULLSCREEN", false);
-	win->client.atoms._NET_WM_STATE_HIDDEN = gf_int_X11()->XInternAtom(win->client.dsp, "_NET_WM_STATE_HIDDEN", false);
-	win->client.atoms._NET_WM_STATE_MAXIMIZED_HORZ = gf_int_X11()->XInternAtom(win->client.dsp, "_NET_WM_STATE_MAXIMIZED_HORZ", false);
-	win->client.atoms._NET_WM_STATE_MAXIMIZED_VERT = gf_int_X11()->XInternAtom(win->client.dsp, "_NET_WM_STATE_MAXIMIZED_VERT", false);
-	win->client.atoms._NET_WM_WINDOW_TYPE = gf_int_X11()->XInternAtom(win->client.dsp, "_NET_WM_WINDOW_TYPE", false);
-	win->client.atoms._NET_WM_WINDOW_NORMAL = gf_int_X11()->XInternAtom(win->client.dsp, "_NET_WM_WINDOW_NORMAL", false);
-	win->client.atoms._NET_WM_WINDOW_DOCK = gf_int_X11()->XInternAtom(win->client.dsp, "_NET_WM_WINDOW_DOCK", false);
+	win->client.atoms._NET_WM_STATE = g_X11.XInternAtom(win->client.dsp, "_NET_WM_STATE", false);
+	win->client.atoms._NET_WM_STATE_ABOVE = g_X11.XInternAtom(win->client.dsp, "_NET_WM_STATE_ABOVE", false);
+	win->client.atoms._NET_WM_STATE_FULLSCREEN = g_X11.XInternAtom(win->client.dsp, "_NET_WM_STATE_FULLSCREEN", false);
+	win->client.atoms._NET_WM_STATE_HIDDEN = g_X11.XInternAtom(win->client.dsp, "_NET_WM_STATE_HIDDEN", false);
+	win->client.atoms._NET_WM_STATE_MAXIMIZED_HORZ = g_X11.XInternAtom(win->client.dsp, "_NET_WM_STATE_MAXIMIZED_HORZ", false);
+	win->client.atoms._NET_WM_STATE_MAXIMIZED_VERT = g_X11.XInternAtom(win->client.dsp, "_NET_WM_STATE_MAXIMIZED_VERT", false);
+	win->client.atoms._NET_WM_WINDOW_TYPE = g_X11.XInternAtom(win->client.dsp, "_NET_WM_WINDOW_TYPE", false);
+	win->client.atoms._NET_WM_WINDOW_NORMAL = g_X11.XInternAtom(win->client.dsp, "_NET_WM_WINDOW_NORMAL", false);
+	win->client.atoms._NET_WM_WINDOW_DOCK = g_X11.XInternAtom(win->client.dsp, "_NET_WM_WINDOW_DOCK", false);
 
-	gf_int_X11()->XSetWMProtocols(win->client.dsp, win->client.id, &win->client.atoms.WM_DELETE_WINDOW, 1);
+	g_X11.XSetWMProtocols(win->client.dsp, win->client.id, &win->client.atoms.WM_DELETE_WINDOW, 1);
 	return (true);
 }
