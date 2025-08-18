@@ -57,7 +57,7 @@ GFAPI bool	gf_createContext(t_window win) {
 	 *  Don't worry; this function will execute completely only if the handle doesn't exist.
 	 *  This means we won't run multiple function loading during the program execution!
 	 * */
-	gf_int_initPlatformEGL();
+	assert(gf_int_initPlatformEGL());
 
 	/* Create EGL display object based on platform display
 	 * */

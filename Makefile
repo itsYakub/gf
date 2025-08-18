@@ -49,6 +49,7 @@ SRCS_EGL= \
 	$(MK_ROOT)src/egl/gf-context-config.c
 
 SRCS_GLX= \
+	$(MK_ROOT)src/glx/gf-init.c \
 	$(MK_ROOT)src/glx/gf-context-create.c \
 	$(MK_ROOT)src/glx/gf-context-destroy.c \
 	$(MK_ROOT)src/glx/gf-context-config.c

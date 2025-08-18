@@ -10,6 +10,6 @@
  * */
 
 GFAPI bool	gf_destroyContext(t_window win) {
-	if (win->context.id) glXDestroyContext(win->client.dsp, win->context.id);
+	if (win->context.id) g_GLX.glXDestroyContext(win->client.dsp, win->context.id);
 	return (true);
 }

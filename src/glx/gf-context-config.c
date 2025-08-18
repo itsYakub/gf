@@ -6,21 +6,11 @@
 #include "./../gf.h"
 
 /* SECTION:
- *  *  Static globals
- *   * */
-
-static PFNGLXSWAPINTERVALEXTPROC	glXSwapIntervalEXT = 0;
-
-
-
-
-
-/* SECTION:
  *  Public API implementation
  * */
 
 GFAPI bool	gf_swapBuffers(t_window win) {
-	glXSwapBuffers(win->client.dsp, win->client.id);
+	g_GLX.glXSwapBuffers(win->client.dsp, win->client.id);
 	return (true);
 }
 
@@ -39,15 +29,4 @@ GFAPI void	*gf_getProcAddress(const char *name) {
 		}
 	}
 	return (0);
-}
-
-GFAPI bool	gf_setWindowVSync(t_window win, bool state) {
-	if (!glXSwapIntervalEXT) {
-		glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress((GLubyte *) "glXSwapIntervalEXT");
-		if (!glXSwapIntervalEXT) {
-			return (false);
-		}
-	}
-	glXSwapIntervalEXT(win->client.dsp, win->client.id, state);
-	return (true);
 }
