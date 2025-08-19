@@ -38,19 +38,11 @@ I hope you'll have lot's of fun using **gf**!
 
 #### 1. Download dependencies:
 
-```console
-$ sudo apt install build-essential -y
-$ sudo apt install git -y
-```
-
 For X11:
-- ensure you have installed all the necessary dependencies to run xorg clients.
-- ensure you have installed all the necessary dependencies to run OpenGL applications with glX and egl.
-
-For Wayland:
-- ensure you have installed all the necessary dependencies to run wayland clients.
-- ensure you have installed all the necessary dependencies to run OpenGL applications with egl.
-- ensure you have installed xkbcommon library for inputting purposes.
+- ensure that either: **libX11.so**, **libX11.so.6**, **libX11.so.6.4.0** is present on your system and in your **$PATH**
+- ensure that either: **libEGL.so**, **libEGL.so.1** is present on your system and in your **$PATH**
+- ensure that either: **libGLX.so**, **libGLX.so.1** is present on your system and in your **$PATH**
+- ensure that either: **libGL.so**, **libGL.so.1** is present on your system and in your **$PATH**
 
 #### 2. Clone this repository:
 
@@ -68,12 +60,7 @@ $ make all
 
 For the X11 support:
 ```console
-$ gcc ./demo/00-hello-world.c -L. -lgf -lEGL -lGL -lX11
-```
-
-For the Wayland support:
-```console
-$ gcc ./demo/00-hello-world.c -L. -lgf -lEGL -lGL -lwayland-client -lwayland-egl -lxkbcommon
+$ gcc ./demo/00-hello-world.c -L. -lgf -lGL
 ```
 
 </details>
