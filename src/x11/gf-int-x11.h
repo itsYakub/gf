@@ -48,64 +48,136 @@ struct s_client {
 	} atoms;
 };
 
+/* SECTION: Xlib.h
+ * */
 typedef Display		*(*PFN_XOpenDisplay) (const char *);
-typedef int			(*PFN_XCloseDisplay) (Display *);
-typedef Status		(*PFN_XMatchVisualInfo) (Display *, int, int, int, XVisualInfo *);
-typedef Colormap	(*PFN_XCreateColormap) (Display *, Window, Visual *, int);
-typedef Window		(*PFN_XCreateWindow) (Display *, Window, int, int, unsigned int, unsigned int, unsigned int, int, unsigned int, Visual *, unsigned long, XSetWindowAttributes *);
-typedef int			(*PFN_XSetWMHints) (Display *, Window, XWMHints *);
-typedef int			(*PFN_XSelectInput) (Display *, Window, long);
-typedef int			(*PFN_XMapWindow) (Display *, Window);
-typedef int			(*PFN_XDestroyWindow) (Display *, Window);
-typedef int			(*PFN_XUnmapWindow) (Display *, Window);
-typedef Atom		(*PFN_XInternAtom) (Display *, const char *, Bool);
-typedef Status		(*PFN_XSetWMProtocols) (Display *, Window, Atom *, int);
-typedef int			(*PFN_XPending) (Display *);
-typedef int			(*PFN_XNextEvent) (Display *,XEvent *);
+typedef int32_t			(*PFN_XCloseDisplay) (Display *);
+typedef Colormap	(*PFN_XCreateColormap) (Display *, Window, Visual *, int32_t);
+typedef Window		(*PFN_XCreateWindow) (Display *, Window, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t, uint32_t, Visual *, unsigned long, XSetWindowAttributes *);
+typedef int32_t			(*PFN_XSelectInput) (Display *, Window, long);
+typedef int32_t			(*PFN_XMapWindow) (Display *, Window);
+typedef int32_t			(*PFN_XDestroyWindow) (Display *, Window);
+typedef int32_t			(*PFN_XUnmapWindow) (Display *, Window);
+typedef int32_t			(*PFN_XPending) (Display *);
+typedef int32_t			(*PFN_XNextEvent) (Display *, XEvent *);
 typedef Status		(*PFN_XSendEvent) (Display *, Window, Bool, long, XEvent *);
-typedef int			(*PFN_XFlush) (Display *);
-typedef int			(*PFN_XFree) (void *);
-typedef int			(*PFN_XGetWindowProperty) (Display *, Window, Atom, long, long, Bool, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char **);
+typedef int32_t			(*PFN_XFlush) (Display *);
+typedef int32_t			(*PFN_XFree) (void *);
+typedef int32_t			(*PFN_XGetWindowProperty) (Display *, Window, Atom, long, long, Bool, Atom, Atom *, int32_t *, unsigned long *, unsigned long *, unsigned char **);
 typedef Status		(*PFN_XGetWindowAttributes) (Display *, Window, XWindowAttributes *);
-typedef Bool		(*PFN_XTranslateCoordinates) (Display *, Window, Window, int, int, int *, int *, Window *);
-typedef int			(*PFN_XResizeWindow) (Display *, Window, unsigned int, unsigned int);
-typedef int			(*PFN_XMoveWindow) (Display *, Window, int, int);
-typedef int			(*PFN_XStoreName) (Display *, Window, const char *);
+typedef Bool		(*PFN_XTranslateCoordinates) (Display *, Window, Window, int32_t, int32_t, int32_t *, int32_t *, Window *);
+typedef int32_t			(*PFN_XResizeWindow) (Display *, Window, uint32_t, uint32_t);
+typedef int32_t			(*PFN_XMoveWindow) (Display *, Window, int32_t, int32_t);
+typedef int32_t			(*PFN_XStoreName) (Display *, Window, const char *);
+typedef int32_t			(*PFN_XChangeProperty) (Display *, Window, Atom, Atom, int32_t, int32_t, const unsigned char *, int32_t);
+
+/* SECTION: Xutil.h
+ * */
+typedef Status		(*PFN_XAllocColor) (Display *, Colormap, XColor *);
+typedef XWMHints	*(*PFN_XAllocWMHints) (void);
+typedef Status		(*PFN_XChangeWindowAttributes) (Display *, Window, unsigned long, XSetWindowAttributes *);
+typedef Status		(*PFN_XGetGeometry) (Display *, Drawable, Window *, int32_t *, int32_t *, uint32_t *, uint32_t *, uint32_t *, uint32_t *);
+typedef Status		(*PFN_XGetWMHints) (Display *, Window, XWMHints *);
 typedef Status		(*PFN_XGetWMNormalHints) (Display *, Window, XSizeHints *, long *);
+typedef Status		(*PFN_XGetWMSizeHints) (Display *, Window, XSizeHints *, long *, Atom);
+typedef Status		(*PFN_XGetIconSizes) (Display *, Window, XIconSize **, int32_t *);
+typedef Status		(*PFN_XGetNormalHints) (Display *, Window, XSizeHints *);
+typedef Status		(*PFN_XGetSizeHints) (Display *, Window, XSizeHints *, Atom);
+typedef Status		(*PFN_XGetWMColormapWindows) (Display *, Window, Window **, int32_t *);
+typedef int32_t			(*PFN_XGetWMProtocols) (Display *, Window, Atom **, int32_t *);
+typedef Status		(*PFN_XGetZoomHints) (Display *, Window, XSizeHints *);
+typedef int32_t			(*PFN_XIconifyWindow) (Display *, Window, int32_t);
+typedef Status		(*PFN_XLookupColor) (Display *, Colormap, const char *, XColor *, XColor *);
+typedef int32_t			(*PFN_XSetWMColormapWindows) (Display *, Window, Window *, int32_t);
+typedef void		(*PFN_XSetWMHints) (Display *, Window, XWMHints *);
+typedef Status		(*PFN_XSetWMIconName) (Display *, Window, XTextProperty *);
+typedef void		(*PFN_XSetWMName) (Display *, Window, XTextProperty *);
 typedef void		(*PFN_XSetWMNormalHints) (Display *, Window, XSizeHints *);
-typedef int			(*PFN_XChangeProperty) (Display *, Window, Atom, Atom, int, int, const unsigned char *, int);
-typedef KeySym		(*PFN_XkbKeycodeToKeysym) (Display *, KeyCode, int, int);
+typedef Status		(*PFN_XSetWMProtocols) (Display *, Window, Atom *, int32_t);
+typedef void		(*PFN_XSetWMSizeHints) (Display *, Window, XSizeHints *, Atom);
+typedef Status		(*PFN_XWithdrawWindow) (Display *, Window, int32_t);
+typedef Status		(*PFN_XMatchVisualInfo) (Display *, int32_t, int32_t, int32_t, XVisualInfo *);
+
+/* SECTION: Xatom.h
+ * */
+typedef Atom		(*PFN_XInternAtom) (Display *, const char *, Bool);
+typedef Status		(*PFN_XInternAtoms) (Display *, char **, int32_t, Bool, Atom *);
+
+/* SECTION: XKBlib.h
+ * */
+typedef Bool		(*PFN_XkbQueryExtension) (Display *, int32_t *, int32_t *, int32_t *, int32_t *, int32_t *);
+typedef KeySym		(*PFN_XkbKeycodeToKeysym) (Display *, KeyCode, int32_t, int32_t);
+typedef Bool		(*PFN_XkbLibraryVersion) (int32_t *, int32_t *);
+typedef Bool		(*PFN_XkbSetDetectableAutoRepeat) (Display *, Bool, Bool *);
+typedef Bool		(*PFN_XkbGetKeyboard) (Display *, uint32_t, uint32_t);
+typedef Bool		(*PFN_XkbGetMap) (Display *, uint32_t, uint32_t);
 
 struct s_X11 {
 	void	*handle;
 	struct {
-		PFN_XOpenDisplay			XOpenDisplay;
-		PFN_XCloseDisplay			XCloseDisplay;
-		PFN_XMatchVisualInfo		XMatchVisualInfo;
-		PFN_XCreateColormap			XCreateColormap;
-		PFN_XCreateWindow			XCreateWindow;
-		PFN_XSetWMHints				XSetWMHints;
-		PFN_XSelectInput			XSelectInput;
-		PFN_XMapWindow				XMapWindow;
-		PFN_XDestroyWindow			XDestroyWindow;
-		PFN_XUnmapWindow			XUnmapWindow;
-		PFN_XInternAtom				XInternAtom;
-		PFN_XSetWMProtocols			XSetWMProtocols;
-		PFN_XPending				XPending;
-		PFN_XNextEvent				XNextEvent;
-		PFN_XSendEvent				XSendEvent;
-		PFN_XFlush					XFlush;
-		PFN_XFree					XFree;
-		PFN_XGetWindowProperty		XGetWindowProperty;
-		PFN_XGetWindowAttributes	XGetWindowAttributes;
-		PFN_XTranslateCoordinates	XTranslateCoordinates;
-		PFN_XResizeWindow			XResizeWindow;
-		PFN_XMoveWindow				XMoveWindow;
-		PFN_XStoreName				XStoreName;
-		PFN_XGetWMNormalHints		XGetWMNormalHints;
-		PFN_XSetWMNormalHints		XSetWMNormalHints;
-		PFN_XChangeProperty			XChangeProperty;
-		PFN_XkbKeycodeToKeysym		XkbKeycodeToKeysym;
+		/* SECTION: Xlib.h
+		 * */
+		PFN_XOpenDisplay					XOpenDisplay;
+		PFN_XCloseDisplay					XCloseDisplay;
+		PFN_XCreateColormap					XCreateColormap;
+		PFN_XCreateWindow					XCreateWindow;
+		PFN_XSelectInput					XSelectInput;
+		PFN_XMapWindow						XMapWindow;
+		PFN_XDestroyWindow					XDestroyWindow;
+		PFN_XUnmapWindow					XUnmapWindow;
+		PFN_XPending						XPending;
+		PFN_XNextEvent						XNextEvent;
+		PFN_XSendEvent						XSendEvent;
+		PFN_XFlush							XFlush;
+		PFN_XFree							XFree;
+		PFN_XGetWindowProperty				XGetWindowProperty;
+		PFN_XGetWindowAttributes			XGetWindowAttributes;
+		PFN_XTranslateCoordinates			XTranslateCoordinates;
+		PFN_XResizeWindow					XResizeWindow;
+		PFN_XMoveWindow						XMoveWindow;
+		PFN_XStoreName						XStoreName;
+		PFN_XChangeProperty					XChangeProperty;
+		
+		/* SECTION: Xutil.h
+		 * */
+		PFN_XAllocColor						XAllocColor;
+		PFN_XAllocWMHints					XAllocWMHints;
+		PFN_XChangeWindowAttributes			XChangeWindowAttributes;
+		PFN_XGetGeometry					XGetGeometry;
+		PFN_XGetWMHints						XGetWMHints;
+		PFN_XGetWMNormalHints				XGetWMNormalHints;
+		PFN_XGetWMSizeHints					XGetWMSizeHints;
+		PFN_XGetIconSizes					XGetIconSizes;
+		PFN_XGetNormalHints					XGetNormalHints;
+		PFN_XGetSizeHints					XGetSizeHints;
+		PFN_XGetWMColormapWindows			XGetWMColormapWindows;
+		PFN_XGetWMProtocols					XGetWMProtocols;
+		PFN_XGetZoomHints					XGetZoomHints;
+		PFN_XIconifyWindow					XIconifyWindow;
+		PFN_XLookupColor					XLookupColor;
+		PFN_XSetWMColormapWindows			XSetWMColormapWindows;
+		PFN_XSetWMHints						XSetWMHints;
+		PFN_XSetWMIconName					XSetWMIconName;
+		PFN_XSetWMName						XSetWMName;
+		PFN_XSetWMNormalHints				XSetWMNormalHints;
+		PFN_XSetWMProtocols					XSetWMProtocols;
+		PFN_XSetWMSizeHints					XSetWMSizeHints;
+		PFN_XWithdrawWindow					XWithdrawWindow;
+		PFN_XMatchVisualInfo				XMatchVisualInfo;
+
+		/* SECTION: Xatom.h
+		 * */
+		PFN_XInternAtom						XInternAtom;
+		PFN_XInternAtoms					XInternAtoms;
+
+		/* SECTION: XKBlib.h
+		 * */
+        PFN_XkbQueryExtension               XkbQueryExtension;
+        PFN_XkbKeycodeToKeysym              XkbKeycodeToKeysym;
+        PFN_XkbLibraryVersion               XkbLibraryVersion;
+        PFN_XkbSetDetectableAutoRepeat      XkbSetDetectableAutoRepeat;
+        PFN_XkbGetKeyboard                  XkbGetKeyboard;
+        PFN_XkbGetMap						XkbGetMap;
 	} /* X11 API */;
 };
 
