@@ -348,36 +348,69 @@ GFAPII bool	gf_int_pollInternal_Client(t_window win, XEvent *e) {
 	return (false);
 }
 
-/* NOTE(yakub):
- *  This function is barely tested due to me being on i3wm which is kind of problematic if it comes to property changes
- * TODO(yakub):
- *  Test it in the proper DE
- * */
 GFAPII bool	gf_int_pollInternal_Property(t_window win, XEvent *e) {
 	t_event		_event;
-	Atom		_actual_type;
-	int32_t		_actual_format;
-	uint64_t	_nitems;
-	uint64_t	_bytes;
-	uint8_t		*_prop;
 
-	/* This variable is kept for API consistency
-	 * */
-	(void) e;
-	_event = (t_event) { 0 };
-	if (g_X11.XGetWindowProperty(
-			win->client.dsp, win->client.id, win->client.atoms._NET_WM_STATE,
-			0L, sizeof (Atom), false,
-			AnyPropertyType, &_actual_type, &_actual_format,
-			&_nitems, &_bytes, &_prop) == Success && _prop
-	) {
-		Atom	*_atoms;
+	if (e->xproperty.atom == win->client.atoms._NET_WM_STATE) {
+		Status		_status;
+		Atom		_actual_type;
+		int32_t		_actual_format;
+		uint64_t	_nitems;
+		uint64_t	_bytes;
+		uint8_t		*_prop;
 
-		_atoms = (Atom *) _prop;
-		if (_atoms[0] == win->client.atoms._NET_WM_STATE_FULLSCREEN) {
-			_event = (t_event) { .type = GF_EVENT_FULLSCREEN, .maximize.state = true };
+		/* Booleans for the caught states
+		 * */
+		bool		_minim;
+		bool		_maxim;
+		bool		_fullscr;
+
+		_minim = _maxim = _fullscr = false;
+		_status = g_X11.XGetWindowProperty(win->client.dsp, win->client.id, win->client.atoms._NET_WM_STATE, 0, sizeof(Atom), false, XA_ATOM, &_actual_type, &_actual_format, &_nitems, &_bytes, &_prop);
+		if (_status == Success && _prop && _nitems && _actual_type == XA_ATOM && _actual_format == 32) {
+			Atom	*_atoms;
+
+			_atoms = (Atom *) _prop;
+			for (size_t i = 0; i < _nitems; i++) {
+				_event = (t_event) { 0 };
+
+				if (_atoms[i] == win->client.atoms._NET_WM_STATE_FULLSCREEN) {
+					_fullscr = true;
+				}
+				else if (_atoms[i] == win->client.atoms._NET_WM_STATE_HIDDEN) {
+					_minim = true;
+				}
+				else if (
+					_atoms[i] == win->client.atoms._NET_WM_STATE_MAXIMIZED_HORZ ||
+					_atoms[i] == win->client.atoms._NET_WM_STATE_MAXIMIZED_VERT
+				) {
+					_maxim = true;
+				}
+			}
+			free(_prop);
 		}
-		free(_prop);
+
+		/* TODO(yakub):
+		 *  Test it in the proper environment
+		 * */
+		if (_fullscr) {
+			_event = (t_event) { 0 };
+			_event.type = GF_EVENT_FULLSCREEN;
+			_event.fullscreen.state = _fullscr;
+			gf_pushEvent(win, &_event);
+		}
+		if (_minim) {
+			_event = (t_event) { 0 };
+			_event.type = GF_EVENT_MINIMIZE;
+			_event.minimize.state = _minim;
+			gf_pushEvent(win, &_event);
+		}
+		if (_maxim) {
+			_event = (t_event) { 0 };
+			_event.type = GF_EVENT_MAXIMIZE;
+			_event.maximize.state = _maxim;
+			gf_pushEvent(win, &_event);
+		}
 	}
 	return (gf_pushEvent(win, &_event));
 }

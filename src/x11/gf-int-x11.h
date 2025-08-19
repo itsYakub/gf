@@ -51,25 +51,29 @@ struct s_client {
 /* SECTION: Xlib.h
  * */
 typedef Display		*(*PFN_XOpenDisplay) (const char *);
-typedef int32_t			(*PFN_XCloseDisplay) (Display *);
+typedef int32_t		(*PFN_XCloseDisplay) (Display *);
 typedef Colormap	(*PFN_XCreateColormap) (Display *, Window, Visual *, int32_t);
 typedef Window		(*PFN_XCreateWindow) (Display *, Window, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t, uint32_t, Visual *, unsigned long, XSetWindowAttributes *);
-typedef int32_t			(*PFN_XSelectInput) (Display *, Window, long);
-typedef int32_t			(*PFN_XMapWindow) (Display *, Window);
-typedef int32_t			(*PFN_XDestroyWindow) (Display *, Window);
-typedef int32_t			(*PFN_XUnmapWindow) (Display *, Window);
-typedef int32_t			(*PFN_XPending) (Display *);
-typedef int32_t			(*PFN_XNextEvent) (Display *, XEvent *);
+typedef int32_t		(*PFN_XSelectInput) (Display *, Window, long);
+typedef int32_t		(*PFN_XMapWindow) (Display *, Window);
+typedef int32_t		(*PFN_XDestroyWindow) (Display *, Window);
+typedef int32_t		(*PFN_XUnmapWindow) (Display *, Window);
+typedef int32_t		(*PFN_XPending) (Display *);
+typedef int32_t		(*PFN_XNextEvent) (Display *, XEvent *);
 typedef Status		(*PFN_XSendEvent) (Display *, Window, Bool, long, XEvent *);
-typedef int32_t			(*PFN_XFlush) (Display *);
-typedef int32_t			(*PFN_XFree) (void *);
-typedef int32_t			(*PFN_XGetWindowProperty) (Display *, Window, Atom, long, long, Bool, Atom, Atom *, int32_t *, unsigned long *, unsigned long *, unsigned char **);
+typedef int32_t		(*PFN_XFlush) (Display *);
+typedef int32_t		(*PFN_XFree) (void *);
+typedef int32_t		(*PFN_XGetWindowProperty) (Display *, Window, Atom, long, long, Bool, Atom, Atom *, int32_t *, unsigned long *, unsigned long *, unsigned char **);
 typedef Status		(*PFN_XGetWindowAttributes) (Display *, Window, XWindowAttributes *);
 typedef Bool		(*PFN_XTranslateCoordinates) (Display *, Window, Window, int32_t, int32_t, int32_t *, int32_t *, Window *);
-typedef int32_t			(*PFN_XResizeWindow) (Display *, Window, uint32_t, uint32_t);
-typedef int32_t			(*PFN_XMoveWindow) (Display *, Window, int32_t, int32_t);
-typedef int32_t			(*PFN_XStoreName) (Display *, Window, const char *);
-typedef int32_t			(*PFN_XChangeProperty) (Display *, Window, Atom, Atom, int32_t, int32_t, const unsigned char *, int32_t);
+typedef int32_t		(*PFN_XResizeWindow) (Display *, Window, uint32_t, uint32_t);
+typedef int32_t		(*PFN_XMoveWindow) (Display *, Window, int32_t, int32_t);
+typedef int32_t		(*PFN_XStoreName) (Display *, Window, const char *);
+typedef int32_t		(*PFN_XChangeProperty) (Display *, Window, Atom, Atom, int32_t, int32_t, const unsigned char *, int32_t);
+typedef char		*(*PFN_XGetAtomName) (Display *, Atom);
+typedef Status		(*PFN_XGetAtomNames) (Display*, Atom *, int32_t, char **);
+typedef char		*(*PFN_XGetDefault) (Display *, const char *, const char *);
+typedef char		*(*PFN_XDisplayName) (const char *);
 
 /* SECTION: Xutil.h
  * */
@@ -84,11 +88,11 @@ typedef Status		(*PFN_XGetIconSizes) (Display *, Window, XIconSize **, int32_t *
 typedef Status		(*PFN_XGetNormalHints) (Display *, Window, XSizeHints *);
 typedef Status		(*PFN_XGetSizeHints) (Display *, Window, XSizeHints *, Atom);
 typedef Status		(*PFN_XGetWMColormapWindows) (Display *, Window, Window **, int32_t *);
-typedef int32_t			(*PFN_XGetWMProtocols) (Display *, Window, Atom **, int32_t *);
+typedef int32_t		(*PFN_XGetWMProtocols) (Display *, Window, Atom **, int32_t *);
 typedef Status		(*PFN_XGetZoomHints) (Display *, Window, XSizeHints *);
-typedef int32_t			(*PFN_XIconifyWindow) (Display *, Window, int32_t);
+typedef int32_t		(*PFN_XIconifyWindow) (Display *, Window, int32_t);
 typedef Status		(*PFN_XLookupColor) (Display *, Colormap, const char *, XColor *, XColor *);
-typedef int32_t			(*PFN_XSetWMColormapWindows) (Display *, Window, Window *, int32_t);
+typedef int32_t		(*PFN_XSetWMColormapWindows) (Display *, Window, Window *, int32_t);
 typedef void		(*PFN_XSetWMHints) (Display *, Window, XWMHints *);
 typedef Status		(*PFN_XSetWMIconName) (Display *, Window, XTextProperty *);
 typedef void		(*PFN_XSetWMName) (Display *, Window, XTextProperty *);
@@ -137,7 +141,11 @@ struct s_X11 {
 		PFN_XMoveWindow						XMoveWindow;
 		PFN_XStoreName						XStoreName;
 		PFN_XChangeProperty					XChangeProperty;
-		
+		PFN_XGetAtomName					XGetAtomName;
+		PFN_XGetAtomNames					XGetAtomNames;
+		PFN_XGetDefault						XGetDefault;
+		PFN_XDisplayName					XDisplayName;
+
 		/* SECTION: Xutil.h
 		 * */
 		PFN_XAllocColor						XAllocColor;

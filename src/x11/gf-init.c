@@ -50,6 +50,10 @@ GFAPII bool	gf_int_initPlatformX11(void) {
 	if (!(g_X11.XMoveWindow = dlsym(g_X11.handle, "XMoveWindow"))) return (false);
 	if (!(g_X11.XStoreName = dlsym(g_X11.handle, "XStoreName"))) return (false);
 	if (!(g_X11.XChangeProperty = dlsym(g_X11.handle, "XChangeProperty"))) return (false);
+	if (!(g_X11.XGetAtomName = dlsym(g_X11.handle, "XGetAtomName"))) return (false);
+	if (!(g_X11.XGetAtomNames = dlsym(g_X11.handle, "XGetAtomNames"))) return (false);
+	if (!(g_X11.XGetDefault = dlsym(g_X11.handle, "XGetDefault"))) return (false);
+	if (!(g_X11.XDisplayName = dlsym(g_X11.handle, "XDisplayName"))) return (false);
 
 	/* SECTION: Xutil.h
 	 * */	
