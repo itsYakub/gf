@@ -1,18 +1,12 @@
 #include "./../src/gf.h"
 
-#include <stdlib.h>
 #include <GL/gl.h>
 
 int	main(void) {
 	t_window	window;
 
-	if (
-		!gf_createWindow(&window, 960, 540, "gf 1.0 - Hello, World!") ||
-		!gf_createContext(window)
-	) {
-		return (1);
-	}
-
+	gf_createWindow(&window, 960, 540, "gf 1.0 - Hello, World!");
+	gf_makeCurrent(window);
 	for ( ;; ) {
 		t_event		event;
 	

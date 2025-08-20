@@ -17,6 +17,45 @@
 
 ## Introduction:
 
+```c
+#include "gf.h"
+
+#include <GL/gl.h>
+
+int	main(void) {
+	t_window	window;
+
+	gf_createWindow(&window, 960, 540, "gf 1.0 - Hello, World!");
+	gf_makeCurrent(window);
+	for ( ;; ) {
+		t_event		event;
+	
+		while (gf_pollEvents(window, &event)) {
+			switch (event.type) {
+				case (GF_EVENT_QUIT): {
+					gf_logi("EVENT: QUIT\n");
+
+					gf_destroyContext(window);
+					gf_destroyWindow(window);
+					return (0);
+				}
+			}
+		}
+
+		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+		gf_swapBuffers(window);	
+	}
+
+	gf_destroyContext(window);	
+	gf_destroyWindow(window);
+	
+	return (0);
+}
+
+```
+
 This is **gf** - graphics framework for GNU/Linux and Windows OpenGL programming.
 It's incredibly tiny, simple yet powerful codebase allows you to not only develop efficient native graphical application,
 but also to sharpen your knowledge with low - level windowing and graphics, thanks to compact and commented code!

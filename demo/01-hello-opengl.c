@@ -57,12 +57,8 @@ int	main(void) {
 	GLuint		vertex_array;
 	GLuint		vertex_buffer, index_buffer;
 
-	if (
-		!gf_createWindow(&window, 960, 540, "gf 1.0 - Hello, OpenGL!") ||
-		!gf_createContext(window)
-	) {
-		return (1);
-	}
+	gf_createWindow(&window, 960, 540, "gf 1.0 - Hello, World!");
+	gf_makeCurrent(window);
 
 	/* SECTION:
 	 *  Manual OpenGL loading
