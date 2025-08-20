@@ -20,6 +20,21 @@ struct s_context {
 	GLXContext	id;
 };
 
+
+
+/* SECTION:
+ *  Internal function declarations
+ * */
+
+GFAPII bool	gf_int_safetyCheckGLX(struct s_context *);
+GFAPII bool	gf_int_initPlatformGLX(void);
+
+
+
+/* SECTION:
+ *  Platform
+ * */
+
 typedef Bool		(*PFN_glXQueryExtension) (Display *, int32_t *, int32_t *);
 typedef Bool		(*PFN_glXQueryVersion) (Display *, int32_t *, int32_t *);
 typedef const char	*(*PFN_glXQueryExtensionsString) (Display *, int32_t);
@@ -108,11 +123,5 @@ struct s_GLX {
 };
 
 extern struct s_GLX	g_GLX;
-
-/* SECTION:
- *  Internal function declarations
- * */
-
-GFAPII bool			gf_int_initPlatformGLX(void);
 
 #endif

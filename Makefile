@@ -37,7 +37,8 @@ SRCS_X11= \
 	$(MK_ROOT)src/x11/gf-init.c \
 	$(MK_ROOT)src/x11/gf-window-init.c \
 	$(MK_ROOT)src/x11/gf-window-events.c \
-	$(MK_ROOT)src/x11/gf-window-config.c
+	$(MK_ROOT)src/x11/gf-window-config.c \
+	$(MK_ROOT)src/x11/gf-window-utils.c
 
 SRCS_WL	= 
 SRCS_XDG= 
@@ -46,13 +47,15 @@ SRCS_EGL= \
 	$(MK_ROOT)src/egl/gf-init.c \
 	$(MK_ROOT)src/egl/gf-context-create.c \
 	$(MK_ROOT)src/egl/gf-context-destroy.c \
-	$(MK_ROOT)src/egl/gf-context-config.c
+	$(MK_ROOT)src/egl/gf-context-config.c \
+	$(MK_ROOT)src/egl/gf-context-utils.c
 
 SRCS_GLX= \
 	$(MK_ROOT)src/glx/gf-init.c \
 	$(MK_ROOT)src/glx/gf-context-create.c \
 	$(MK_ROOT)src/glx/gf-context-destroy.c \
-	$(MK_ROOT)src/glx/gf-context-config.c
+	$(MK_ROOT)src/glx/gf-context-config.c \
+	$(MK_ROOT)src/glx/gf-context-utils.c
 
 ifeq ($(OS),Windows_NT)
 	UNAME_S := Windows_NT

@@ -9,6 +9,8 @@
  * */
 
 GFAPI bool	gf_swapBuffers(t_window win) {
+	if (!gf_int_safetyCheckEGL(&win->context)) return (false);
+	
 	g_EGL.eglSwapBuffers(win->context.dsp, win->context.surf);
 	return (true);
 }

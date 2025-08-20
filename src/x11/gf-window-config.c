@@ -37,6 +37,8 @@ GFAPIS bool	__gf_configBorderless(t_window);
 GFAPI bool	gf_getWindowSize(t_window win, int32_t *wptr, int32_t *hptr) {
 	XWindowAttributes	_attr;
 
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
+
 	memset(&_attr, 0, sizeof(XWindowAttributes));
 	if (!g_X11.XGetWindowAttributes(win->client.dsp, win->client.id, &_attr)) {
 		return (false);
@@ -59,6 +61,8 @@ GFAPI bool	gf_getWindowSize(t_window win, int32_t *wptr, int32_t *hptr) {
 }
 
 GFAPI bool	gf_getMonitorSize(t_window win, int32_t *wptr, int32_t *hptr) {
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
+
 	/* Setting the value of the 'wptr' and 'hptr' (memory safe)
 	 * */
 	if (wptr) {
@@ -74,6 +78,8 @@ GFAPI bool	gf_getWindowPosition(t_window win, int32_t *xptr, int32_t *yptr) {
 	XWindowAttributes	_attr;
 	Window				_child;
 	int32_t				_x, _y;
+
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
 
 	memset(&_attr, 0, sizeof(XWindowAttributes));
 	if (!g_X11.XGetWindowAttributes(win->client.dsp, win->client.id, &_attr)) {
@@ -104,6 +110,8 @@ GFAPI bool	gf_getWindowPosition(t_window win, int32_t *xptr, int32_t *yptr) {
 }
 
 GFAPI bool	gf_setWindowSize(t_window win, int32_t w, int32_t h) {
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
+
 	g_X11.XResizeWindow(win->client.dsp, win->client.id, w, h);
 	win->data.width = w;
 	win->data.height = h;
@@ -111,6 +119,8 @@ GFAPI bool	gf_setWindowSize(t_window win, int32_t w, int32_t h) {
 }
 
 GFAPI bool	gf_setWindowPosition(t_window win, int32_t x, int32_t y) {
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
+
 	g_X11.XMoveWindow(win->client.dsp, win->client.id, x, y);
 	win->data.x = x;
 	win->data.y = y;
@@ -118,6 +128,8 @@ GFAPI bool	gf_setWindowPosition(t_window win, int32_t x, int32_t y) {
 }
 
 GFAPI bool	gf_setWindowTitle(t_window win, const char *t) {
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
+
 	g_X11.XStoreName(win->client.dsp, win->client.id, t);
 	memset(win->data.title, 0, _GF_WINDOW_TITLE_LEN);
 	memcpy(win->data.title, t, strlen(t));
@@ -125,6 +137,8 @@ GFAPI bool	gf_setWindowTitle(t_window win, const char *t) {
 }
 
 GFAPI bool	gf_setWindowConfig(t_window win, int32_t conf) {
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
+
 	/* Updating the resizable state
 	 * */
 	if (conf & GF_CONFIG_RESIZABLE) {

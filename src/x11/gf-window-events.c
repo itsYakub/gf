@@ -196,6 +196,8 @@ GFAPIS bool	__gf_pollInternalEvents(t_window);
  * */
 
 GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
+
 	if (__gf_pollGfEvents(win, event)) {
 		return (true);
 	}
@@ -207,6 +209,8 @@ GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
 }
 
 GFAPI bool	gf_popEvent(t_window win, t_event *e) {
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
+
 	if (win->events.cnt <= 0) {
 		return (false);
 	}
@@ -218,6 +222,8 @@ GFAPI bool	gf_popEvent(t_window win, t_event *e) {
 }
 
 GFAPI bool	gf_pushEvent(t_window win, t_event *e) {
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
+
 	/* Check overflows of event queue
 	 * */
 	if (win->events.cnt >= _GF_EVENT_QUEUE_SIZE) {
@@ -233,6 +239,8 @@ GFAPI bool	gf_pushEvent(t_window win, t_event *e) {
 }
 
 GFAPI bool	gf_flushEvents(t_window win) {
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
+
 	if (!g_X11.XFlush(win->client.dsp)) {
 		return (false);
 	}

@@ -48,6 +48,25 @@ struct s_client {
 	} atoms;
 };
 
+
+
+/* SECTION:
+ *  Internal function declarations
+ * */
+
+GFAPII bool	gf_int_safetyCheckX11(struct s_client *);
+GFAPII bool	gf_int_initPlatformX11(void);
+
+GFAPII bool	gf_int_pollInternal_Client(t_window, XEvent *);
+GFAPII bool	gf_int_pollInternal_Property(t_window, XEvent *);
+GFAPII bool	gf_int_pollInternal_Configure(t_window, XEvent *);
+GFAPII bool	gf_int_pollInternal_Mouse(t_window, XEvent *);
+GFAPII bool	gf_int_pollInternal_Key(t_window, XEvent *);
+
+GFAPII bool	gf_int_updateWindowConfig(t_window);	
+
+
+
 /* SECTION: Xlib.h
  * */
 typedef Display		*(*PFN_XOpenDisplay) (const char *);
@@ -190,19 +209,5 @@ struct s_X11 {
 };
 
 extern struct s_X11	g_X11;
-
-/* SECTION:
- *  Internal function declarations
- * */
-
-GFAPII bool	gf_int_initPlatformX11(void);
-
-GFAPII bool	gf_int_pollInternal_Client(t_window, XEvent *);
-GFAPII bool	gf_int_pollInternal_Property(t_window, XEvent *);
-GFAPII bool	gf_int_pollInternal_Configure(t_window, XEvent *);
-GFAPII bool	gf_int_pollInternal_Mouse(t_window, XEvent *);
-GFAPII bool	gf_int_pollInternal_Key(t_window, XEvent *);
-
-GFAPII bool	gf_int_updateWindowConfig(t_window);	
 
 #endif

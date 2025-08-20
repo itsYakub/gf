@@ -22,6 +22,18 @@ struct s_context {
 	EGLContext	ctx;
 };
 
+
+
+/* SECTION:
+ *  Internal function declarations
+ * */
+
+GFAPII bool	gf_int_safetyCheckEGL(struct s_context *);
+GFAPII bool	gf_int_initPlatformEGL(void);
+
+
+
+
 typedef EGLBoolean	(*PFN_eglBindAPI) (EGLenum api);
 typedef EGLBoolean	(*PFN_eglBindTexImage) (EGLDisplay dpy, EGLSurface surface, EGLint buffer);
 typedef EGLBoolean	(*PFN_eglChooseConfig) (EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config);
@@ -117,11 +129,5 @@ struct s_EGL {
 	} /* EGL API */;
 };
 extern struct s_EGL	g_EGL;
-
-/* SECTION:
- *  Internal function declarations
- * */
-
-GFAPII bool	gf_int_initPlatformEGL(void);
 
 #endif

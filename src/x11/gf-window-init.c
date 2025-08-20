@@ -49,6 +49,8 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 	t_window	_win;
 
 	_win = (t_window) calloc(1, sizeof(struct s_window));
+	memset(&_win->client, 0, sizeof(_win->client));
+	memset(&_win->context, 0, sizeof(_win->context));
 
 	/* Load the X11 platform
 	 * */
@@ -71,6 +73,8 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 }
 
 GFAPI bool	gf_destroyWindow(t_window win) {
+	if (!gf_int_safetyCheckX11(&win->client)) return (false);
+
 	if (win->client.id) g_X11.XDestroyWindow(win->client.dsp, win->client.id);
 	if (win->client.info) g_X11.XFree(win->client.info);
 	if (win->client.dsp) g_X11.XCloseDisplay(win->client.dsp);

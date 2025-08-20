@@ -10,6 +10,8 @@
  * */
 
 GFAPI bool	gf_swapBuffers(t_window win) {
+	if (!gf_int_safetyCheckGLX(&win->context)) return (false);
+	
 	g_GLX.glXSwapBuffers(win->client.dsp, win->client.id);
 	return (true);
 }

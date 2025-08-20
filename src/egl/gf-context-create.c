@@ -49,7 +49,7 @@ GFAPI bool	gf_createContext(t_window win) {
 
 	/* Safety check if context is already created
 	 * */
-	if (win->context.ctx) {
+	if (gf_int_safetyCheckEGL(&win->context)) {
 		return (true);
 	}
 
@@ -128,7 +128,7 @@ GFAPI bool	gf_createContext(t_window win) {
 }
 
 GFAPI bool	gf_makeCurrent(t_window win) {
-	if (!win->context.ctx) {
+	if (!gf_int_safetyCheckEGL(&win->context)) {
 		return (gf_createContext(win));
 	}
 
