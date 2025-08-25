@@ -222,11 +222,15 @@ typedef struct s_window	*t_window;
  *  Interface declarations
  * */
 
+/* * MODULE: init
+ * * */
 GFAPI bool	gf_createWindow(t_window *, const size_t, const size_t, const char *);
 GFAPI bool	gf_destroyWindow(t_window);
 
 
 
+/* * MODULE: config 
+ * * */
 GFAPI bool	gf_getWindowSize(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getMonitorSize(t_window, int32_t *, int32_t *);
 GFAPI bool	gf_getWindowPosition(t_window, int32_t *, int32_t *);
@@ -238,22 +242,29 @@ GFAPI bool	gf_setWindowConfig(t_window, int32_t);
 
 
 
+/* * MODULE: context
+ * * */
 GFAPI bool	gf_createContext(t_window);
 GFAPI bool	gf_destroyContext(t_window);
-
-
-
 GFAPI bool	gf_makeCurrent(t_window);
 GFAPI bool	gf_swapBuffers(t_window);
 GFAPI void	*gf_getProcAddress(const char *);
 
 
 
+/* * MODULE: events
+ * * */
 GFAPI bool	gf_pollEvents(t_window, t_event *);
 GFAPI bool	gf_popEvent(t_window, t_event *);
 GFAPI bool	gf_pushEvent(t_window, t_event *);
 GFAPI bool	gf_flushEvents(t_window);
-
 GFAPI char	*gf_keyToString(const int32_t);
+
+
+
+/* * MODULE: clipboard
+ * * */
+GFAPI bool	gf_clipCopy(t_window, const char *, size_t);
+GFAPI bool	gf_clipPaste(t_window, char **, size_t *);
 
 #endif

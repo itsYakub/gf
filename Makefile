@@ -38,6 +38,7 @@ SRCS_X11= \
 	$(MK_ROOT)src/x11/gf-window-init.c \
 	$(MK_ROOT)src/x11/gf-window-events.c \
 	$(MK_ROOT)src/x11/gf-window-config.c \
+	$(MK_ROOT)src/x11/gf-window-clipboard.c \
 	$(MK_ROOT)src/x11/gf-window-utils.c
 
 SRCS_WL	= 
@@ -92,8 +93,6 @@ ifeq ($(UNAME_S),Linux)
 		SRCS	+= $(SRCS_EGL)
 		DEPS	:= -lwayland-client -lwayland-egl -lxkbcommon -lGL
 		$(warning Wayland is currently unsupported. Revert back to X11 support)
-	else
-		$(error Unrecognized session type: $(XDG_SESSION_TYPE))
 	endif
 
 else ifeq ($(UNAME_S), Windows_NT)
