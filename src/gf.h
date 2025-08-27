@@ -168,6 +168,7 @@ enum {
 	GF_EVENT_MOUSE_RELEASE,
 	GF_EVENT_KEY_PRESS,	
 	GF_EVENT_KEY_RELEASE,
+	GF_EVENT_CLIPBOARD,
 	/* ...More events put here...
 	 * */
 	GF_EVENT_COUNT
@@ -202,6 +203,7 @@ struct s_event {
 		struct { int32_t val; } scroll;
 		struct { int32_t btn; bool state; } button;
 		struct { int32_t key; bool state; } key;
+		struct { char *data; size_t size; } clip;
 	};
 };
 

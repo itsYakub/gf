@@ -35,6 +35,11 @@ struct s_window {
 	} config;
 
 	struct {
+		char	*data;
+		size_t	size;
+	} clipboard;
+
+	struct {
 		char	title[_GF_WINDOW_TITLE_LEN + 1];
 
 		int32_t	width;
@@ -55,6 +60,8 @@ typedef struct s_window	*t_window;
 
 GFAPII int32_t	gf_int_buttonPlatformToGf(const int32_t);
 GFAPII int32_t	gf_int_keymapPlatformToGf(const int32_t);
+GFAPII bool		gf_int_pollGfEvents(t_window, t_event *);
+GFAPII bool		gf_int_pollInternalEvents(t_window);
 
 # include <errno.h>
 # include <string.h>

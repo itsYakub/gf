@@ -181,27 +181,16 @@ static const struct {
 
 
 /* SECTION:
- *  Private interface declarations
- * */
-
-GFAPIS bool	__gf_pollGfEvents(t_window, t_event *);
-GFAPIS bool	__gf_pollInternalEvents(t_window);
-
-
-
-
-
-/* SECTION:
  *  Public API implementation
  * */
 
 GFAPI bool	gf_pollEvents(t_window win, t_event *event) {
 	if (!gf_int_safetyCheckX11(&win->client)) return (false);
 
-	if (__gf_pollGfEvents(win, event)) {
+	if (gf_int_pollGfEvents(win, event)) {
 		return (true);
 	}
-	__gf_pollInternalEvents(win);
+	gf_int_pollInternalEvents(win);
 	/* As there was no event to be retrieved, we return the 'none' event
 	 * */
 	*event = (t_event) { 0 };
@@ -264,9 +253,6 @@ GFAPI char	*gf_keyToString(const int32_t key) {
  *  Private interface definitions
  * */
 
-/* * X11 to gf inputting translation
- * * */
-
 GFAPII int32_t	gf_int_buttonPlatformToGf(const int32_t btn) {
 	for (size_t i = 0; g_button_map[i].gf != GF_BUTTON_NONE; i++) {
 		if (g_button_map[i].client == (int32_t) btn) {
@@ -285,14 +271,7 @@ GFAPII int32_t	gf_int_keymapPlatformToGf(const int32_t key) {
 	return (GF_KEY_NONE);
 }
 
-
-
-
-
-/* * gf internal event processing
- * * */
-
-GFAPIS bool	__gf_pollGfEvents(t_window win, t_event *event) {
+GFAPII bool	gf_int_pollGfEvents(t_window win, t_event *event) {
 	/* Poll gf events from event queue
 	 * */
 	while ((int) win->events.cnt > 0) {
@@ -302,8 +281,7 @@ GFAPIS bool	__gf_pollGfEvents(t_window win, t_event *event) {
 	return (false);
 }
 
-
-GFAPIS bool	__gf_pollInternalEvents(t_window win) {
+GFAPII bool	gf_int_pollInternalEvents(t_window win) {
 	XEvent	_event;
 
 	/* Event queue emtpy, now we need to poll the events from implementation
@@ -333,18 +311,16 @@ GFAPIS bool	__gf_pollInternalEvents(t_window win) {
 			case (KeyRelease): {
 				gf_int_pollInternal_Key(win, &_event);
 			} break;
+
+			case (SelectionRequest):
+			case (SelectionClear):
+			case (SelectionNotify): {
+				gf_int_pollInternal_Selection(win, &_event);
+			} break;
 		}
 	}
 	return (true);
 }
-
-
-
-
-
-/* SECTION:
- *  Event Interface
- * */
 
 GFAPII bool	gf_int_pollInternal_Client(t_window win, XEvent *e) {
 	t_event	_event;
@@ -504,5 +480,67 @@ GFAPII bool	gf_int_pollInternal_Key(t_window win, XEvent *e) {
 	if (_event.key.key == GF_KEY_NONE) {
 		return (false);
 	}
+	return (gf_pushEvent(win, &_event));
+}
+
+GFAPII bool	gf_int_pollInternal_Selection(t_window win, XEvent *e) {
+	t_event	_event;
+	(void) win;
+	
+	_event = (t_event) { 0 };
+	/* EVENT: Copy to clipboard
+	 * */
+	if (e->type == SelectionRequest) {
+	
+	}
+	
+	/* EVENT: Paste from clipboard
+	 * */
+	else if (e->type == SelectionNotify) {
+		Status		_status;
+		Atom		_actual_type;
+		int32_t		_actual_format;
+		uint64_t	_nitems;
+		uint64_t	_bytes;
+		uint8_t		*_prop;
+
+		/* We only want to operate on CLIPBOARD selection.
+		 * If the current selection is PRIMARY or SECONDARY, return immediately.
+		 * */
+		if (e->xselection.selection != win->client.atoms.CLIPBOARD) { return (false); }
+
+		/* TODO(yakub):
+		 *  Event tho we're sending a ConvertSelection request to the server, the caught event set's the property to 0.
+		 *  By that we cannot enter the clipboard section of the paste functionality.
+		 *  Because the property is missing, this 'if' isn't being executed and the function returns.
+		 *  In the 'clipPaste' function the strlen function then segfaults, even tho the clipboard data should be present
+		 *  Check what causes the problem and fix it.
+		 * */
+		if (e->xselection.property) {
+			_status = g_X11.XGetWindowProperty(e->xselection.display, e->xselection.requestor, e->xselection.property, 0L, sizeof(Atom), false, AnyPropertyType, &_actual_type, &_actual_format, &_nitems, &_bytes, &_prop);
+
+			if (_status != Success) { return (false); }
+			if (_actual_type == win->client.atoms.UTF8_STRING || _actual_type == XA_STRING) {
+				/* Clear the previous clipboard data
+				 * */
+				if (win->clipboard.data) {
+					free(win->clipboard.data);
+					win->clipboard.data = 0;
+					win->clipboard.size = 0;
+				}
+				
+				win->clipboard.data = (char *) _prop;
+				win->clipboard.size = _nitems;
+			}
+
+			g_X11.XDeleteProperty(e->xselection.display, e->xselection.requestor, e->xselection.property);
+		}
+	}
+	
+	else if (e->type == SelectionClear) { /* UNHANDLED */ }
+
+	_event.type = GF_EVENT_CLIPBOARD;
+	_event.clip.data = win->clipboard.data;
+	_event.clip.size = win->clipboard.size;
 	return (gf_pushEvent(win, &_event));
 }

@@ -31,11 +31,17 @@ struct s_client {
 	int32_t		screen_id;
 	
 	struct {
+		/* Atoms: standard
+		 * */
 		Atom	WM_DELETE_WINDOW;
 		Atom	WM_CHANGE_STATE;
 
+		/* Atoms: MOTIF
+		 * */
 		Atom	_MOTIF_WM_HINTS;
 
+		/* Atoms: EWMH
+		 * */
 		Atom	_NET_WM_STATE;
 		Atom	_NET_WM_STATE_ABOVE;
 		Atom	_NET_WM_STATE_FULLSCREEN;
@@ -45,6 +51,14 @@ struct s_client {
 		Atom	_NET_WM_WINDOW_TYPE;
 		Atom	_NET_WM_WINDOW_NORMAL;
 		Atom	_NET_WM_WINDOW_DOCK;
+
+		/* Atoms: clipboard
+		 * */
+		Atom	TARGETS;
+		Atom	TEXT;
+		Atom	CLIPBOARD;
+		Atom	XSEL_DATA;
+		Atom	UTF8_STRING;
 	} atoms;
 };
 
@@ -62,6 +76,7 @@ GFAPII bool	gf_int_pollInternal_Property(t_window, XEvent *);
 GFAPII bool	gf_int_pollInternal_Configure(t_window, XEvent *);
 GFAPII bool	gf_int_pollInternal_Mouse(t_window, XEvent *);
 GFAPII bool	gf_int_pollInternal_Key(t_window, XEvent *);
+GFAPII bool	gf_int_pollInternal_Selection(t_window, XEvent *);
 
 GFAPII bool	gf_int_updateWindowConfig(t_window);	
 
@@ -81,8 +96,10 @@ typedef int32_t		(*PFN_XPending) (Display *);
 typedef int32_t		(*PFN_XNextEvent) (Display *, XEvent *);
 typedef Status		(*PFN_XSendEvent) (Display *, Window, Bool, long, XEvent *);
 typedef int32_t		(*PFN_XFlush) (Display *);
+typedef int32_t		(*PFN_XSync) (Display *, Bool);
 typedef int32_t		(*PFN_XFree) (void *);
 typedef int32_t		(*PFN_XGetWindowProperty) (Display *, Window, Atom, long, long, Bool, Atom, Atom *, int32_t *, unsigned long *, unsigned long *, unsigned char **);
+typedef int32_t		(*PFN_XDeleteProperty) (Display *, Window, Atom);
 typedef Status		(*PFN_XGetWindowAttributes) (Display *, Window, XWindowAttributes *);
 typedef Bool		(*PFN_XTranslateCoordinates) (Display *, Window, Window, int32_t, int32_t, int32_t *, int32_t *, Window *);
 typedef int32_t		(*PFN_XResizeWindow) (Display *, Window, uint32_t, uint32_t);
@@ -93,6 +110,9 @@ typedef char		*(*PFN_XGetAtomName) (Display *, Atom);
 typedef Status		(*PFN_XGetAtomNames) (Display*, Atom *, int32_t, char **);
 typedef char		*(*PFN_XGetDefault) (Display *, const char *, const char *);
 typedef char		*(*PFN_XDisplayName) (const char *);
+typedef int32_t		(*PFN_XConvertSelection) (Display *, Atom, Atom, Atom, Window, Time);
+typedef int32_t		(*PFN_XSetSelectionOwner) (Display *, Atom, Window, Time);
+typedef Window		(*PFN_XGetSelectionOwner) (Display *, Atom);
 
 /* SECTION: Xutil.h
  * */
@@ -152,8 +172,10 @@ struct s_X11 {
 		PFN_XNextEvent						XNextEvent;
 		PFN_XSendEvent						XSendEvent;
 		PFN_XFlush							XFlush;
+		PFN_XSync							XSync;
 		PFN_XFree							XFree;
 		PFN_XGetWindowProperty				XGetWindowProperty;
+		PFN_XDeleteProperty					XDeleteProperty;
 		PFN_XGetWindowAttributes			XGetWindowAttributes;
 		PFN_XTranslateCoordinates			XTranslateCoordinates;
 		PFN_XResizeWindow					XResizeWindow;
@@ -164,6 +186,9 @@ struct s_X11 {
 		PFN_XGetAtomNames					XGetAtomNames;
 		PFN_XGetDefault						XGetDefault;
 		PFN_XDisplayName					XDisplayName;
+		PFN_XConvertSelection				XConvertSelection;
+		PFN_XSetSelectionOwner				XSetSelectionOwner;
+		PFN_XGetSelectionOwner				XGetSelectionOwner;
 
 		/* SECTION: Xutil.h
 		 * */

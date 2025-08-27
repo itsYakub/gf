@@ -75,9 +75,10 @@ GFAPI bool	gf_createWindow(t_window *win, const size_t w, const size_t h, const 
 GFAPI bool	gf_destroyWindow(t_window win) {
 	if (!gf_int_safetyCheckX11(&win->client)) return (false);
 
-	if (win->client.id) g_X11.XDestroyWindow(win->client.dsp, win->client.id);
-	if (win->client.info) g_X11.XFree(win->client.info);
-	if (win->client.dsp) g_X11.XCloseDisplay(win->client.dsp);
+	if (win->clipboard.data) g_X11.XFree(win->clipboard.data), win->clipboard.data = 0, win->clipboard.size = 0;
+	if (win->client.info) g_X11.XFree(win->client.info), win->client.info = 0;
+	if (win->client.id) g_X11.XDestroyWindow(win->client.dsp, win->client.id), win->client.id = 0;
+	if (win->client.dsp) g_X11.XCloseDisplay(win->client.dsp), win->client.dsp = 0;
 	free(win);
 	return (true);
 }
@@ -241,6 +242,12 @@ GFAPIS bool	__gf_processAtoms(t_window win) {
 	win->client.atoms._NET_WM_WINDOW_TYPE = g_X11.XInternAtom(win->client.dsp, "_NET_WM_WINDOW_TYPE", false);
 	win->client.atoms._NET_WM_WINDOW_NORMAL = g_X11.XInternAtom(win->client.dsp, "_NET_WM_WINDOW_NORMAL", false);
 	win->client.atoms._NET_WM_WINDOW_DOCK = g_X11.XInternAtom(win->client.dsp, "_NET_WM_WINDOW_DOCK", false);
+
+	win->client.atoms.TARGETS = g_X11.XInternAtom(win->client.dsp, "TARGETS", false);
+	win->client.atoms.TEXT = g_X11.XInternAtom(win->client.dsp, "TEXT", false);
+	win->client.atoms.CLIPBOARD = g_X11.XInternAtom(win->client.dsp, "CLIPBOARD", false);
+	win->client.atoms.XSEL_DATA = g_X11.XInternAtom(win->client.dsp, "XSEL_DATA", false);
+	win->client.atoms.UTF8_STRING = g_X11.XInternAtom(win->client.dsp, "UTF8_STRING", false);
 
 	g_X11.XSetWMProtocols(win->client.dsp, win->client.id, &win->client.atoms.WM_DELETE_WINDOW, 1);
 	return (true);

@@ -42,8 +42,10 @@ GFAPII bool	gf_int_initPlatformX11(void) {
 	if (!(g_X11.XNextEvent = dlsym(g_X11.handle, "XNextEvent"))) return (false);
 	if (!(g_X11.XSendEvent = dlsym(g_X11.handle, "XSendEvent"))) return (false);
 	if (!(g_X11.XFlush = dlsym(g_X11.handle, "XFlush"))) return (false);
+	if (!(g_X11.XSync = dlsym(g_X11.handle, "XSync"))) return (false);
 	if (!(g_X11.XFree = dlsym(g_X11.handle, "XFree"))) return (false);
 	if (!(g_X11.XGetWindowProperty = dlsym(g_X11.handle, "XGetWindowProperty"))) return (false);
+	if (!(g_X11.XDeleteProperty = dlsym(g_X11.handle, "XDeleteProperty"))) return (false);
 	if (!(g_X11.XGetWindowAttributes = dlsym(g_X11.handle, "XGetWindowAttributes"))) return (false);
 	if (!(g_X11.XTranslateCoordinates = dlsym(g_X11.handle, "XTranslateCoordinates"))) return (false);
 	if (!(g_X11.XResizeWindow = dlsym(g_X11.handle, "XResizeWindow"))) return (false);
@@ -54,6 +56,9 @@ GFAPII bool	gf_int_initPlatformX11(void) {
 	if (!(g_X11.XGetAtomNames = dlsym(g_X11.handle, "XGetAtomNames"))) return (false);
 	if (!(g_X11.XGetDefault = dlsym(g_X11.handle, "XGetDefault"))) return (false);
 	if (!(g_X11.XDisplayName = dlsym(g_X11.handle, "XDisplayName"))) return (false);
+	if (!(g_X11.XConvertSelection = dlsym(g_X11.handle, "XConvertSelection"))) return (false);
+	if (!(g_X11.XSetSelectionOwner = dlsym(g_X11.handle, "XSetSelectionOwner"))) return (false);
+	if (!(g_X11.XGetSelectionOwner = dlsym(g_X11.handle, "XGetSelectionOwner"))) return (false);
 
 	/* SECTION: Xutil.h
 	 * */	

@@ -57,9 +57,19 @@ int	main(void) {
 
 				case (GF_EVENT_KEY_PRESS): {
 					gf_logi("EVENT: KEY PRESS (key.:%s, state:%d)\n", gf_keyToString(event.key.key), event.key.state);
+
+					if (event.key.key == GF_KEY_V) {
+						char	*c;
+						size_t	s;
+						gf_clipPaste(window, &c, &s);
+					}
 				} break;
 				case (GF_EVENT_KEY_RELEASE): {
 					gf_logi("EVENT: KEY RELEASE (key.:%s, state:%d)\n", gf_keyToString(event.key.key), event.key.state);
+				} break;
+
+				case (GF_EVENT_CLIPBOARD): {
+					gf_logi("EVENT: CLIPBOARD (data.:%s, size:%lu)\n", event.clip.data, event.clip.size);
 				} break;
 			}
 		}
